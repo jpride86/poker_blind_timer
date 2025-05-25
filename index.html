@@ -411,8 +411,16 @@ function loadStandardPreset() {
     }
   }
 
-  function startTimer() {
+function startTimer() {
   if (running || blindStructure.length === 0) return;
+
+  // 🚫 Check if all players have paid
+  const unpaidPlayers = players.filter(p => !p.paid);
+  if (players.length === 0 || unpaidPlayers.length > 0) {
+    alert("All players must be marked as paid before starting the timer.");
+    return;
+  }
+
 
   // 🔊 Prime the whistle so it's allowed to play later
   const whistle = document.getElementById("whistleSound");

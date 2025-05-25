@@ -284,7 +284,6 @@ function showPayouts() {
     payoutList.innerHTML = "<li>Too many players for preset payout table.</li>";
     return;
   }
-
 function showPayouts() {
   const payoutList = document.getElementById("payoutList");
   payoutList.innerHTML = "";
@@ -330,6 +329,8 @@ function showPayouts() {
   totalLi.style.listStyle = "none";
   totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
   payoutList.appendChild(totalLi);
+}
+
 }
 
  function pauseTimer() {

@@ -7,143 +7,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
   <link rel="apple-touch-icon" href="icon.png">
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('Service Worker registered:', reg))
-          .catch(err => console.error('Service Worker registration failed:', err));
-      });
-    }
-  
-    function addBlindLevel() {
-      const small = parseInt(document.getElementById("smallBlind").value);
-      const big = parseInt(document.getElementById("bigBlind").value);
-      const durationMin = parseInt(document.getElementById("duration").value);
-      const duration = durationMin * 60;
-
-      if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
-        blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
-        updateBlindList();
-        if (blindStructure.length === 1) {
-          currentLevel = 0;
-          timeRemaining = blindStructure[0].duration;
-          updateDisplay();
-        }
-      }
-    }
-
-    function deleteBlindLevel(index) {
-      blindStructure.splice(index, 1);
-      blindStructure.forEach((b, i) => b.level = i + 1);
-      updateBlindList();
-      if (currentLevel >= blindStructure.length) {
-        currentLevel = 0;
-        timeRemaining = blindStructure.length ? blindStructure[0].duration : 0;
-        updateDisplay();
-      }
-    }
-
-    function updateBlindList() {
-      const ul = document.getElementById("blindList");
-      ul.innerHTML = "";
-      blindStructure.forEach((b, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Delete";
-        delBtn.className = "delete-button";
-        delBtn.onclick = () => deleteBlindLevel(index);
-        li.appendChild(delBtn);
-        ul.appendChild(li);
-      });
-    }
-
-    function resetTimer() {
-      clearInterval(timerInterval);
-      running = false;
-      currentLevel = 0;
-      if (blindStructure.length > 0) {
-        timeRemaining = blindStructure[0].duration;
-        updateDisplay();
-      } else {
-        document.getElementById("countdown").textContent = "00:00";
-        document.getElementById("blindLevel").textContent = "Level 1: -- / --";
-      }
-    }
-
-    function nextLevel() {
-      currentLevel++;
-      if (currentLevel >= blindStructure.length) {
-        clearInterval(timerInterval);
-        document.getElementById("countdown").textContent = "Tournament Over";
-        return;
-      }
-      timeRemaining = blindStructure[currentLevel].duration;
-      updateDisplay();
-    }
-
-    function addPlayer() {
-      const nameInput = document.getElementById("playerName");
-      const name = nameInput.value.trim();
-      if (name && !players.some(p => p.name === name)) {
-        players.push({ name: name, buyins: 1, eliminated: false });
-        updatePlayerList();
-        nameInput.value = "";
-      }
-    }
-
-    function updatePlayerList() {
-      const list = document.getElementById("playerList");
-      list.innerHTML = "";
-      players.forEach((player, index) => {
-        const li = document.createElement("li");
-        li.className = player.eliminated ? "eliminated" : "";
-        li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
-        const buyBtn = document.createElement("button");
-        buyBtn.textContent = "+1 Buy-in";
-        buyBtn.className = "buyin-button";
-        buyBtn.onclick = () => addBuyin(index);
-
-        const koBtn = document.createElement("button");
-        koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
-        koBtn.className = "knockout-button";
-        koBtn.onclick = () => toggleElimination(index);
-
-        li.appendChild(buyBtn);
-        li.appendChild(koBtn);
-        list.appendChild(li);
-      });
-      updateRemainingCount();
-      updateKnockoutLog();
-    }
-
-    function updateKnockoutLog() {
-      const log = document.getElementById("knockoutLog");
-      log.innerHTML = "";
-      knockoutOrder.forEach((name, i) => {
-        const li = document.createElement("li");
-        li.textContent = `#${i + 1}: ${name}`;
-        log.appendChild(li);
-      });
-    }
-
-    function addBuyin(index) {
-      players[index].buyins++;
-      updatePlayerList();
-    }
-
-    function toggleElimination(index) {
-      const player = players[index];
-      player.eliminated = !player.eliminated;
-      if (player.eliminated) {
-        knockoutOrder.push(player.name);
-      } else {
-        knockoutOrder = knockoutOrder.filter(name => name !== player.name);
-      }
-      updatePlayerList();
-    }
-</script>
   <style>
     body {
       font-family: sans-serif;
@@ -156,18 +19,23 @@
     .flash {
       animation: flashRed 1s alternate infinite;
     }
+    .celebrate {
+      animation: rainbow 0.5s infinite alternate;
+    }
     @keyframes flashRed {
       from { background-color: #121212; }
       to { background-color: red; }
     }
-    .timer {
-      font-size: 3em;
-      margin: 20px 0;
+    @keyframes rainbow {
+      0% { background-color: red; }
+      20% { background-color: orange; }
+      40% { background-color: yellow; }
+      60% { background-color: green; }
+      80% { background-color: blue; }
+      100% { background-color: violet; }
     }
-    .level {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
+    .timer { font-size: 3em; margin: 20px 0; }
+    .level { font-size: 2em; margin-bottom: 10px; }
     button, input {
       padding: 10px 20px;
       font-size: 1em;
@@ -194,15 +62,31 @@
     #blindSetup {
       margin-bottom: 20px;
     }
-    #blindSetup input {
-      width: 80px;
+    #blindSetup input, #buyinSetup input {
+      width: 100px;
       margin: 0 5px;
+    }
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
+  <canvas id="confetti-canvas"></canvas>
   <audio id="whistleSound" src="https://actions.google.com/sounds/v1/sports/whistle_blow.ogg" preload="auto"></audio>
+  <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" preload="auto"></audio>
+
   <h1>Poker Blind Timer</h1>
+
+  <div id="buyinSetup" class="player-section">
+    <h2>Set Buy-In Amount</h2>
+    <input type="number" id="buyInValue" placeholder="Buy-In ($)" />
+  </div>
+
   <div class="player-section">
     <h2>Define Blind Levels</h2>
     <div id="blindSetup">
@@ -219,6 +103,7 @@
     <input type="text" id="playerName" placeholder="Enter player name" />
     <button onclick="addPlayer()">Add Player</button>
     <div id="playersRemaining">Players remaining: 0</div>
+    <div id="totalPot">Total Pot: $0</div>
     <ul id="playerList"></ul>
   </div>
 
@@ -232,55 +117,267 @@
   <button onclick="startTimer()">Start</button>
   <button onclick="pauseTimer()">Pause</button>
   <button onclick="resetTimer()">Reset</button>
+<script>
+  let blindStructure = [];
+  let currentLevel = 0;
+  let timeRemaining = 0;
+  let timerInterval;
+  let running = false;
+  let players = [];
+  let knockoutOrder = [];
+  let whistlePlayed = false;
+  let buyInAmount = 0;
 
-  <script>
-    let blindStructure = [];
-    let currentLevel = 0;
-    let timeRemaining = 0;
-    let timerInterval;
-    let running = false;
-    let players = [];
-    let knockoutOrder = [];
-    let whistlePlayed = false;
+  function updateTotalPot() {
+    const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+    const total = totalBuyIns * buyInAmount;
+    document.getElementById("totalPot").textContent = `Total Pot: $${total}`;
+  }
 
-    function updateDisplay() {
-      if (blindStructure.length === 0) return;
-      const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-      const seconds = (timeRemaining % 60).toString().padStart(2, '0');
-      document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
-      const level = blindStructure[currentLevel];
-      document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
+  function addBlindLevel() {
+    const small = parseInt(document.getElementById("smallBlind").value);
+    const big = parseInt(document.getElementById("bigBlind").value);
+    const durationMin = parseInt(document.getElementById("duration").value);
+    const duration = durationMin * 60;
 
-      if (timeRemaining <= 60 && !whistlePlayed) {
-        document.body.classList.add("flash");
-        document.getElementById("whistleSound").play();
-        whistlePlayed = true;
+    if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
+      blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
+      updateBlindList();
+      if (blindStructure.length === 1) {
+        currentLevel = 0;
+        timeRemaining = blindStructure[0].duration;
+        updateDisplay();
       }
     }
+  }
 
-    function startTimer() {
-      if (running || blindStructure.length === 0) return;
-      running = true;
-      whistlePlayed = false;
+  function deleteBlindLevel(index) {
+    blindStructure.splice(index, 1);
+    blindStructure.forEach((b, i) => b.level = i + 1);
+    updateBlindList();
+    if (currentLevel >= blindStructure.length) {
+      currentLevel = 0;
+      timeRemaining = blindStructure.length ? blindStructure[0].duration : 0;
+      updateDisplay();
+    }
+  }
+
+  function updateBlindList() {
+    const ul = document.getElementById("blindList");
+    ul.innerHTML = "";
+    blindStructure.forEach((b, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.className = "delete-button";
+      delBtn.onclick = () => deleteBlindLevel(index);
+      li.appendChild(delBtn);
+      ul.appendChild(li);
+    });
+  }
+
+  function updateDisplay() {
+    if (blindStructure.length === 0) return;
+    const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+    const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+    document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
+    const level = blindStructure[currentLevel];
+    document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
+
+    if (timeRemaining === 60 && !whistlePlayed) {
+      document.body.classList.add("flash");
+      const whistle = document.getElementById("whistleSound");
+      whistle.volume = 1.0;
+      whistle.play().catch(e => console.log("Audio play blocked:", e));
+      whistlePlayed = true;
+    }
+  }
+
+  function startTimer() {
+    if (running || blindStructure.length === 0) return;
+    running = true;
+    whistlePlayed = false;
+    document.body.classList.remove("flash");
+    timerInterval = setInterval(() => {
+      if (timeRemaining > 0) {
+        timeRemaining--;
+        updateDisplay();
+      } else {
+        clearInterval(timerInterval);
+        running = false;
+        document.getElementById("countdown").textContent = "Level Complete – Click Start to Continue";
+      }
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    clearInterval(timerInterval);
+    running = false;
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    running = false;
+    currentLevel = 0;
+    document.body.classList.remove("flash", "celebrate");
+    clearConfetti();
+    if (blindStructure.length > 0) {
+      timeRemaining = blindStructure[0].duration;
+      updateDisplay();
+    } else {
+      document.getElementById("countdown").textContent = "00:00";
+      document.getElementById("blindLevel").textContent = "Level 1: -- / --";
+    }
+  }
+
+  function nextLevel() {
+    currentLevel++;
+    if (currentLevel >= blindStructure.length) {
+      clearInterval(timerInterval);
+      document.getElementById("countdown").textContent = "Tournament Over";
       document.body.classList.remove("flash");
-      timerInterval = setInterval(() => {
-        if (timeRemaining > 0) {
-          timeRemaining--;
-          updateDisplay();
-        } else {
-          nextLevel();
-        }
-      }, 1000);
+      return;
     }
-
-    function updateRemainingCount() {
-      const remaining = players.filter(p => !p.eliminated).length;
-      document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
-      if (remaining === 1 && players.length > 1) {
-        const winner = players.find(p => !p.eliminated);
-        alert(`${winner.name} is the winner!`);
+    timeRemaining = blindStructure[currentLevel].duration;
+    whistlePlayed = false;
+    document.body.classList.remove("flash");
+    updateDisplay();
+  }
+  function addPlayer() {
+    const nameInput = document.getElementById("playerName");
+    const name = nameInput.value.trim();
+    if (!buyInAmount) {
+      const entered = parseFloat(document.getElementById("buyInValue").value);
+      if (!isNaN(entered) && entered > 0) {
+        buyInAmount = entered;
+      } else {
+        alert("Please enter a valid buy-in amount.");
+        return;
       }
     }
-  </script>
+    if (name && !players.some(p => p.name === name)) {
+      players.push({ name: name, buyins: 1, eliminated: false });
+      updatePlayerList();
+      nameInput.value = "";
+    }
+  }
+
+  function updatePlayerList() {
+    const list = document.getElementById("playerList");
+    list.innerHTML = "";
+    players.forEach((player, index) => {
+      const li = document.createElement("li");
+      li.className = player.eliminated ? "eliminated" : "";
+      li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
+      const buyBtn = document.createElement("button");
+      buyBtn.textContent = "+1 Buy-in";
+      buyBtn.className = "buyin-button";
+      buyBtn.onclick = () => addBuyin(index);
+
+      const koBtn = document.createElement("button");
+      koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
+      koBtn.className = "knockout-button";
+      koBtn.onclick = () => toggleElimination(index);
+
+      li.appendChild(buyBtn);
+      li.appendChild(koBtn);
+      list.appendChild(li);
+    });
+    updateRemainingCount();
+    updateKnockoutLog();
+    updateTotalPot();
+  }
+
+  function updateRemainingCount() {
+    const remaining = players.filter(p => !p.eliminated).length;
+    document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
+    if (remaining === 1 && players.length > 1) {
+      const winner = players.find(p => !p.eliminated);
+      celebrateWinner(winner.name);
+    }
+  }
+
+  function updateKnockoutLog() {
+    const log = document.getElementById("knockoutLog");
+    log.innerHTML = "";
+    knockoutOrder.forEach((name, i) => {
+      const li = document.createElement("li");
+      li.textContent = `#${i + 1}: ${name}`;
+      log.appendChild(li);
+    });
+  }
+
+  function addBuyin(index) {
+    players[index].buyins++;
+    updatePlayerList();
+  }
+
+  function toggleElimination(index) {
+    const player = players[index];
+    player.eliminated = !player.eliminated;
+    if (player.eliminated) {
+      knockoutOrder.push(player.name);
+    } else {
+      knockoutOrder = knockoutOrder.filter(name => name !== player.name);
+    }
+    updatePlayerList();
+  }
+
+  function celebrateWinner(name) {
+    alert(`${name} is the winner!`);
+    document.body.classList.add("celebrate");
+    startConfetti();
+    document.getElementById("winSound").play().catch(() => {});
+  }
+
+  // Simple confetti animation
+  let confettiInterval;
+  function startConfetti() {
+    const canvas = document.getElementById("confetti-canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext("2d");
+    let confetti = Array.from({length: 100}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * 50 + 10,
+      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+      tilt: Math.random() * 10 - 5
+    }));
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach((c, i) => {
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt, c.y);
+        ctx.lineTo(c.x, c.y + c.tilt);
+        ctx.stroke();
+        c.y += Math.cos(c.d) + 1 + c.r / 2;
+        c.x += Math.sin(0);
+        if (c.y > canvas.height) {
+          confetti[i] = {
+            x: Math.random() * canvas.width,
+            y: -10,
+            r: c.r,
+            d: c.d,
+            color: c.color,
+            tilt: c.tilt
+          };
+        }
+      });
+    }
+    confettiInterval = setInterval(draw, 20);
+  }
+
+  function clearConfetti() {
+    clearInterval(confettiInterval);
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+</script>
 </body>
 </html>

@@ -107,7 +107,7 @@ g<!DOCTYPE html>
     <h2>Players</h2>
     <input type="text" id="playerName" placeholder="Enter player name" />
     <button onclick="addPlayer()">Add Player</button>
-      <select id="savedPlayers">
+      <select id="savedPlayers" onchange="addSavedPlayer()">
     <option value="">-- Select Saved Player --</option>
     <option value="Andrew">Andrew</option>
     <option value="Cristian">Cristian</option>
@@ -131,8 +131,7 @@ g<!DOCTYPE html>
     <option value="Tony">Tony</option>
     <option value="Yevin">Yevin</option>
   </select>
-  <button onclick="addSavedPlayer()">Add Selected Player</button>
-
+  
     <div id="playersRemaining">Players remaining: 0</div>
     <div id="totalPot">Total Pot: $0</div>
     <ul id="playerList"></ul>

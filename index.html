@@ -629,7 +629,7 @@ function addSavedPlayer() {
   }
 }
 
-  function updatePlayerList() {
+function updatePlayerList() {
     const list = document.getElementById("playerList");
     list.innerHTML = "";
     players.forEach((player, index) => {
@@ -663,8 +663,7 @@ function removePlayer(index) {
   updatePlayerList();                     // Refresh UI
   refreshSavedPlayersDropdown();          // Rebuild dropdown
 }
-
-    
+ 
     updateRemainingCount();
     updateKnockoutLog();
     updateTotalPot();

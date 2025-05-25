@@ -758,8 +758,21 @@ function addSavedPlayer() {
   }
 }
 window.addEventListener("DOMContentLoaded", () => {
-  refreshSavedPlayersDropdown();
+  // Seed default players if none exist in localStorage
+  const initialDefaults = [
+    "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+    "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+    "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+  ];
+
+  const existing = JSON.parse(localStorage.getItem("savedPlayers"));
+  if (!existing || !Array.isArray(existing)) {
+    localStorage.setItem("savedPlayers", JSON.stringify(initialDefaults));
+  }
+
+  refreshSavedPlayersDropdown(); // rebuild dropdown based on saved data
 });
+
 
 </script>
 </body>

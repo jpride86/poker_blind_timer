@@ -87,16 +87,21 @@
     <input type="number" id="buyInValue" placeholder="Buy-In ($)" />
   </div>
 
-  <div class="player-section">
-    <h2>Define Blind Levels</h2>
-    <div id="blindSetup">
-      <input type="number" id="smallBlind" placeholder="Small Blind" />
-      <input type="number" id="bigBlind" placeholder="Big Blind" />
-      <input type="number" id="duration" placeholder="Duration (min)" />
-      <button onclick="addBlindLevel()">Add Level</button>
-    </div>
-    <ul id="blindList"></ul>
+<div class="player-section">
+  <h2>Blind Levels</h2>
+
+  <button onclick="loadStandardPreset()">Use Standard Structure</button>
+
+  <h3>Or Create Custom Level</h3>
+  <div id="blindSetup">
+    <input type="number" id="smallBlind" placeholder="Small Blind" />
+    <input type="number" id="bigBlind" placeholder="Big Blind" />
+    <input type="number" id="duration" placeholder="Duration (min)" />
+    <button onclick="addBlindLevel()">Add Level</button>
   </div>
+
+  <ul id="blindList"></ul>
+</div>
 
   <div class="player-section">
     <h2>Players</h2>

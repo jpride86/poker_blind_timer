@@ -637,26 +637,28 @@ function updatePlayerList() {
     li.className = player.eliminated ? "eliminated" : "";
     
     // Display player name and buy-ins
-   const paidCheckbox = document.createElement("input");
-paidCheckbox.type = "checkbox";
-paidCheckbox.checked = player.paid || false;
-paidCheckbox.onchange = () => {
-  player.paid = paidCheckbox.checked;
-  player.buyins = player.paid ? 1 : 0;
-  updatePlayerList(); // refresh UI and pot
-};
+    li.textContent = "";  // Clear any prior content
 
-const paidLabel = document.createElement("label");
-paidLabel.style.marginLeft = "10px";
-paidLabel.style.fontSize = "0.9em";
-paidLabel.appendChild(paidCheckbox);
-paidLabel.appendChild(document.createTextNode(" Paid"));
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = player.name;
 
-// Clear and build li content manually
-li.textContent = "";  // Clear any prior content
-li.appendChild(document.createTextNode(player.name));
-li.appendChild(paidLabel);
-li.appendChild(document.createTextNode(` - Buy-ins: ${player.buyins}`));
+    const paidIcon = document.createElement("span");
+    paidIcon.textContent = player.paid ? "💰" : "💸";
+    paidIcon.style.cursor = "pointer";
+    paidIcon.title = player.paid ? "Click to mark unpaid" : "Click to mark paid";
+    paidIcon.style.marginLeft = "10px";
+    paidIcon.onclick = () => {
+      player.paid = !player.paid;
+      player.buyins = player.paid ? 1 : 0;
+      updatePlayerList();
+    };
+
+    const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
+
+    li.appendChild(nameSpan);
+    li.appendChild(paidIcon);
+    li.appendChild(buyinsText);
+
 
 
     const buyBtn = document.createElement("button");

@@ -72,7 +72,7 @@
     <div id="blindSetup">
       <input type="number" id="smallBlind" placeholder="Small Blind" />
       <input type="number" id="bigBlind" placeholder="Big Blind" />
-      <input type="number" id="duration" placeholder="Duration (sec)" />
+      <input type="number" id="duration" placeholder="Duration (min)" />
       <button onclick="addBlindLevel()">Add Level</button>
     </div>
     <ul id="blindList"></ul>
@@ -109,7 +109,8 @@
     function addBlindLevel() {
       const small = parseInt(document.getElementById("smallBlind").value);
       const big = parseInt(document.getElementById("bigBlind").value);
-      const duration = parseInt(document.getElementById("duration").value);
+      const durationMin = parseInt(document.getElementById("duration").value);
+      const duration = durationMin * 60; // convert minutes to seconds
 
       if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
         blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
@@ -127,7 +128,7 @@
       ul.innerHTML = "";
       blindStructure.forEach(b => {
         const li = document.createElement("li");
-        li.textContent = `Level ${b.level}: ${b.small} / ${b.big} (${b.duration}s)`;
+        li.textContent = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
         ul.appendChild(li);
       });
     }

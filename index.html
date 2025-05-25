@@ -637,24 +637,27 @@ function updatePlayerList() {
     li.className = player.eliminated ? "eliminated" : "";
     
     // Display player name and buy-ins
-    li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
+   const paidCheckbox = document.createElement("input");
+paidCheckbox.type = "checkbox";
+paidCheckbox.checked = player.paid || false;
+paidCheckbox.onchange = () => {
+  player.paid = paidCheckbox.checked;
+  player.buyins = player.paid ? 1 : 0;
+  updatePlayerList(); // refresh UI and pot
+};
 
-    // ✅ "Paid" checkbox
-    const paidLabel = document.createElement("label");
-    paidLabel.style.marginLeft = "10px";
-    paidLabel.style.fontSize = "0.9em";
+const paidLabel = document.createElement("label");
+paidLabel.style.marginLeft = "10px";
+paidLabel.style.fontSize = "0.9em";
+paidLabel.appendChild(paidCheckbox);
+paidLabel.appendChild(document.createTextNode(" Paid"));
 
-    const paidCheckbox = document.createElement("input");
-    paidCheckbox.type = "checkbox";
-    paidCheckbox.checked = player.paid || false;
-    paidCheckbox.onchange = () => {
-      player.paid = paidCheckbox.checked;
-      player.buyins = player.paid ? 1 : 0;
-      updatePlayerList(); // refresh UI and pot
-    };
+// Clear and build li content manually
+li.textContent = "";  // Clear any prior content
+li.appendChild(document.createTextNode(player.name));
+li.appendChild(paidLabel);
+li.appendChild(document.createTextNode(` - Buy-ins: ${player.buyins}`));
 
-    paidLabel.appendChild(paidCheckbox);
-    paidLabel.appendChild(document.createTextNode(" Paid"));
 
     const buyBtn = document.createElement("button");
     buyBtn.textContent = "+1 Re-buy";

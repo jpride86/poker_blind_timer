@@ -566,9 +566,10 @@ function showPayouts() {
 function savePlayerToLocal(name) {
   let saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
 
-  if (!saved.includes(name)) {
+  // Check using case-insensitive comparison
+  if (!saved.some(n => n.toLowerCase() === name.toLowerCase())) {
     saved.push(name);
-    saved.sort(); // optional
+    saved.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())); // optional
     localStorage.setItem("savedPlayers", JSON.stringify(saved));
     refreshSavedPlayersDropdown();
   }

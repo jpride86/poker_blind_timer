@@ -285,24 +285,52 @@ function showPayouts() {
     return;
   }
 
-structure.forEach((pct, i) => {
-  const li = document.createElement("li");
-  const amount = (totalPot * pct).toFixed(2);
-  const percent = (pct * 100).toFixed(0);
-  li.textContent = `${places[i]} Place (${percent}%): $${amount}`;
-  payoutList.appendChild(li);
-});
+function showPayouts() {
+  const payoutList = document.getElementById("payoutList");
+  payoutList.innerHTML = "";
 
-// Add total pot at the bottom
-const totalLi = document.createElement("li");
-totalLi.style.marginTop = "10px";
-totalLi.style.fontWeight = "bold";
-totalLi.style.listStyle = "none"; // remove bullet if any
-totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
-payoutList.appendChild(totalLi);
+  if (!buyInAmount || isNaN(buyInAmount) || buyInAmount <= 0) {
+    payoutList.innerHTML = "<li>Please enter a valid buy-in amount before adding players.</li>";
+    return;
+  }
 
+  const totalPlayers = players.length;
+  const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+  const totalPot = totalBuyIns * buyInAmount;
+
+  if (totalPlayers < 1) {
+    payoutList.innerHTML = "<li>No players added yet.</li>";
+    return;
+  }
+
+  let structure = [];
+  if (totalPlayers <= 10) {
+    structure = [0.5, 0.3, 0.2];
+  } else if (totalPlayers <= 20) {
+    structure = [0.5, 0.25, 0.15, 0.10];
+  } else if (totalPlayers <= 30) {
+    structure = [0.4, 0.25, 0.2, 0.1, 0.05];
+  } else {
+    payoutList.innerHTML = "<li>Too many players for preset payout table.</li>";
+    return;
+  }
+
+  const places = ["1st", "2nd", "3rd", "4th", "5th"];
+  structure.forEach((pct, i) => {
+    const li = document.createElement("li");
+    const amount = (totalPot * pct).toFixed(2);
+    const percent = (pct * 100).toFixed(0);
+    li.textContent = `${places[i]} Place (${percent}%): $${amount}`;
+    payoutList.appendChild(li);
+  });
+
+  const totalLi = document.createElement("li");
+  totalLi.style.marginTop = "10px";
+  totalLi.style.fontWeight = "bold";
+  totalLi.style.listStyle = "none";
+  totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
+  payoutList.appendChild(totalLi);
 }
-
 
  function pauseTimer() {
   if (timerInterval) {

@@ -197,7 +197,17 @@
   function startTimer() {
   if (running || blindStructure.length === 0) return;
 
-  // Advance to next level if timer is zero
+  // 🔊 Prime the whistle so it's allowed to play later
+  const whistle = document.getElementById("whistleSound");
+  try {
+    whistle.play();
+    whistle.pause();
+    whistle.currentTime = 0;
+  } catch (e) {
+    console.log("Priming whistle failed:", e);
+  }
+
+  // ⏭️ Advance to next level if timer is 0
   if (timeRemaining === 0) {
     currentLevel++;
     if (currentLevel >= blindStructure.length) {
@@ -217,11 +227,14 @@
       timeRemaining--;
       updateDisplay();
 
+      // 🔔 Trigger whistle and flashing at 1 minute
       if (timeRemaining === 60 && !whistlePlayed) {
         document.body.classList.add("flash");
-        const whistle = document.getElementById("whistleSound");
-        whistle.volume = 1.0;
-        whistle.play().catch(e => console.log("Audio play blocked:", e));
+        try {
+          whistle.play();
+        } catch (e) {
+          console.log("Whistle blocked:", e);
+        }
         whistlePlayed = true;
       }
 
@@ -232,6 +245,7 @@
     }
   }, 1000);
 }
+
 
 
 

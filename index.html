@@ -110,7 +110,7 @@
       const small = parseInt(document.getElementById("smallBlind").value);
       const big = parseInt(document.getElementById("bigBlind").value);
       const durationMin = parseInt(document.getElementById("duration").value);
-      const duration = durationMin * 60; // convert minutes to seconds
+      const duration = durationMin * 60;
 
       if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
         blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
@@ -123,12 +123,24 @@
       }
     }
 
+    function deleteBlindLevel(index) {
+      blindStructure.splice(index, 1);
+      // Re-index levels
+      blindStructure.forEach((b, i) => b.level = i + 1);
+      updateBlindList();
+      if (currentLevel >= blindStructure.length) {
+        currentLevel = 0;
+        timeRemaining = blindStructure.length ? blindStructure[0].duration : 0;
+        updateDisplay();
+      }
+    }
+
     function updateBlindList() {
       const ul = document.getElementById("blindList");
       ul.innerHTML = "";
-      blindStructure.forEach(b => {
+      blindStructure.forEach((b, index) => {
         const li = document.createElement("li");
-        li.textContent = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
+        li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m) <button onclick="deleteBlindLevel(${index})">Delete</button>`;
         ul.appendChild(li);
       });
     }

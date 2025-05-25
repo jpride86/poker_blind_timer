@@ -819,6 +819,32 @@ function removePlayer(index) {
   updatePlayerList();                     // Refresh UI
   refreshSavedPlayersDropdown();          // Rebuild dropdown
 }
+
+function calculateDealerSplit() {
+  const dealerFee = parseFloat(document.getElementById("dealerFee").value);
+  if (isNaN(dealerFee) || dealerFee <= 0) {
+    alert("Please enter a valid dealer fee.");
+    return;
+  }
+
+  const dealerCheckboxes = document.querySelectorAll("#dealerSelect input[name='dealer']:checked");
+  const dealerNames = Array.from(dealerCheckboxes).map(cb => cb.value);
+
+  if (dealerNames.length === 0) {
+    alert("Please select at least one dealer.");
+    return;
+  }
+
+  // Count how many players are NOT dealers
+  const payingPlayers = players.filter(p => !dealerNames.includes(p.name));
+  const numPayers = payingPlayers.length;
+  const totalCollected = dealerFee * numPayers;
+  const payoutPerDealer = totalCollected / dealerNames.length;
+
+  const resultText = `Total: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames.join(", ")}): $${payoutPerDealer.toFixed(2)}`;
+  document.getElementById("dealerResult").textContent = resultText;
+}
+
   
 </script>
 </body>

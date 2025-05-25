@@ -95,7 +95,6 @@
       const level = blindStructure[currentLevel];
       document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
 
-      // Flash red background and play whistle
       if (timeRemaining <= 60 && !whistlePlayed) {
         document.body.classList.add("flash");
         document.getElementById("whistleSound").play();
@@ -116,6 +115,15 @@
           nextLevel();
         }
       }, 1000);
+    }
+
+    function updateRemainingCount() {
+      const remaining = players.filter(p => !p.eliminated).length;
+      document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
+      if (remaining === 1 && players.length > 1) {
+        const winner = players.find(p => !p.eliminated);
+        alert(`${winner.name} is the winner!`);
+      }
     }
   </script>
 </body>

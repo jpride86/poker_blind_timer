@@ -165,6 +165,13 @@ g<!DOCTYPE html>
   let whistlePlayed = false;
   let buyInAmount = 0;
 
+const savedPlayerNames = [
+  "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+  "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+  "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+];
+
+  
   function updateTotalPot() {
     const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
     const total = totalBuyIns * buyInAmount;

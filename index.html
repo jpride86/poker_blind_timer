@@ -635,18 +635,26 @@ function updatePlayerList() {
   players.forEach((player, index) => {
     const li = document.createElement("li");
     li.className = player.eliminated ? "eliminated" : "";
+    
+    // Display player name and buy-ins
     li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
 
-    // 🟩 Paid checkbox
+    // ✅ "Paid" checkbox
+    const paidLabel = document.createElement("label");
+    paidLabel.style.marginLeft = "10px";
+    paidLabel.style.fontSize = "0.9em";
+
     const paidCheckbox = document.createElement("input");
     paidCheckbox.type = "checkbox";
     paidCheckbox.checked = player.paid || false;
-    paidCheckbox.style.marginLeft = "10px";
-    paidCheckbox.onclick = () => {
+    paidCheckbox.onchange = () => {
       player.paid = paidCheckbox.checked;
       player.buyins = player.paid ? 1 : 0;
       updatePlayerList(); // refresh UI and pot
     };
+
+    paidLabel.appendChild(paidCheckbox);
+    paidLabel.appendChild(document.createTextNode(" Paid"));
 
     const buyBtn = document.createElement("button");
     buyBtn.textContent = "+1 Re-buy";
@@ -663,7 +671,7 @@ function updatePlayerList() {
     removeBtn.className = "delete-button";
     removeBtn.onclick = () => removePlayer(index);
 
-    li.appendChild(paidCheckbox);
+    li.appendChild(paidLabel);
     li.appendChild(buyBtn);
     li.appendChild(koBtn);
     li.appendChild(removeBtn);
@@ -674,6 +682,7 @@ function updatePlayerList() {
   updateKnockoutLog();
   updateTotalPot();
 }
+
 
   function updateRemainingCount() {
     const remaining = players.filter(p => !p.eliminated).length;

@@ -658,12 +658,6 @@ function updatePlayerList() {
   list.appendChild(li);
 });
 
-function removePlayer(index) {
-  players.splice(index, 1);               // Remove from player list
-  updatePlayerList();                     // Refresh UI
-  refreshSavedPlayersDropdown();          // Rebuild dropdown
-}
- 
     updateRemainingCount();
     updateKnockoutLog();
     updateTotalPot();
@@ -787,7 +781,12 @@ window.addEventListener("DOMContentLoaded", () => {
   refreshSavedPlayersDropdown(); // rebuild dropdown based on saved data
 });
 
-
+function removePlayer(index) {
+  players.splice(index, 1);               // Remove from player list
+  updatePlayerList();                     // Refresh UI
+  refreshSavedPlayersDropdown();          // Rebuild dropdown
+}
+  
 </script>
 </body>
 </html>

@@ -550,7 +550,7 @@ function showPayouts() {
   }
   function addPlayer() {
   const nameInput = document.getElementById("playerName");
-  const name = nameInput.value.trim();
+  const name = toTitleCase(nameInput.value.trim());
 
   if (!buyInAmount) {
     const entered = parseFloat(document.getElementById("buyInValue").value);

@@ -219,9 +219,10 @@
   <input type="number" id="bigBlind" placeholder="Big Blind" />
   <input type="number" id="duration" placeholder="Duration (min)" />
   <button class="default-button" onclick="addBlindLevel()">Add Level</button>
-
 </div>
 
+  <button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
+  
   <ul id="blindList"></ul>
 </div>
 
@@ -698,6 +699,20 @@ function addSavedPlayer() {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
+
+  function toggleCustomBlind() {
+  const setup = document.getElementById("blindSetup");
+  const toggleBtn = document.getElementById("toggleCustomBtn");
+
+  if (setup.style.display === "none") {
+    setup.style.display = "block";
+    toggleBtn.textContent = "Hide Custom Blind Setup";
+  } else {
+    setup.style.display = "none";
+    toggleBtn.textContent = "Show Custom Blind Setup";
+  }
+}
+
 </script>
 </body>
 </html>

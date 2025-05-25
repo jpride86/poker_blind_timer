@@ -416,12 +416,22 @@ function showPayouts() {
 function addSavedPlayer() {
   const select = document.getElementById("savedPlayers");
   const name = select.value;
+
   if (name && !players.some(p => p.name === name)) {
     players.push({ name: name, buyins: 1, eliminated: false });
     updatePlayerList();
+
+    // Remove selected option from the dropdown
+    const selectedOption = select.querySelector(`option[value="${name}"]`);
+    if (selectedOption) {
+      selectedOption.remove();
+    }
+
+    // Reset dropdown back to placeholder
+    select.selectedIndex = 0;
   }
-  select.value = "";
 }
+
 
   function updatePlayerList() {
     const list = document.getElementById("playerList");

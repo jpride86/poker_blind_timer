@@ -462,6 +462,17 @@ function addSavedPlayer() {
   const select = document.getElementById("savedPlayers");
   const name = select.value;
 
+  if (!buyInAmount) {
+    const entered = parseFloat(document.getElementById("buyInValue").value);
+    if (!isNaN(entered) && entered > 0) {
+      buyInAmount = entered;
+    } else {
+      alert("Please enter a valid buy-in amount.");
+      select.selectedIndex = 0;
+      return;
+    }
+  }
+
   if (name && !players.some(p => p.name === name)) {
     players.push({ name: name, buyins: 1, eliminated: false });
     updatePlayerList();
@@ -476,7 +487,6 @@ function addSavedPlayer() {
     select.selectedIndex = 0;
   }
 }
-
 
   function updatePlayerList() {
     const list = document.getElementById("playerList");

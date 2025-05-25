@@ -630,38 +630,50 @@ function addSavedPlayer() {
 }
 
 function updatePlayerList() {
-    const list = document.getElementById("playerList");
-    list.innerHTML = "";
-    players.forEach((player, index) => {
-  const li = document.createElement("li");
-  li.className = player.eliminated ? "eliminated" : "";
-  li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
+  const list = document.getElementById("playerList");
+  list.innerHTML = "";
+  players.forEach((player, index) => {
+    const li = document.createElement("li");
+    li.className = player.eliminated ? "eliminated" : "";
+    li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
 
-  const buyBtn = document.createElement("button");
-  buyBtn.textContent = "+1 Re-buy";
-  buyBtn.className = "buyin-button";
-  buyBtn.onclick = () => addBuyin(index);
+    // 🟩 Paid checkbox
+    const paidCheckbox = document.createElement("input");
+    paidCheckbox.type = "checkbox";
+    paidCheckbox.checked = player.paid || false;
+    paidCheckbox.style.marginLeft = "10px";
+    paidCheckbox.onclick = () => {
+      player.paid = paidCheckbox.checked;
+      player.buyins = player.paid ? 1 : 0;
+      updatePlayerList(); // refresh UI and pot
+    };
 
-  const koBtn = document.createElement("button");
-  koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
-  koBtn.className = "knockout-button";
-  koBtn.onclick = () => toggleElimination(index);
+    const buyBtn = document.createElement("button");
+    buyBtn.textContent = "+1 Re-buy";
+    buyBtn.className = "buyin-button";
+    buyBtn.onclick = () => addBuyin(index);
 
-  const removeBtn = document.createElement("button");
-  removeBtn.textContent = "Remove";
-  removeBtn.className = "delete-button";
-  removeBtn.onclick = () => removePlayer(index);  // 👈 you'll define this below
+    const koBtn = document.createElement("button");
+    koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
+    koBtn.className = "knockout-button";
+    koBtn.onclick = () => toggleElimination(index);
 
-  li.appendChild(buyBtn);
-  li.appendChild(koBtn);
-  li.appendChild(removeBtn); // 👈 new
-  list.appendChild(li);
-});
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Remove";
+    removeBtn.className = "delete-button";
+    removeBtn.onclick = () => removePlayer(index);
 
-    updateRemainingCount();
-    updateKnockoutLog();
-    updateTotalPot();
-  }
+    li.appendChild(paidCheckbox);
+    li.appendChild(buyBtn);
+    li.appendChild(koBtn);
+    li.appendChild(removeBtn);
+    list.appendChild(li);
+  });
+
+  updateRemainingCount();
+  updateKnockoutLog();
+  updateTotalPot();
+}
 
   function updateRemainingCount() {
     const remaining = players.filter(p => !p.eliminated).length;

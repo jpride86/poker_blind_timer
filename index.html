@@ -249,10 +249,15 @@
 
 
 
-  function pauseTimer() {
+ function pauseTimer() {
+  if (timerInterval) {
     clearInterval(timerInterval);
+    timerInterval = null;
     running = false;
+    document.body.classList.remove("flash");
   }
+}
+
 
   function resetTimer() {
     clearInterval(timerInterval);

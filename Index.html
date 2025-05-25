@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Blind Timer</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#121212" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker registered:', reg))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #121212; color: white; padding: 30px; }
+    .timer { font-size: 3em; margin: 20px 0; }
+    .level { font-size: 2em; margin-bottom: 10px; }
+    button, input { padding: 10px 20px; font-size: 1em; margin: 5px; }
+    .spotify-player, .player-section { margin: 20px 0; }
+    #playerList, #knockoutLog { margin-top: 10px; list-style: none; padding: 0; }
+    #playerList li, #knockoutLog li { margin: 5px 0; }
+    .buyin-button, .knockout-button { margin-left: 10px; }
+    .eliminated { text-decoration: line-through; color: gray; }
+  </style>
+</head>
+<body>
+  <h1>Poker Blind Timer</h1>
+
+  <div class="spotify-player">
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5uokaTN4FTR?utm_source=generator"
+    width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"></iframe>
+  </div>
+
+  <div class="player-section">
+    <h2>Players</h2>
+    <input type="text" id="playerName" placeholder="Enter player name" />
+    <button onclick="addPlayer()">Add Player</button>
+    <div id="playersRemaining">Players remaining: 0</div>
+    <ul id="playerList"></ul>
+  </div>
+
+  <div class="player-section">
+    <h2>Knockout Log</h2>
+    <ul id="knockoutLog"></ul>
+  </div>
+
+  <div class="level" id="blindLevel">Level 1: 100 / 200</div>
+  <div class="timer" id="countdown">10:00</div>
+  <button onclick="startTimer()">Start</button>
+  <button onclick="pauseTimer()">Pause</button>
+  <button onclick="resetTimer()">Reset</button>
+
+  <script>
+    const blindStructure = [
+      { level: 1, small: 100, big: 200, duration: 600 },
+      { level: 2, small: 200, big: 400, duration: 600 },
+      { level: 3, small: 300, big: 600, duration: 600 },
+      { level: 4, small: 400, big: 800, duration: 600 },
+      { level: 5, small: 500, big: 1000, duration: 600 }
+    ];
+
+    let currentLevel = 0;
+    let timeRemaining = blindStructure[currentLevel].duration;
+    let timerInterval;
+    let running = false;
+    let players = [];
+    let knockoutOrder = [];
+
+    function updateDisplay() {
+      const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+      const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+      document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
+      const level = blindStructure[currentLevel];
+      document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
+    }
+
+    function startTimer() {
+      if (running) return;
+      running = true;
+      timerInterval = setInterval(() => {
+        if (timeRemaining > 0) {
+          timeRemaining--;
+          updateDisplay();
+        } else {
+          nextLevel();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      running = false;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      currentLevel = 0;
+      timeRemaining = blindStructure[currentLevel].duration;
+      updateDisplay();
+    }
+
+    function nextLevel() {
+      currentLevel++;
+      if (currentLevel >= blindStructure.length) {
+        clearInterval(timerInterval);
+        document.getElementById("countdown").textContent = "Tournament Over";
+        return;
+      }
+      timeRemaining = blindStructure[currentLevel].duration;
+      updateDisplay();
+    }
+
+    function addPlayer() {
+      const nameInput = document.getElementById("playerName");
+      const name = nameInput.value.trim();
+      if (name && !players.some(p => p.name === name)) {
+        players.push({ name: name, buyins: 1, eliminated: false });
+        updatePlayerList();
+        nameInput.value = "";
+      }
+    }
+
+    function updatePlayerList() {
+      const list = document.getElementById("playerList");
+      list.innerHTML = "";
+      players.forEach((player, index) => {
+        const li = document.createElement("li");
+        li.className = player.eliminated ? "eliminated" : "";
+        li.innerHTML = `
+          ${player.name} - Buy-ins: ${player.buyins}
+          <button class='buyin-button' onclick='addBuyin(${in

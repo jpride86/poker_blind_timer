@@ -541,23 +541,54 @@ function showPayouts() {
     updateDisplay();
   }
   function addPlayer() {
-    const nameInput = document.getElementById("playerName");
-    const name = nameInput.value.trim();
-    if (!buyInAmount) {
-      const entered = parseFloat(document.getElementById("buyInValue").value);
-      if (!isNaN(entered) && entered > 0) {
-        buyInAmount = entered;
-      } else {
-        alert("Please enter a valid buy-in amount.");
-        return;
-      }
-    }
-    if (name && !players.some(p => p.name === name)) {
-      players.push({ name: name, buyins: 1, eliminated: false });
-      updatePlayerList();
-      nameInput.value = "";
+  const nameInput = document.getElementById("playerName");
+  const name = nameInput.value.trim();
+
+  if (!buyInAmount) {
+    const entered = parseFloat(document.getElementById("buyInValue").value);
+    if (!isNaN(entered) && entered > 0) {
+      buyInAmount = entered;
+    } else {
+      alert("Please enter a valid buy-in amount.");
+      return;
     }
   }
+
+  if (name && !players.some(p => p.name === name)) {
+    players.push({ name: name, buyins: 1, eliminated: false });
+    updatePlayerList();
+    nameInput.value = "";
+
+    // Save to local storage for future sessions
+    savePlayerToLocal(name);
+  }
+}
+function savePlayerToLocal(name) {
+  let saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
+
+  if (!saved.includes(name)) {
+    saved.push(name);
+    saved.sort(); // optional
+    localStorage.setItem("savedPlayers", JSON.stringify(saved));
+    refreshSavedPlayersDropdown();
+  }
+}
+
+function refreshSavedPlayersDropdown() {
+  const dropdown = document.getElementById("savedPlayers");
+  const saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
+
+  dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
+  saved.forEach(name => {
+    if (!players.some(p => p.name === name)) {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      dropdown.appendChild(option);
+    }
+  });
+}
+
 function addSavedPlayer() {
   const select = document.getElementById("savedPlayers");
   const name = select.value;
@@ -716,6 +747,9 @@ function addSavedPlayer() {
     toggleBtn.textContent = "Show Custom Blind Setup";
   }
 }
+window.addEventListener("DOMContentLoaded", () => {
+  refreshSavedPlayersDropdown();
+});
 
 </script>
 </body>

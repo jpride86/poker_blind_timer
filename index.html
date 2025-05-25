@@ -254,6 +254,35 @@
 }
 
 
+function showPayouts() {
+  const totalPlayers = players.length;
+  const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+  const totalPot = totalBuyIns * buyInAmount;
+
+  const payoutList = document.getElementById("payoutList");
+  payoutList.innerHTML = "";
+
+  let structure = [];
+
+  if (totalPlayers <= 10) {
+    structure = [0.5, 0.3, 0.2];
+  } else if (totalPlayers <= 20) {
+    structure = [0.5, 0.25, 0.15, 0.10];
+  } else if (totalPlayers <= 30) {
+    structure = [0.4, 0.25, 0.2, 0.1, 0.05];
+  } else {
+    payoutList.innerHTML = `<li>Too many players for preset payout table.</li>`;
+    return;
+  }
+
+  const places = ["1st", "2nd", "3rd", "4th", "5th"];
+  structure.forEach((pct, i) => {
+    const li = document.createElement("li");
+    const amount = (totalPot * pct).toFixed(2);
+    li.textContent = `${places[i]} Place: $${amount}`;
+    payoutList.appendChild(li);
+  });
+}
 
 
  function pauseTimer() {

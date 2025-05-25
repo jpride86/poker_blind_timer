@@ -103,39 +103,49 @@
   <ul id="blindList"></ul>
 </div>
 
-  <div class="player-section">
-    <h2>Players</h2>
+<div class="player-section">
+  <h2>Players</h2>
+
+  <!-- Saved player dropdown FIRST -->
+  <div style="margin-bottom: 15px;">
+    <label for="savedPlayers"><strong>Select Saved Player:</strong></label><br>
+    <select id="savedPlayers" onchange="addSavedPlayer()">
+      <option value="">-- Select Saved Player --</option>
+      <option value="Andrew">Andrew</option>
+      <option value="Cristian">Cristian</option>
+      <option value="Dan">Dan</option>
+      <option value="Eddie">Eddie</option>
+      <option value="Eduardo">Eduardo</option>
+      <option value="Fréd">Fréd</option>
+      <option value="Jamie">Jamie</option>
+      <option value="Jason">Jason</option>
+      <option value="Jeffrey J">Jeffrey J</option>
+      <option value="Jeffrey M">Jeffrey M</option>
+      <option value="Josh">Josh</option>
+      <option value="Kerwin">Kerwin</option>
+      <option value="Lisa">Lisa</option>
+      <option value="Monish">Monish</option>
+      <option value="Nima">Nima</option>
+      <option value="Paul">Paul</option>
+      <option value="Phillip">Phillip</option>
+      <option value="Rosy">Rosy</option>
+      <option value="Seamus">Seamus</option>
+      <option value="Tony">Tony</option>
+      <option value="Yevin">Yevin</option>
+    </select>
+  </div>
+
+  <!-- Manual player input BELOW -->
+  <div style="margin-bottom: 15px;">
+    <label for="playerName"><strong>Or Add Manually:</strong></label><br>
     <input type="text" id="playerName" placeholder="Enter player name" />
     <button onclick="addPlayer()">Add Player</button>
-      <select id="savedPlayers" onchange="addSavedPlayer()">
-    <option value="">-- Select Saved Player --</option>
-    <option value="Andrew">Andrew</option>
-    <option value="Cristian">Cristian</option>
-    <option value="Dan">Dan</option>
-    <option value="Eddie">Eddie</option>
-    <option value="Eduardo">Eduardo</option>
-    <option value="Fréd">Fréd</option>
-    <option value="Jamie">Jamie</option>
-    <option value="Jason">Jason</option>
-    <option value="Jeffrey J">Jeffrey J</option>
-    <option value="Jeffrey M">Jeffrey M</option>
-    <option value="Josh">Josh</option>
-    <option value="Kerwin">Kerwin</option>
-    <option value="Lisa">Lisa</option>
-    <option value="Monish">Monish</option>
-    <option value="Nima">Nima</option>
-    <option value="Paul">Paul</option>
-    <option value="Phillip">Phillip</option>
-    <option value="Rosy">Rosy</option>
-    <option value="Seamus">Seamus</option>
-    <option value="Tony">Tony</option>
-    <option value="Yevin">Yevin</option>
-  </select>
-  
-    <div id="playersRemaining">Players remaining: 0</div>
-    <div id="totalPot">Total Pot: $0</div>
-    <ul id="playerList"></ul>
   </div>
+
+  <div id="playersRemaining">Players remaining: 0</div>
+  <div id="totalPot">Total Pot: $0</div>
+  <ul id="playerList"></ul>
+</div>
 
   <div class="player-section">
     <h2>Knockout Log</h2>

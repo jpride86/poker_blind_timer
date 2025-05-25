@@ -8,72 +8,100 @@
   <meta name="theme-color" content="#121212">
   <link rel="apple-touch-icon" href="icon.png">
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      background: #121212;
-      color: white;
-      padding: 30px;
-      transition: background-color 0.5s ease;
-    }
-    .flash {
-      animation: flashRed 1s alternate infinite;
-    }
-    .celebrate {
-      animation: rainbow 0.5s infinite alternate;
-    }
-    @keyframes flashRed {
-      from { background-color: #121212; }
-      to { background-color: red; }
-    }
-    @keyframes rainbow {
-      0% { background-color: red; }
-      20% { background-color: orange; }
-      40% { background-color: yellow; }
-      60% { background-color: green; }
-      80% { background-color: blue; }
-      100% { background-color: violet; }
-    }
-    .timer { font-size: 3em; margin: 20px 0; }
-    .level { font-size: 2em; margin-bottom: 10px; }
-    button, input {
-      padding: 10px 20px;
-      font-size: 1em;
-      margin: 5px;
-    }
-    .player-section {
-      margin: 20px 0;
-    }
-    #playerList, #knockoutLog, #blindList, #payoutList {
-  margin-top: 10px;
-  list-style: none;
-  padding: 0;
-}
-    #playerList li, #knockoutLog li, #blindList li {
-      margin: 8px 0;
-    }
-    .buyin-button, .knockout-button, .delete-button {
-      margin-left: 10px;
-    }
-    .eliminated {
-      text-decoration: line-through;
-      color: gray;
-    }
-    #blindSetup {
-      margin-bottom: 20px;
-    }
-    #blindSetup input, #buyinSetup input {
-      width: 100px;
-      margin: 0 5px;
-    }
-    #confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 9999;
-    }
-  </style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #121212;
+    color: white;
+    padding: 30px;
+    transition: background-color 0.5s ease;
+  }
+
+  .flash {
+    animation: flashRed 1s alternate infinite;
+  }
+
+  .celebrate {
+    animation: rainbow 0.5s infinite alternate;
+  }
+
+  @keyframes flashRed {
+    from { background-color: #121212; }
+    to { background-color: red; }
+  }
+
+  @keyframes rainbow {
+    0% { background-color: red; }
+    20% { background-color: orange; }
+    40% { background-color: yellow; }
+    60% { background-color: green; }
+    80% { background-color: blue; }
+    100% { background-color: violet; }
+  }
+
+  .timer {
+    font-size: 3em;
+    margin: 20px 0;
+  }
+
+  .level {
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+
+  button, input, select {
+    display: block;
+    padding: 10px 20px;
+    font-size: 1em;
+    margin: 10px auto;
+    width: 90%;
+    max-width: 300px;
+    box-sizing: border-box;
+  }
+
+  .player-section {
+    margin: 20px 0;
+  }
+
+  #playerList, #knockoutLog, #blindList, #payoutList {
+    margin-top: 10px;
+    list-style: none;
+    padding: 0;
+  }
+
+  #playerList li, #knockoutLog li, #blindList li {
+    margin: 8px 0;
+  }
+
+  .buyin-button, .knockout-button, .delete-button {
+    display: inline-block;
+    margin-left: 10px;
+    width: auto;
+  }
+
+  .eliminated {
+    text-decoration: line-through;
+    color: gray;
+  }
+
+  #blindSetup {
+    margin-bottom: 20px;
+  }
+
+  #blindSetup input, #buyinSetup input {
+    width: 100px;
+    margin: 0 5px;
+  }
+
+  #confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+</style>
+
 </head>
 <body>
   <canvas id="confetti-canvas"></canvas>

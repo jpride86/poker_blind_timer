@@ -304,6 +304,14 @@ const savedPlayerNames = [
   "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
   "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
 ];
+function toTitleCase(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .filter(word => word) // skip empty entries from double spaces
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
   
   function updateTotalPot() {

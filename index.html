@@ -15,7 +15,135 @@
           .catch(err => console.error('Service Worker registration failed:', err));
       });
     }
-  </script>
+  
+    function addBlindLevel() {
+      const small = parseInt(document.getElementById("smallBlind").value);
+      const big = parseInt(document.getElementById("bigBlind").value);
+      const durationMin = parseInt(document.getElementById("duration").value);
+      const duration = durationMin * 60;
+
+      if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
+        blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
+        updateBlindList();
+        if (blindStructure.length === 1) {
+          currentLevel = 0;
+          timeRemaining = blindStructure[0].duration;
+          updateDisplay();
+        }
+      }
+    }
+
+    function deleteBlindLevel(index) {
+      blindStructure.splice(index, 1);
+      blindStructure.forEach((b, i) => b.level = i + 1);
+      updateBlindList();
+      if (currentLevel >= blindStructure.length) {
+        currentLevel = 0;
+        timeRemaining = blindStructure.length ? blindStructure[0].duration : 0;
+        updateDisplay();
+      }
+    }
+
+    function updateBlindList() {
+      const ul = document.getElementById("blindList");
+      ul.innerHTML = "";
+      blindStructure.forEach((b, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "delete-button";
+        delBtn.onclick = () => deleteBlindLevel(index);
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+      });
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      running = false;
+      currentLevel = 0;
+      if (blindStructure.length > 0) {
+        timeRemaining = blindStructure[0].duration;
+        updateDisplay();
+      } else {
+        document.getElementById("countdown").textContent = "00:00";
+        document.getElementById("blindLevel").textContent = "Level 1: -- / --";
+      }
+    }
+
+    function nextLevel() {
+      currentLevel++;
+      if (currentLevel >= blindStructure.length) {
+        clearInterval(timerInterval);
+        document.getElementById("countdown").textContent = "Tournament Over";
+        return;
+      }
+      timeRemaining = blindStructure[currentLevel].duration;
+      updateDisplay();
+    }
+
+    function addPlayer() {
+      const nameInput = document.getElementById("playerName");
+      const name = nameInput.value.trim();
+      if (name && !players.some(p => p.name === name)) {
+        players.push({ name: name, buyins: 1, eliminated: false });
+        updatePlayerList();
+        nameInput.value = "";
+      }
+    }
+
+    function updatePlayerList() {
+      const list = document.getElementById("playerList");
+      list.innerHTML = "";
+      players.forEach((player, index) => {
+        const li = document.createElement("li");
+        li.className = player.eliminated ? "eliminated" : "";
+        li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
+        const buyBtn = document.createElement("button");
+        buyBtn.textContent = "+1 Buy-in";
+        buyBtn.className = "buyin-button";
+        buyBtn.onclick = () => addBuyin(index);
+
+        const koBtn = document.createElement("button");
+        koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
+        koBtn.className = "knockout-button";
+        koBtn.onclick = () => toggleElimination(index);
+
+        li.appendChild(buyBtn);
+        li.appendChild(koBtn);
+        list.appendChild(li);
+      });
+      updateRemainingCount();
+      updateKnockoutLog();
+    }
+
+    function updateKnockoutLog() {
+      const log = document.getElementById("knockoutLog");
+      log.innerHTML = "";
+      knockoutOrder.forEach((name, i) => {
+        const li = document.createElement("li");
+        li.textContent = `#${i + 1}: ${name}`;
+        log.appendChild(li);
+      });
+    }
+
+    function addBuyin(index) {
+      players[index].buyins++;
+      updatePlayerList();
+    }
+
+    function toggleElimination(index) {
+      const player = players[index];
+      player.eliminated = !player.eliminated;
+      if (player.eliminated) {
+        knockoutOrder.push(player.name);
+      } else {
+        knockoutOrder = knockoutOrder.filter(name => name !== player.name);
+      }
+      updatePlayerList();
+    }
+</script>
   <style>
     body {
       font-family: sans-serif;

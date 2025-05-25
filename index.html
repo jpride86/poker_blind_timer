@@ -600,7 +600,7 @@ function refreshSavedPlayersDropdown() {
 
 function addSavedPlayer() {
   const select = document.getElementById("savedPlayers");
-  const name = select.value;
+  const name = toTitleCase(select.value.trim());
 
   if (!buyInAmount) {
     const entered = parseFloat(document.getElementById("buyInValue").value);

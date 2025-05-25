@@ -204,7 +204,10 @@
     ul.innerHTML = "";
     blindStructure.forEach((b, index) => {
       const li = document.createElement("li");
-      li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
+      li.innerHTML = b.break
+  ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`
+  : `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)} min)`;
+
       const delBtn = document.createElement("button");
       delBtn.textContent = "Delete";
       delBtn.className = "delete-button";

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+g<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -414,6 +414,14 @@ function showPayouts() {
       nameInput.value = "";
     }
   }
+function addSavedPlayer() {
+  const select = document.getElementById("savedPlayers");
+  const name = select.value;
+  if (name && !players.some(p => p.name === name)) {
+    players.push({ name: name, buyins: 1, eliminated: false });
+    updatePlayerList();
+  }
+}
 
   function updatePlayerList() {
     const list = document.getElementById("playerList");

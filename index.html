@@ -550,7 +550,8 @@ function showPayouts() {
   }
   function addPlayer() {
   const nameInput = document.getElementById("playerName");
-  const name = toTitleCase(nameInput.value.trim());
+  const rawName = nameInput.value.trim();
+  const name = toTitleCase(rawName);
 
   if (!buyInAmount) {
     const entered = parseFloat(document.getElementById("buyInValue").value);
@@ -567,10 +568,10 @@ function showPayouts() {
     updatePlayerList();
     nameInput.value = "";
 
-    // Save to local storage for future sessions
-    savePlayerToLocal(name);
+    savePlayerToLocal(name);  // ✅ now passing normalized
   }
 }
+
 function savePlayerToLocal(name) {
   let saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
 

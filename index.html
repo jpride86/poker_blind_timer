@@ -630,7 +630,7 @@ function addSavedPlayer() {
   }
 
   if (name && !players.some(p => p.name === name)) {
-    players.push({ name: name, buyins: 0, eliminated: false, paid: false });
+    players.push({ name: name, buyins: 0, eliminated: false, paid: false, dealer: false });
     updatePlayerList();
 
     // Remove selected option from the dropdown

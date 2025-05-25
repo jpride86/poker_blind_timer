@@ -351,6 +351,10 @@ function loadStandardPreset() {
   timeRemaining = blindStructure[0].duration;
   updateBlindList();
   updateDisplay();
+
+  // ✅ Add this block to hide custom blinds & update toggle button
+  document.getElementById("blindSetup").style.display = "none";
+  document.getElementById("toggleCustomBtn").textContent = "Show Custom Blind Setup";
 }
 
   function deleteBlindLevel(index) {

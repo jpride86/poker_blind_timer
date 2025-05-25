@@ -100,6 +100,19 @@
     pointer-events: none;
     z-index: 9999;
   }
+
+    .inline-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.inline-group input,
+.inline-group button {
+  flex: 1 1 100px;
+  max-width: 120px;
+}
+
 </style>
 
 </head>
@@ -120,13 +133,12 @@
 
   <button onclick="loadStandardPreset()">Use Standard Structure</button>
 
-  <h3>Or Create Custom Level</h3>
-  <div id="blindSetup">
-    <input type="number" id="smallBlind" placeholder="Small Blind" />
-    <input type="number" id="bigBlind" placeholder="Big Blind" />
-    <input type="number" id="duration" placeholder="Duration (min)" />
-    <button onclick="addBlindLevel()">Add Level</button>
-  </div>
+ <div id="blindSetup" class="inline-group">
+  <input type="number" id="smallBlind" placeholder="Small Blind" />
+  <input type="number" id="bigBlind" placeholder="Big Blind" />
+  <input type="number" id="duration" placeholder="Duration (min)" />
+  <button onclick="addBlindLevel()">Add Level</button>
+</div>
 
   <ul id="blindList"></ul>
 </div>

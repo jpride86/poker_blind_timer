@@ -285,13 +285,20 @@ function showPayouts() {
     return;
   }
 
-  const places = ["1st", "2nd", "3rd", "4th", "5th"];
   structure.forEach((pct, i) => {
-    const li = document.createElement("li");
-    const amount = (totalPot * pct).toFixed(2);
-    li.textContent = `${places[i]} Place: $${amount}`;
-    payoutList.appendChild(li);
-  });
+  const li = document.createElement("li");
+  const amount = (totalPot * pct).toFixed(2);
+  li.textContent = `${places[i]} Place: $${amount}`;
+  payoutList.appendChild(li);
+});
+
+// Add total pot at the bottom
+const totalLi = document.createElement("li");
+totalLi.style.marginTop = "10px";
+totalLi.style.fontWeight = "bold";
+totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
+payoutList.appendChild(totalLi);
+
 }
 
 

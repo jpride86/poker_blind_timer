@@ -197,6 +197,7 @@
   function startTimer() {
   if (running || blindStructure.length === 0) return;
 
+  // Advance to next level if timer is zero
   if (timeRemaining === 0) {
     currentLevel++;
     if (currentLevel >= blindStructure.length) {
@@ -204,17 +205,26 @@
       return;
     }
     timeRemaining = blindStructure[currentLevel].duration;
+    whistlePlayed = false;
+    document.body.classList.remove("flash");
     updateDisplay();
   }
 
   running = true;
-  whistlePlayed = false;
-  document.body.classList.remove("flash");
 
   timerInterval = setInterval(() => {
     if (timeRemaining > 0) {
       timeRemaining--;
       updateDisplay();
+
+      if (timeRemaining === 60 && !whistlePlayed) {
+        document.body.classList.add("flash");
+        const whistle = document.getElementById("whistleSound");
+        whistle.volume = 1.0;
+        whistle.play().catch(e => console.log("Audio play blocked:", e));
+        whistlePlayed = true;
+      }
+
     } else {
       clearInterval(timerInterval);
       running = false;
@@ -222,6 +232,7 @@
     }
   }, 1000);
 }
+
 
 
   function pauseTimer() {

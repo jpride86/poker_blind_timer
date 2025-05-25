@@ -633,23 +633,38 @@ function addSavedPlayer() {
     const list = document.getElementById("playerList");
     list.innerHTML = "";
     players.forEach((player, index) => {
-      const li = document.createElement("li");
-      li.className = player.eliminated ? "eliminated" : "";
-      li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
-      const buyBtn = document.createElement("button");
-      buyBtn.textContent = "+1 Re-buy";
-      buyBtn.className = "buyin-button";
-      buyBtn.onclick = () => addBuyin(index);
+  const li = document.createElement("li");
+  li.className = player.eliminated ? "eliminated" : "";
+  li.innerHTML = `${player.name} - Buy-ins: ${player.buyins}`;
 
-      const koBtn = document.createElement("button");
-      koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
-      koBtn.className = "knockout-button";
-      koBtn.onclick = () => toggleElimination(index);
+  const buyBtn = document.createElement("button");
+  buyBtn.textContent = "+1 Re-buy";
+  buyBtn.className = "buyin-button";
+  buyBtn.onclick = () => addBuyin(index);
 
-      li.appendChild(buyBtn);
-      li.appendChild(koBtn);
-      list.appendChild(li);
-    });
+  const koBtn = document.createElement("button");
+  koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
+  koBtn.className = "knockout-button";
+  koBtn.onclick = () => toggleElimination(index);
+
+  const removeBtn = document.createElement("button");
+  removeBtn.textContent = "Remove";
+  removeBtn.className = "delete-button";
+  removeBtn.onclick = () => removePlayer(index);  // 👈 you'll define this below
+
+  li.appendChild(buyBtn);
+  li.appendChild(koBtn);
+  li.appendChild(removeBtn); // 👈 new
+  list.appendChild(li);
+});
+
+function removePlayer(index) {
+  players.splice(index, 1);               // Remove from player list
+  updatePlayerList();                     // Refresh UI
+  refreshSavedPlayersDropdown();          // Rebuild dropdown
+}
+
+    
     updateRemainingCount();
     updateKnockoutLog();
     updateTotalPot();

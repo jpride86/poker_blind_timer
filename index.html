@@ -75,7 +75,35 @@
 <body>
   <audio id="whistleSound" src="https://actions.google.com/sounds/v1/sports/whistle_blow.ogg" preload="auto"></audio>
   <h1>Poker Blind Timer</h1>
-  <!-- The rest of your unchanged HTML remains here -->
+  <div class="player-section">
+    <h2>Define Blind Levels</h2>
+    <div id="blindSetup">
+      <input type="number" id="smallBlind" placeholder="Small Blind" />
+      <input type="number" id="bigBlind" placeholder="Big Blind" />
+      <input type="number" id="duration" placeholder="Duration (min)" />
+      <button onclick="addBlindLevel()">Add Level</button>
+    </div>
+    <ul id="blindList"></ul>
+  </div>
+
+  <div class="player-section">
+    <h2>Players</h2>
+    <input type="text" id="playerName" placeholder="Enter player name" />
+    <button onclick="addPlayer()">Add Player</button>
+    <div id="playersRemaining">Players remaining: 0</div>
+    <ul id="playerList"></ul>
+  </div>
+
+  <div class="player-section">
+    <h2>Knockout Log</h2>
+    <ul id="knockoutLog"></ul>
+  </div>
+
+  <div class="level" id="blindLevel">Level 1: -- / --</div>
+  <div class="timer" id="countdown">00:00</div>
+  <button onclick="startTimer()">Start</button>
+  <button onclick="pauseTimer()">Pause</button>
+  <button onclick="resetTimer()">Reset</button>
 
   <script>
     let blindStructure = [];

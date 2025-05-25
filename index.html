@@ -40,15 +40,15 @@
     .player-section {
       margin: 20px 0;
     }
-    #playerList, #knockoutLog {
+    #playerList, #knockoutLog, #blindList {
       margin-top: 10px;
       list-style: none;
       padding: 0;
     }
-    #playerList li, #knockoutLog li {
-      margin: 5px 0;
+    #playerList li, #knockoutLog li, #blindList li {
+      margin: 8px 0;
     }
-    .buyin-button, .knockout-button {
+    .buyin-button, .knockout-button, .delete-button {
       margin-left: 10px;
     }
     .eliminated {
@@ -125,7 +125,6 @@
 
     function deleteBlindLevel(index) {
       blindStructure.splice(index, 1);
-      // Re-index levels
       blindStructure.forEach((b, i) => b.level = i + 1);
       updateBlindList();
       if (currentLevel >= blindStructure.length) {
@@ -140,7 +139,12 @@
       ul.innerHTML = "";
       blindStructure.forEach((b, index) => {
         const li = document.createElement("li");
-        li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m) <button onclick="deleteBlindLevel(${index})">Delete</button>`;
+        li.innerHTML = `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)}m)`;
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "delete-button";
+        delBtn.onclick = () => deleteBlindLevel(index);
+        li.appendChild(delBtn);
         ul.appendChild(li);
       });
     }

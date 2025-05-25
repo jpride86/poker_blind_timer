@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poker Blind Timer</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#121212" />
-  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121212">
+  <link rel="apple-touch-icon" href="icon.png">
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -17,25 +17,48 @@
     }
   </script>
   <style>
-    body { font-family: sans-serif; text-align: center; background: #121212; color: white; padding: 30px; }
-    .timer { font-size: 3em; margin: 20px 0; }
-    .level { font-size: 2em; margin-bottom: 10px; }
-    button, input { padding: 10px 20px; font-size: 1em; margin: 5px; }
-    .spotify-player, .player-section { margin: 20px 0; }
-    #playerList, #knockoutLog { margin-top: 10px; list-style: none; padding: 0; }
-    #playerList li, #knockoutLog li { margin: 5px 0; }
-    .buyin-button, .knockout-button { margin-left: 10px; }
-    .eliminated { text-decoration: line-through; color: gray; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #121212;
+      color: white;
+      padding: 30px;
+    }
+    .timer {
+      font-size: 3em;
+      margin: 20px 0;
+    }
+    .level {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    button, input {
+      padding: 10px 20px;
+      font-size: 1em;
+      margin: 5px;
+    }
+    .player-section {
+      margin: 20px 0;
+    }
+    #playerList, #knockoutLog {
+      margin-top: 10px;
+      list-style: none;
+      padding: 0;
+    }
+    #playerList li, #knockoutLog li {
+      margin: 5px 0;
+    }
+    .buyin-button, .knockout-button {
+      margin-left: 10px;
+    }
+    .eliminated {
+      text-decoration: line-through;
+      color: gray;
+    }
   </style>
 </head>
 <body>
   <h1>Poker Blind Timer</h1>
-
-  <div class="spotify-player">
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5uokaTN4FTR?utm_source=generator"
-    width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-    loading="lazy"></iframe>
-  </div>
 
   <div class="player-section">
     <h2>Players</h2>
@@ -134,4 +157,51 @@
         li.className = player.eliminated ? "eliminated" : "";
         li.innerHTML = `
           ${player.name} - Buy-ins: ${player.buyins}
-          <button class='buyin-button' onclick='addBuyin(${in
+          <button class='buyin-button' onclick='addBuyin(${index})'>+1 Buy-in</button>
+          <button class='knockout-button' onclick='toggleElimination(${index})'>${player.eliminated ? "Undo KO" : "Knock Out"}</button>
+        `;
+        list.appendChild(li);
+      });
+      updateRemainingCount();
+      updateKnockoutLog();
+    }
+
+    function updateRemainingCount() {
+      const remaining = players.filter(p => !p.eliminated).length;
+      document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
+      if (remaining === 1) {
+        const winner = players.find(p => !p.eliminated);
+        alert(`${winner.name} is the winner!`);
+      }
+    }
+
+    function updateKnockoutLog() {
+      const log = document.getElementById("knockoutLog");
+      log.innerHTML = "";
+      knockoutOrder.forEach((name, i) => {
+        const li = document.createElement("li");
+        li.textContent = `#${i + 1}: ${name}`;
+        log.appendChild(li);
+      });
+    }
+
+    function addBuyin(index) {
+      players[index].buyins++;
+      updatePlayerList();
+    }
+
+    function toggleElimination(index) {
+      const player = players[index];
+      player.eliminated = !player.eliminated;
+      if (player.eliminated) {
+        knockoutOrder.push(player.name);
+      } else {
+        knockoutOrder = knockoutOrder.filter(name => name !== player.name);
+      }
+      updatePlayerList();
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>

@@ -55,10 +55,28 @@
       text-decoration: line-through;
       color: gray;
     }
+    #blindSetup {
+      margin-bottom: 20px;
+    }
+    #blindSetup input {
+      width: 80px;
+      margin: 0 5px;
+    }
   </style>
 </head>
 <body>
   <h1>Poker Blind Timer</h1>
+
+  <div class="player-section">
+    <h2>Define Blind Levels</h2>
+    <div id="blindSetup">
+      <input type="number" id="smallBlind" placeholder="Small Blind" />
+      <input type="number" id="bigBlind" placeholder="Big Blind" />
+      <input type="number" id="duration" placeholder="Duration (sec)" />
+      <button onclick="addBlindLevel()">Add Level</button>
+    </div>
+    <ul id="blindList"></ul>
+  </div>
 
   <div class="player-section">
     <h2>Players</h2>
@@ -73,29 +91,49 @@
     <ul id="knockoutLog"></ul>
   </div>
 
-  <div class="level" id="blindLevel">Level 1: 100 / 200</div>
-  <div class="timer" id="countdown">10:00</div>
+  <div class="level" id="blindLevel">Level 1: -- / --</div>
+  <div class="timer" id="countdown">00:00</div>
   <button onclick="startTimer()">Start</button>
   <button onclick="pauseTimer()">Pause</button>
   <button onclick="resetTimer()">Reset</button>
 
   <script>
-    const blindStructure = [
-      { level: 1, small: 100, big: 200, duration: 600 },
-      { level: 2, small: 200, big: 400, duration: 600 },
-      { level: 3, small: 300, big: 600, duration: 600 },
-      { level: 4, small: 400, big: 800, duration: 600 },
-      { level: 5, small: 500, big: 1000, duration: 600 }
-    ];
-
+    let blindStructure = [];
     let currentLevel = 0;
-    let timeRemaining = blindStructure[currentLevel].duration;
+    let timeRemaining = 0;
     let timerInterval;
     let running = false;
     let players = [];
     let knockoutOrder = [];
 
+    function addBlindLevel() {
+      const small = parseInt(document.getElementById("smallBlind").value);
+      const big = parseInt(document.getElementById("bigBlind").value);
+      const duration = parseInt(document.getElementById("duration").value);
+
+      if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
+        blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
+        updateBlindList();
+        if (blindStructure.length === 1) {
+          currentLevel = 0;
+          timeRemaining = blindStructure[0].duration;
+          updateDisplay();
+        }
+      }
+    }
+
+    function updateBlindList() {
+      const ul = document.getElementById("blindList");
+      ul.innerHTML = "";
+      blindStructure.forEach(b => {
+        const li = document.createElement("li");
+        li.textContent = `Level ${b.level}: ${b.small} / ${b.big} (${b.duration}s)`;
+        ul.appendChild(li);
+      });
+    }
+
     function updateDisplay() {
+      if (blindStructure.length === 0) return;
       const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
       const seconds = (timeRemaining % 60).toString().padStart(2, '0');
       document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
@@ -104,7 +142,7 @@
     }
 
     function startTimer() {
-      if (running) return;
+      if (running || blindStructure.length === 0) return;
       running = true;
       timerInterval = setInterval(() => {
         if (timeRemaining > 0) {
@@ -124,8 +162,13 @@
     function resetTimer() {
       pauseTimer();
       currentLevel = 0;
-      timeRemaining = blindStructure[currentLevel].duration;
-      updateDisplay();
+      if (blindStructure.length > 0) {
+        timeRemaining = blindStructure[0].duration;
+        updateDisplay();
+      } else {
+        document.getElementById("countdown").textContent = "00:00";
+        document.getElementById("blindLevel").textContent = "Level 1: -- / --";
+      }
     }
 
     function nextLevel() {

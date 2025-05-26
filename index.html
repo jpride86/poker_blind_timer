@@ -776,6 +776,7 @@ removeBtn.disabled = player.eliminated;
   function addBuyin(index) {
     players[index].buyins++;
     updatePlayerList();
+    updateChipStats();
   }
 
   function toggleElimination(index) {

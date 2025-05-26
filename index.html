@@ -351,6 +351,7 @@
 </div>
 
   <div id="playersRemaining">Players remaining: 0</div>
+  <button class="default-button" onclick="toggleAllPaid()">Toggle All Paid</button>
   <div id="totalPot">Total Pot: $0</div>
   <ul id="playerList"></ul>
 </div>
@@ -824,6 +825,16 @@ removeBtn.disabled = player.eliminated;
   updateChipStats();
 }
 
+function toggleAllPaid() {
+  const allPaid = players.every(p => p.paid);
+  players.forEach(p => {
+    if (!p.eliminated) {
+      p.paid = !allPaid;
+      p.buyins = p.paid ? 1 : 0;
+    }
+  });
+  updatePlayerList();
+}
 
   function updateRemainingCount() {
     const remaining = players.filter(p => !p.eliminated).length;

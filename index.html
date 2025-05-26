@@ -911,6 +911,7 @@ function saveInputs() {
     bigBlind: document.getElementById("bigBlind").value,
     duration: document.getElementById("duration").value,
     dealerFee: document.getElementById("dealerFeeInput").value
+    startingChips: document.getElementById("startingChips").value
   };
   localStorage.setItem("pokerInputs", JSON.stringify(inputData));
 }

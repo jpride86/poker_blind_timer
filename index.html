@@ -860,23 +860,6 @@ function toggleAllPaid() {
 
   updatePlayerList();
 }
-function triggerRunnerAnimation() {
-  const runner = document.getElementById("runner");
-  if (!runner) return;
-
-  runner.style.display = "block";
-  runner.classList.remove("run-animation");
-
-  // Force reflow to restart animation
-  void runner.offsetWidth;
-
-  runner.classList.add("run-animation");
-
-  setTimeout(() => {
-    runner.classList.remove("run-animation");
-    runner.style.display = "none";
-  }, 2500);
-}
 
   function celebrateWinner(name) {
     alert(`${name} is the winner!`);

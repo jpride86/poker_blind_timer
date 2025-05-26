@@ -1300,7 +1300,9 @@ function showLeagueHistory() {
     playerEntries.forEach(entry => {
       const li = document.createElement("li");
       const dateFormatted = new Date(entry.date).toLocaleDateString();
-      li.innerHTML = `🏆 <em>${entry.tournament}</em> — ${entry.finish}${getOrdinalSuffix(entry.finish)} place, ${entry.points.toFixed(2)} pts (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) – ${dateFormatted}`;
+      const medals = ["🥇", "🥈", "🥉"];
+const medal = entry.finish <= 3 ? medals[entry.finish - 1] + " " : "";
+li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrdinalSuffix(entry.finish)} place, ${entry.points.toFixed(2)} pts (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) – ${dateFormatted}`;
       li.style.marginLeft = "15px";
       historyList.appendChild(li);
     });

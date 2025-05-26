@@ -773,8 +773,9 @@ dealerCheckbox.style.marginRight = "5px";
 dealerCheckbox.onchange = () => {
   player.dealer = dealerCheckbox.checked;
   cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-  // Don't call updatePlayerList() here
+  updatePlayerList();  // ✅ Re-render with updated status
 };
+
 
 dealerLabel.appendChild(dealerCheckbox);
 dealerLabel.appendChild(document.createTextNode("Dealer"));
@@ -790,8 +791,9 @@ dealerLabel.appendChild(document.createTextNode("Dealer"));
     paidIcon.onclick = () => {
   player.paid = !player.paid;
   player.buyins = player.paid ? 1 : 0;
-  // Let the list update naturally later
+  updatePlayerList();  // ✅ Re-render buy-in count and icon
 };
+
 
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 
@@ -891,11 +893,11 @@ function toggleAllPaid() {
     // KO the player
     player.eliminated = true;
     knockoutOrder.push(player.name);
-    triggerRunnerAnimation();  // Optional: only if animation is re-enabled
   }
 
-  updatePlayerList();
+  updatePlayerList(); // 👈 Update UI once after changes
 }
+
 
 
   function celebrateWinner(name) {

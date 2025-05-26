@@ -653,50 +653,31 @@ function updatePlayerList() {
 
     const nameSpan = document.createElement("span");
     nameSpan.textContent = player.name;
-    // Create a dealer checkbox with label
-const dealerLabel = document.createElement("label");
-dealerLabel.style.marginLeft = "10px";
-dealerLabel.style.cursor = "pointer";
 
-// Create a dealer checkbox with label
-const dealerLabel = document.createElement("label");
-dealerLabel.style.marginLeft = "10px";
-dealerLabel.style.cursor = "pointer";
+    // 🂡 Card icon to indicate dealer
+    const cardIcon = document.createElement("span");
+    cardIcon.textContent = "🂡";
+    cardIcon.style.marginLeft = "5px";
+    cardIcon.title = "Dealer";
+    cardIcon.style.display = player.dealer ? "inline" : "none";
 
-const dealerCheckbox = document.createElement("input");
-dealerCheckbox.type = "checkbox";
-dealerCheckbox.checked = player.dealer;
-dealerCheckbox.style.marginRight = "5px";
-dealerCheckbox.onchange = () => {
-  player.dealer = dealerCheckbox.checked;
-  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-  updatePlayerList();
-};
+    // Dealer checkbox with label
+    const dealerLabel = document.createElement("label");
+    dealerLabel.style.marginLeft = "10px";
+    dealerLabel.style.cursor = "pointer";
 
-dealerLabel.appendChild(dealerCheckbox);
-dealerLabel.appendChild(document.createTextNode("Dealer"));
+    const dealerCheckbox = document.createElement("input");
+    dealerCheckbox.type = "checkbox";
+    dealerCheckbox.checked = player.dealer;
+    dealerCheckbox.style.marginRight = "5px";
+    dealerCheckbox.onchange = () => {
+      player.dealer = dealerCheckbox.checked;
+      cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
+      updatePlayerList();
+    };
 
-// 🂡 Card icon to indicate dealer
-const cardIcon = document.createElement("span");
-cardIcon.textContent = "🂡";
-cardIcon.style.marginLeft = "5px";
-cardIcon.title = "Dealer";
-cardIcon.style.display = player.dealer ? "inline" : "none";
-
-
-// 🂡 Card icon to indicate dealer
-const cardIcon = document.createElement("span");
-cardIcon.textContent = "🂡";
-cardIcon.style.marginLeft = "5px";
-cardIcon.title = "Dealer";
-
-// Show card only if marked as dealer
-cardIcon.style.display = player.dealer ? "inline" : "none";
-
-dealerCheckbox.addEventListener("change", () => {
-  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-});
-
+    dealerLabel.appendChild(dealerCheckbox);
+    dealerLabel.appendChild(document.createTextNode("Dealer"));
 
     const paidIcon = document.createElement("span");
     paidIcon.textContent = player.paid ? "💰" : "💸";
@@ -712,11 +693,10 @@ dealerCheckbox.addEventListener("change", () => {
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 
     li.appendChild(nameSpan);
-    li.appendChild(dealerLabel);
-li.appendChild(dealerCheckbox);
-li.appendChild(cardIcon);
-li.appendChild(paidIcon);
-li.appendChild(buyinsText);
+    li.appendChild(dealerLabel);    // ✔ dealer checkbox + label
+    li.appendChild(cardIcon);       // ✔ 🂡 icon
+    li.appendChild(paidIcon);
+    li.appendChild(buyinsText);
 
     const buyBtn = document.createElement("button");
     buyBtn.textContent = "+1 Re-buy";

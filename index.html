@@ -1390,9 +1390,18 @@ function getOrdinalSuffix(n) {
 }
 
 function clearLeagueHistory() {
+  const correctPin = "1865"; // 🔐 Set your secret PIN here
+
+  const pin = prompt("Enter PIN to clear league history:");
+  if (pin !== correctPin) {
+    alert("Incorrect PIN. Action denied.");
+    return;
+  }
+
   if (confirm("Are you sure you want to delete all saved league history?")) {
     localStorage.removeItem("fsopLeagueResults");
     document.getElementById("leagueHistoryList").innerHTML = "<li>History cleared.</li>";
+    document.getElementById("cumulativeLeaderboardList").innerHTML = "";
   }
 }
   

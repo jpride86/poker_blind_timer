@@ -875,17 +875,25 @@ removeBtn.disabled = player.eliminated;
 
   function toggleElimination(index) {
   const player = players[index];
+  const wasEliminated = player.eliminated;
+
+  // Toggle elimination state
   player.eliminated = !player.eliminated;
 
   if (player.eliminated) {
-    knockoutOrder.push(player.name);
-    triggerRunnerAnimation();  // 👉 trigger animation only on KO
+    // Add to knockout log if not already in it
+    if (!knockoutOrder.includes(player.name)) {
+      knockoutOrder.push(player.name);
+    }
+    triggerRunnerAnimation();  // KO animation
   } else {
+    // Remove from knockout log on undo
     knockoutOrder = knockoutOrder.filter(name => name !== player.name);
   }
 
-  updatePlayerList();
+  updatePlayerList();  // ⬅️ This re-renders the updated status
 }
+
 function triggerRunnerAnimation() {
   const runner = document.getElementById("runner");
   if (!runner) return;

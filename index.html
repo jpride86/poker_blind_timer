@@ -916,17 +916,49 @@ function loadInputs() {
   document.getElementById("dealerFeeInput").value = saved.dealerFee || "";
 }
 function clearAllInputs() {
-  if (!confirm("Are you sure you want to clear all saved inputs?")) return;
+  if (!confirm("Are you sure you want to reset everything?")) return;
 
+  // Clear localStorage
   localStorage.removeItem("pokerInputs");
 
+  // Clear input fields
   document.getElementById("buyInValue").value = "";
   document.getElementById("smallBlind").value = "";
   document.getElementById("bigBlind").value = "";
   document.getElementById("duration").value = "";
   document.getElementById("dealerFeeInput").value = "";
   document.getElementById("dealerFeeDealer").value = "";
+
+  // Reset all state variables
+  blindStructure = [];
+  currentLevel = 0;
+  timeRemaining = 0;
+  buyInAmount = 0;
+  players = [];
+  knockoutOrder = [];
+  whistlePlayed = false;
+  running = false;
+
+  // Clear all intervals and visuals
+  clearInterval(timerInterval);
+  document.body.classList.remove("flash", "celebrate");
+  clearConfetti();
+
+  // Reset display
+  document.getElementById("countdown").textContent = "00:00";
+  document.getElementById("blindLevel").textContent = "Level 1: -- / --";
+  document.getElementById("playerList").innerHTML = "";
+  document.getElementById("knockoutLog").innerHTML = "";
+  document.getElementById("blindList").innerHTML = "";
+  document.getElementById("payoutList").innerHTML = "";
+  document.getElementById("dealerResult").textContent = "";
+  document.getElementById("playersRemaining").textContent = "Players remaining: 0";
+  document.getElementById("totalPot").textContent = "Total Pot: $0";
+
+  // Rebuild saved player dropdown
+  refreshSavedPlayersDropdown();
 }
+
 
   
 </script>

@@ -1290,14 +1290,33 @@ function saveLeagueResults() {
       const finishPosition = players.length - knockoutIndex;
       const points = 10 * Math.sqrt(players.length / finishPosition) * (1 + Math.log10(p.buyins));
 
-      results.push({
-        name: p.name,
-        buyins: p.buyins,
-        finish: finishPosition,
-        points: parseFloat(points.toFixed(2)),
-        tournament: tournamentName,
-        date: timestamp
-      });
+      // ⬇ Add winnings calculation just above the push:
+let payout = 0;
+const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+const totalPot = totalBuyIns * buyInAmount;
+
+let structure = [];
+if (players.length <= 10) {
+  structure = [0.5, 0.3, 0.2];
+} else if (players.length <= 20) {
+  structure = [0.5, 0.25, 0.15, 0.10];
+} else if (players.length <= 30) {
+  structure = [0.4, 0.25, 0.2, 0.1, 0.05];
+}
+if (finishPosition <= structure.length) {
+  payout = Math.floor((totalPot * structure[finishPosition - 1]) / 5) * 5;
+}
+
+results.push({
+  name: p.name,
+  buyins: p.buyins,
+  finish: finishPosition,
+  points: parseFloat(points.toFixed(2)),
+  winnings: payout, // ✅ new
+  tournament: tournamentName,
+  date: timestamp
+});
+
     }
   });
 
@@ -1347,16 +1366,18 @@ li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrd
   const totals = {};
   saved.forEach(entry => {
     if (!totals[entry.name]) {
-      totals[entry.name] = { points: 0, games: 0 };
+      totals[entry.name] = { points: 0, games: 0, winnings: 0 };
     }
     totals[entry.name].points += entry.points;
     totals[entry.name].games += 1;
+    totals[entry.name].winnings += entry.winnings || 0;
+
   });
 
   const sortedNames = Object.keys(totals).sort((a, b) => totals[b].points - totals[a].points);
   sortedNames.forEach(name => {
     const li = document.createElement("li");
-    li.textContent = `${name}: ${totals[name].points.toFixed(2)} pts over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
+    li.textContent = `${name}: ${totals[name].points.toFixed(2)} pts, $${totals[name].winnings.toFixed(2)} winnings over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
     cumulativeList.appendChild(li);
   });
 }

@@ -368,6 +368,7 @@
     <tbody></tbody>
   </table>
 </div>
+  <button class="default-button" id="toggleLeagueTableBtn" onclick="toggleLeagueTable()">Hide League Table</button>
     <button class="default-button" id="toggleLeagueBtn" onclick="toggleLeagueHistory()">Show League History</button>
   <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
   <div id="leagueHistoryContainer" style="display: none;">
@@ -1358,6 +1359,20 @@ function toggleLeagueHistory() {
     btn.textContent = "Show League History";
   }
 }
+
+function toggleLeagueTable() {
+  const container = document.getElementById("leagueTableContainer");
+  const btn = document.getElementById("toggleLeagueTableBtn");
+
+  if (container.style.display === "none") {
+    container.style.display = "block";
+    btn.textContent = "Hide League Table";
+  } else {
+    container.style.display = "none";
+    btn.textContent = "Show League Table";
+  }
+}
+
   
 </script>
   

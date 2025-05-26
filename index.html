@@ -655,14 +655,31 @@ function updatePlayerList() {
     nameSpan.textContent = player.name;
 
     const dealerCheckbox = document.createElement("input");
-    dealerCheckbox.type = "checkbox";
-    dealerCheckbox.checked = player.dealer;
-    dealerCheckbox.style.marginLeft = "10px";
-    dealerCheckbox.title = "Mark as dealer";
-    dealerCheckbox.onchange = () => {
-      player.dealer = dealerCheckbox.checked;
-      updatePlayerList();
-    };
+dealerCheckbox.type = "checkbox";
+dealerCheckbox.checked = player.dealer;
+dealerCheckbox.title = "Dealer";
+dealerCheckbox.style.marginLeft = "10px";
+dealerCheckbox.onchange = () => {
+  player.dealer = dealerCheckbox.checked;
+  updatePlayerList();
+};
+
+// 🂡 Card icon to indicate dealer
+const cardIcon = document.createElement("span");
+cardIcon.textContent = "🂡";
+cardIcon.style.marginLeft = "5px";
+cardIcon.title = "Dealer";
+
+// Show card only if marked as dealer
+cardIcon.style.display = player.dealer ? "inline" : "none";
+
+dealerCheckbox.addEventListener("change", () => {
+  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
+});
+
+li.appendChild(nameSpan);
+li.appendChild(dealerCheckbox);
+li.appendChild(cardIcon);
 
     const paidIcon = document.createElement("span");
     paidIcon.textContent = player.paid ? "💰" : "💸";

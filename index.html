@@ -482,7 +482,7 @@ function loadStandardPreset() {
   const blindLevelEl = document.getElementById("blindLevel");
 
 if (level.break) {
-  blindLevelEl.textContent = `Level ${level.level}: BREAKS (${Math.floor(level.duration / 60)} min) – Break and Color Change Up`;
+  blindLevelEl.textContent = `Level ${level.level}: BREAK (${Math.floor(level.duration / 60)} min) – Break and Color Change Up`;
 } else {
   blindLevelEl.textContent = `Level ${level.level}: ${level.small} (S) / ${level.big} (B)`;
 }

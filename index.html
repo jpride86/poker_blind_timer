@@ -459,7 +459,7 @@ function loadStandardPreset() {
     li.className = (index === currentLevel) ? "current-level" : "";
 
     li.innerHTML = b.break
-  ? `Level ${b.level}: BREAKS (${Math.floor(b.duration / 60)} min) – Break and Color Change Up`
+  ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min) – Break and Color Change Up`
   : `Level ${b.level}: ${b.small} (S) / ${b.big} (B) (${Math.floor(b.duration / 60)} min)`;
 
 

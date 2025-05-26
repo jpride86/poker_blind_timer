@@ -847,8 +847,7 @@ removeBtn.disabled = player.eliminated;
   document.getElementById("totalPlayers").textContent = `Total players: ${players.length}`;
 }
 
-
-  function updateRemainingCount() {
+function updateRemainingCount() {
     const remaining = players.filter(p => !p.eliminated).length;
     document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
     if (remaining === 1 && players.length > 1) {
@@ -866,6 +865,7 @@ removeBtn.disabled = player.eliminated;
       log.appendChild(li);
     });
   }
+  
 
   function addBuyin(index) {
     players[index].buyins++;

@@ -243,7 +243,12 @@
   <canvas id="confetti-canvas"></canvas>
   <audio id="whistleSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
   <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" preload="auto"></audio>
-
+<!-- 🏆 Winner Banner -->
+<div id="winnerBanner" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%);
+background:gold; color:black; font-size:2em; font-weight:bold; padding:10px 20px;
+border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
+  Winner!
+</div>
   <h1>FSOP Poker Blind Timer</h1>
 
   <!-- Tournament Info -->
@@ -1070,14 +1075,21 @@ function toggleAllPaid() {
   alert(`${name} is the winner!`);
   document.body.classList.add("celebrate");
   startConfetti();
+
   const winSound = document.getElementById("winSound");
   winSound.play().catch(() => {});
 
-  // Stop celebration after 10 seconds
+  // 🎉 Show winner banner
+  const banner = document.getElementById("winnerBanner");
+  banner.textContent = `🏆 ${name} Wins! 🏆`;
+  banner.style.display = "block";
+
+  // ⏳ Stop celebration after 10 seconds
   setTimeout(() => {
     document.body.classList.remove("celebrate", "flash");
     clearConfetti();
-  }, 10000); // 10 seconds in milliseconds
+    banner.style.display = "none";
+  }, 10000); // 10 seconds
 }
 
 

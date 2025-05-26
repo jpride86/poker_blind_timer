@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poker Blind Timer</title>
+  <title>FSOP Poker Blind Timer</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
   <link rel="apple-touch-icon" href="icon.png">
@@ -272,7 +272,7 @@
   <audio id="whistleSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_005eb8bfc8.mp3" preload="auto"></audio>
   <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" preload="auto"></audio>
 
-  <h1>Poker Blind Timer</h1>
+  <h1>FSOP Poker Blind Timer</h1>
 
 <button class="default-button" onclick="clearAllInputs()">Clear All Inputs</button>
 
@@ -293,7 +293,7 @@
     <span class="dollar-sign">$</span>
     <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
   </div>
-  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Fee/Split</button>
 </div>
 
 <div class="player-section">
@@ -876,17 +876,25 @@ removeBtn.disabled = player.eliminated;
 
   function toggleElimination(index) {
   const player = players[index];
+  const wasEliminated = player.eliminated;
+
+  // Toggle elimination state
   player.eliminated = !player.eliminated;
 
   if (player.eliminated) {
-    knockoutOrder.push(player.name);
-    triggerRunnerAnimation();  // 👉 trigger animation only on KO
+    // Add to knockout log if not already in it
+    if (!knockoutOrder.includes(player.name)) {
+      knockoutOrder.push(player.name);
+    }
+    triggerRunnerAnimation();  // KO animation
   } else {
+    // Remove from knockout log on undo
     knockoutOrder = knockoutOrder.filter(name => name !== player.name);
   }
 
-  updatePlayerList();
+  updatePlayerList();  // ⬅️ This re-renders the updated status
 }
+
 function triggerRunnerAnimation() {
   const runner = document.getElementById("runner");
   if (!runner) return;

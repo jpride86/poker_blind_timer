@@ -1256,6 +1256,31 @@ function saveLeagueResults() {
 
   localStorage.setItem("fsopLeagueResults", JSON.stringify(results));
 }
+function showLeagueHistory() {
+  const historyList = document.getElementById("leagueHistoryList");
+  historyList.innerHTML = "";
+
+  const saved = JSON.parse(localStorage.getItem("fsopLeagueResults"));
+  if (!saved || saved.length === 0) {
+    historyList.innerHTML = "<li>No history found.</li>";
+    return;
+  }
+
+  // Sort by highest points first
+  saved.sort((a, b) => b.points - a.points);
+
+  saved.forEach(entry => {
+    const li = document.createElement("li");
+    li.textContent = `${entry.name}: ${entry.points.toFixed(2)} pts — ${entry.finish}${getOrdinalSuffix(entry.finish)} place (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""})`;
+    historyList.appendChild(li);
+  });
+}
+
+// Optional: Helper to make "1st", "2nd", "3rd" suffixes
+function getOrdinalSuffix(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return s[(v - 20]()
   
 </script>
   

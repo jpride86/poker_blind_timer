@@ -954,6 +954,9 @@ function clearAllInputs() {
   document.getElementById("dealerResult").textContent = "";
   document.getElementById("playersRemaining").textContent = "Players remaining: 0";
   document.getElementById("totalPot").textContent = "Total Pot: $0";
+  document.getElementById("blindSetup").style.display = "block";
+  document.getElementById("toggleCustomBtn").textContent = "Hide Custom Blind Setup";
+
 
   // Rebuild saved player dropdown
   refreshSavedPlayersDropdown();

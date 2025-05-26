@@ -865,7 +865,7 @@ function removePlayer(index) {
   refreshSavedPlayersDropdown();          // Rebuild dropdown
 }
 
-function cafunction calculateDealerSplit() {
+function calculateDealerSplit() {
   const dealerFee = parseFloat(document.getElementById("dealerFeeDealer").value);
   if (isNaN(dealerFee) || dealerFee <= 0) {
     alert("Please enter a valid dealer fee.");

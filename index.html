@@ -199,7 +199,29 @@
   vertical-align: middle;
   margin-left: 8px;
 }
+/* Runner Animation */
+#runner {
+  position: fixed;
+  bottom: 0;
+  left: -200px;
+  width: 150px;
+  height: auto;
+  z-index: 10000;
+  transition: left 0s;
+  pointer-events: none;
+}
 
+@keyframes runAcross {
+  0%   { left: -200px; }
+  100% { left: 110%; }
+}
+
+.run-animation {
+  animation: runAcross 2.5s linear forwards;
+  display: block !important;
+}
+
+    
 </style>
 
 </head>

@@ -823,13 +823,16 @@ function toggleAllPaid() {
 }
 
   function updateRemainingCount() {
-    const remaining = players.filter(p => !p.eliminated).length;
-    document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
-    if (remaining === 1 && players.length > 1) {
-      const winner = players.find(p => !p.eliminated);
-      celebrateWinner(winner.name);
-    }
+  const total = players.length;
+  const remaining = players.filter(p => !p.eliminated).length;
+  document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining} of ${total}`;
+  
+  if (remaining === 1 && total > 1) {
+    const winner = players.find(p => !p.eliminated);
+    celebrateWinner(winner.name);
   }
+}
+
 
   function updateKnockoutLog() {
   const log = document.getElementById("knockoutLog");

@@ -362,6 +362,9 @@
     <button class="default-button" onclick="showLeagueHistory()">Show League History</button>
   <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
   <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
+  <h3>Cumulative Leaderboard</h3>
+<ul id="cumulativeLeaderboardList" style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+
 
 </div>
 
@@ -1259,7 +1262,9 @@ function saveLeagueResults() {
 }
 function showLeagueHistory() {
   const historyList = document.getElementById("leagueHistoryList");
+  const cumulativeList = document.getElementById("cumulativeLeaderboardList");
   historyList.innerHTML = "";
+  cumulativeList.innerHTML = "";
 
   const saved = JSON.parse(localStorage.getItem("fsopLeagueResults"));
   if (!saved || saved.length === 0) {
@@ -1267,13 +1272,31 @@ function showLeagueHistory() {
     return;
   }
 
-  // Sort by highest points first
+  // Sort by highest points
   saved.sort((a, b) => b.points - a.points);
 
+  // Show single-session results
   saved.forEach(entry => {
     const li = document.createElement("li");
     li.textContent = `${entry.name}: ${entry.points.toFixed(2)} pts — ${entry.finish}${getOrdinalSuffix(entry.finish)} place (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""})`;
     historyList.appendChild(li);
+  });
+
+  // Compute cumulative leaderboard
+  const totals = {};
+  saved.forEach(entry => {
+    if (!totals[entry.name]) {
+      totals[entry.name] = { points: 0, games: 0 };
+    }
+    totals[entry.name].points += entry.points;
+    totals[entry.name].games += 1;
+  });
+
+  const sortedNames = Object.keys(totals).sort((a, b) => totals[b].points - totals[a].points);
+  sortedNames.forEach(name => {
+    const li = document.createElement("li");
+    li.textContent = `${name}: ${totals[name].points.toFixed(2)} pts over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
+    cumulativeList.appendChild(li);
   });
 }
 
@@ -1282,6 +1305,7 @@ function getOrdinalSuffix(n) {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return s[(v - 20) % 10] || s[v] || s[0];
+}
 
 function clearLeagueHistory() {
   if (confirm("Are you sure you want to delete all saved league history?")) {

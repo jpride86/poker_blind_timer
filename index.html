@@ -514,9 +514,7 @@ li.className = (index === currentLevel) ? "current-level" : "";
     }
     const currentLi = document.getElementById(`blind-level-${currentLevel}`);
 if (currentLi) {
-  currentLi.scrollIntoView({ behavior: "smooth", block: "center" });
-
-  // 🔔 Pulse highlight
+  // 🔔 Pulse highlight only, no scrolling
   currentLi.classList.remove("pulse"); // reset if previously added
   void currentLi.offsetWidth;          // force reflow
   currentLi.classList.add("pulse");

@@ -713,19 +713,22 @@ dealerLabel.appendChild(document.createTextNode("Dealer"));
     li.appendChild(buyinsText);
 
     const buyBtn = document.createElement("button");
-    buyBtn.textContent = "+1 Re-buy";
-    buyBtn.className = "buyin-button";
-    buyBtn.onclick = () => addBuyin(index);
+buyBtn.textContent = "+1 Re-buy";
+buyBtn.className = "buyin-button";
+buyBtn.onclick = () => addBuyin(index);
+buyBtn.disabled = player.eliminated;
 
-    const koBtn = document.createElement("button");
-    koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
-    koBtn.className = "knockout-button";
-    koBtn.onclick = () => toggleElimination(index);
+const koBtn = document.createElement("button");
+koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
+koBtn.className = "knockout-button";
+koBtn.onclick = () => toggleElimination(index);
 
-    const removeBtn = document.createElement("button");
-    removeBtn.textContent = "Remove";
-    removeBtn.className = "delete-button";
-    removeBtn.onclick = () => removePlayer(index);
+const removeBtn = document.createElement("button");
+removeBtn.textContent = "Remove";
+removeBtn.className = "delete-button";
+removeBtn.onclick = () => removePlayer(index);
+removeBtn.disabled = player.eliminated;
+
 
     li.appendChild(buyBtn);
     li.appendChild(koBtn);

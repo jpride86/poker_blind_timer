@@ -882,6 +882,27 @@ function calculateDealerSplit() {
   const resultText = `Total: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames}): $${payoutPerDealer.toFixed(2)}`;
   document.getElementById("dealerResult").textContent = resultText;
 }
+function saveInputs() {
+  const inputData = {
+    buyInValue: document.getElementById("buyInValue").value,
+    smallBlind: document.getElementById("smallBlind").value,
+    bigBlind: document.getElementById("bigBlind").value,
+    duration: document.getElementById("duration").value,
+    dealerFee: document.getElementById("dealerFee").value
+  };
+  localStorage.setItem("pokerInputs", JSON.stringify(inputData));
+}
+
+function loadInputs() {
+  const saved = JSON.parse(localStorage.getItem("pokerInputs"));
+  if (!saved) return;
+
+  document.getElementById("buyInValue").value = saved.buyInValue || "";
+  document.getElementById("smallBlind").value = saved.smallBlind || "";
+  document.getElementById("bigBlind").value = saved.bigBlind || "";
+  document.getElementById("duration").value = saved.duration || "";
+  document.getElementById("dealerFee").value = saved.dealerFee || "";
+}
 
   
 </script>

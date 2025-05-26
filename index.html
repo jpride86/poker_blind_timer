@@ -360,6 +360,7 @@
     <tbody></tbody>
   </table>
     <button class="default-button" onclick="showLeagueHistory()">Show League History</button>
+  <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
   <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
 
 </div>
@@ -1282,6 +1283,13 @@ function getOrdinalSuffix(n) {
   const v = n % 100;
   return s[(v - 20) % 10] || s[v] || s[0];
 
+function clearLeagueHistory() {
+  if (confirm("Are you sure you want to delete all saved league history?")) {
+    localStorage.removeItem("fsopLeagueResults");
+    document.getElementById("leagueHistoryList").innerHTML = "<li>History cleared.</li>";
+  }
+}
+  
   
 </script>
   

@@ -652,29 +652,25 @@ function updatePlayerList() {
     li.className = player.eliminated ? "eliminated" : "";
 
     const nameSpan = document.createElement("span");
-    nameSpan.textContent = player.name;
+nameSpan.textContent = player.name;
 
-    // 🂡 Card icon to indicate dealer
-    const cardIcon = document.createElement("span");
-    cardIcon.textContent = "🂡";
-    cardIcon.style.marginLeft = "5px";
-    cardIcon.title = "Dealer";
-    cardIcon.style.display = player.dealer ? "inline" : "none";
+// 🂡 Card icon
+const cardIcon = document.createElement("span");
+cardIcon.textContent = " 🂡";
+cardIcon.title = "Dealer";
+cardIcon.style.display = player.dealer ? "inline" : "none";
 
-    // Dealer checkbox with label
-    const dealerLabel = document.createElement("label");
-    dealerLabel.style.marginLeft = "10px";
-    dealerLabel.style.cursor = "pointer";
+// Dealer checkbox
+const dealerCheckbox = document.createElement("input");
+dealerCheckbox.type = "checkbox";
+dealerCheckbox.checked = player.dealer;
+dealerCheckbox.style.marginLeft = "10px";
+dealerCheckbox.onchange = () => {
+  player.dealer = dealerCheckbox.checked;
+  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
+  updatePlayerList();
+};
 
-    const dealerCheckbox = document.createElement("input");
-    dealerCheckbox.type = "checkbox";
-    dealerCheckbox.checked = player.dealer;
-    dealerCheckbox.style.marginRight = "5px";
-    dealerCheckbox.onchange = () => {
-      player.dealer = dealerCheckbox.checked;
-      cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-      updatePlayerList();
-    };
 
     dealerLabel.appendChild(dealerCheckbox);
     dealerLabel.appendChild(document.createTextNode("Dealer"));

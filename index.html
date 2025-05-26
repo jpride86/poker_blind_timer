@@ -1122,17 +1122,35 @@ function updateChipStats() {
   document.getElementById("chipStats").textContent =
     `Total Chips: ${totalChips.toLocaleString()} | Avg Stack: ${avgChips.toLocaleString()}`;
 }
-window.loadStandardPreset = loadStandardPreset;
-window.toggleBlindList = toggleBlindList;
-window.toggleCustomBlind = toggleCustomBlind;
-window.addPlayer = addPlayer;
-window.addSavedPlayer = addSavedPlayer;
-window.startTimer = startTimer;
-window.pauseTimer = pauseTimer;
-window.resetTimer = resetTimer;
-window.showPayouts = showPayouts;
-window.calculateDealerSplit = calculateDealerSplit;
-window.clearAllInputs = clearAllInputs;
+window.addEventListener("DOMContentLoaded", () => {
+  const initialDefaults = [
+    "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+    "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+    "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+  ];
+
+  const existing = JSON.parse(localStorage.getItem("savedPlayers"));
+  if (!existing || !Array.isArray(existing)) {
+    localStorage.setItem("savedPlayers", JSON.stringify(initialDefaults));
+  }
+
+  refreshSavedPlayersDropdown();
+  loadInputs();
+
+  // ✅ Ensure your button-linked functions are globally accessible
+  window.loadStandardPreset = loadStandardPreset;
+  window.toggleBlindList = toggleBlindList;
+  window.toggleCustomBlind = toggleCustomBlind;
+  window.addPlayer = addPlayer;
+  window.addSavedPlayer = addSavedPlayer;
+  window.startTimer = startTimer;
+  window.pauseTimer = pauseTimer;
+  window.resetTimer = resetTimer;
+  window.showPayouts = showPayouts;
+  window.calculateDealerSplit = calculateDealerSplit;
+  window.clearAllInputs = clearAllInputs;
+});
+
 
   
 </script>

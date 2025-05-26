@@ -268,7 +268,19 @@
   <span class="dollar-sign">$</span>
   <input type="number" id="buyInValue" placeholder="Buy-In" onchange="saveInputs()" />
 </div>
+<div class="player-section">
+  <h2>Dealer Setup</h2>
+  <div class="input-dollar-wrapper">
+  <span class="dollar-sign">$</span>
+  <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
+</div>
 
+  <div id="dealerSelect"></div>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
+  <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
+
+    
       </div>
 </div>
 
@@ -292,17 +304,6 @@
 <input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
 
    <button class="default-button" onclick="addBlindLevel()">Add Level</button>
-</div>
-<div class="player-section">
-  <h2>Dealer Setup</h2>
-  <div class="input-dollar-wrapper">
-  <span class="dollar-sign">$</span>
-  <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
-</div>
-
-  <div id="dealerSelect"></div>
-  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
-  <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
 </div>
 
     

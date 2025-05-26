@@ -1289,7 +1289,8 @@ function showLeagueHistory() {
   // Show single-session results
   saved.forEach(entry => {
     const li = document.createElement("li");
-    li.textContent = `${entry.name}: ${entry.points.toFixed(2)} pts — ${entry.finish}${getOrdinalSuffix(entry.finish)} place (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""})`;
+    const dateFormatted = new Date(entry.date).toLocaleDateString();
+li.innerHTML = `🏆 <strong>${entry.tournament}</strong> — ${entry.name}: ${entry.points.toFixed(2)} pts — ${entry.finish}${getOrdinalSuffix(entry.finish)} place (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) <em>(${dateFormatted})</em>`;
     historyList.appendChild(li);
   });
 

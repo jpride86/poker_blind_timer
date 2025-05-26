@@ -931,19 +931,7 @@ function updateLeagueTable() {
     row.appendChild(statusCell);
     row.appendChild(dealerCell);
     row.appendChild(placeCell);
-    const pointsCell = document.createElement("td");
-const knockoutIndex = knockoutOrder.indexOf(p.name);
-
-if (p.eliminated && knockoutIndex !== -1 && p.buyins > 0) {
-  const finishPosition = players.length - knockoutIndex;
-  const points = 10 * Math.sqrt(players.length / finishPosition) * (1 + Math.log10(p.buyins));
-  pointsCell.textContent = points.toFixed(2);
-} else {
-  pointsCell.textContent = "—";
-}
-
-row.appendChild(pointsCell);
-
+    
 const pointsCell = document.createElement("td");
 
 const finishIndex = knockoutOrder.indexOf(p.name);

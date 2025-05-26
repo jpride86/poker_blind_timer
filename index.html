@@ -832,14 +832,16 @@ function toggleAllPaid() {
   }
 
   function updateKnockoutLog() {
-    const log = document.getElementById("knockoutLog");
-    log.innerHTML = "";
-    knockoutOrder.forEach((name, i) => {
-      const li = document.createElement("li");
-      li.textContent = `#${i + 1}: ${name}`;
-      log.appendChild(li);
-    });
-  }
+  const log = document.getElementById("knockoutLog");
+  log.innerHTML = "";
+  const totalPlayers = players.length;
+  knockoutOrder.forEach((name, i) => {
+    const place = totalPlayers - i;
+    const li = document.createElement("li");
+    li.textContent = `#${place}: ${name}`;
+    log.appendChild(li);
+  });
+}
 
   function addBuyin(index) {
     players[index].buyins++;

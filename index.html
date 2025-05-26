@@ -354,10 +354,14 @@
         <th>Status</th>
         <th>Dealer</th>
         <th>Place</th>
+         <th>Points</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
+    <button class="default-button" onclick="showLeagueHistory()">Show League History</button>
+  <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
+
 </div>
 
   
@@ -881,7 +885,19 @@ function updateLeagueTable() {
   const tableBody = document.querySelector("#leagueTable tbody");
   tableBody.innerHTML = "";
 
-  players.forEach((p, index) => {
+    // Clone and sort players by calculated points (descending)
+  const sortedPlayers = [...players].sort((a, b) => {
+    const getPoints = (p) => {
+      const index = knockoutOrder.indexOf(p.name);
+      if (!p.eliminated || index === -1 || p.buyins === 0) return 0;
+      const pos = players.length - index;
+      return 10 * Math.sqrt(players.length / pos) * (1 + Math.log10(p.buyins));
+    };
+    return getPoints(b) - getPoints(a);
+  });
+
+  sortedPlayers.forEach((p) => {
+
     const row = document.createElement("tr");
     row.style.textAlign = "center";
 
@@ -911,6 +927,31 @@ function updateLeagueTable() {
     row.appendChild(statusCell);
     row.appendChild(dealerCell);
     row.appendChild(placeCell);
+    const pointsCell = document.createElement("td");
+const knockoutIndex = knockoutOrder.indexOf(p.name);
+
+if (p.eliminated && knockoutIndex !== -1 && p.buyins > 0) {
+  const finishPosition = players.length - knockoutIndex;
+  const points = 10 * Math.sqrt(players.length / finishPosition) * (1 + Math.log10(p.buyins));
+  pointsCell.textContent = points.toFixed(2);
+} else {
+  pointsCell.textContent = "—";
+}
+
+row.appendChild(pointsCell);
+
+const pointsCell = document.createElement("td");
+
+const finishIndex = knockoutOrder.indexOf(p.name);
+if (p.eliminated && finishIndex !== -1 && p.buyins > 0) {
+  const finishPos = players.length - finishIndex;
+  const points = 10 * Math.sqrt(players.length / finishPos) * (1 + Math.log10(p.buyins));
+  pointsCell.textContent = points.toFixed(2);
+} else {
+  pointsCell.textContent = "—";
+}
+
+row.appendChild(pointsCell);
 
     tableBody.appendChild(row);
   });
@@ -937,6 +978,7 @@ function toggleAllPaid() {
   if (remaining === 1 && total > 1) {
     const winner = players.find(p => !p.eliminated);
     celebrateWinner(winner.name);
+     saveLeagueResults();
   }
 }
 
@@ -1194,6 +1236,26 @@ function updateChipStats() {
     `Total Chips: ${totalChips.toLocaleString()} | Avg Stack: ${avgChips.toLocaleString()}`;
 }
 
+function saveLeagueResults() {
+  const results = [];
+
+  players.forEach((p) => {
+    const knockoutIndex = knockoutOrder.indexOf(p.name);
+    if (p.eliminated && knockoutIndex !== -1 && p.buyins > 0) {
+      const finishPosition = players.length - knockoutIndex;
+      const points = 10 * Math.sqrt(players.length / finishPosition) * (1 + Math.log10(p.buyins));
+
+      results.push({
+        name: p.name,
+        buyins: p.buyins,
+        finish: finishPosition,
+        points: parseFloat(points.toFixed(2))
+      });
+    }
+  });
+
+  localStorage.setItem("fsopLeagueResults", JSON.stringify(results));
+}
   
 </script>
   

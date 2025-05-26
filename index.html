@@ -966,13 +966,21 @@ function toggleAllPaid() {
   const total = players.length;
   const remaining = players.filter(p => !p.eliminated).length;
   document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining} of ${total}`;
-  
+
   if (remaining === 1 && total > 1) {
     const winner = players.find(p => !p.eliminated);
-    celebrateWinner(winner.name);
-     saveLeagueResults();
+
+    // ✅ Only process winner if not already marked eliminated
+    if (!winner.eliminated) {
+      winner.eliminated = true;
+      knockoutOrder.push(winner.name);
+      updatePlayerList();      // update visuals
+      celebrateWinner(winner.name);
+      saveLeagueResults();     // now includes the winner too
+    }
   }
 }
+
 
 
   function updateKnockoutLog() {

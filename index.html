@@ -471,7 +471,9 @@ function loadStandardPreset() {
 
   blindStructure.forEach((b, index) => {
     const li = document.createElement("li");
-    li.className = (index === currentLevel) ? "current-level" : "";
+li.id = `blind-level-${index}`;
+li.className = (index === currentLevel) ? "current-level" : "";
+
 
     li.innerHTML = b.break
       ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`

@@ -884,10 +884,10 @@ function toggleAllPaid() {
     // Undo KO
     player.eliminated = false;
 
-    // Remove the last occurrence of their name from the knockout order
-    const reversedIndex = [...knockoutOrder].reverse().indexOf(player.name);
-    if (reversedIndex !== -1) {
-      knockoutOrder.splice(knockoutOrder.length - 1 - reversedIndex, 1);
+    // Correct: remove last occurrence directly
+    const knockoutIndex = knockoutOrder.lastIndexOf(player.name);
+    if (knockoutIndex !== -1) {
+      knockoutOrder.splice(knockoutIndex, 1);
     }
   } else {
     // KO the player
@@ -895,8 +895,9 @@ function toggleAllPaid() {
     knockoutOrder.push(player.name);
   }
 
-  updatePlayerList(); // 👈 Update UI once after changes
+  updatePlayerList();
 }
+
 
 
 

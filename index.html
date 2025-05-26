@@ -698,6 +698,8 @@ dealerLabel.appendChild(document.createTextNode("Dealer"));
     paidIcon.style.cursor = "pointer";
     paidIcon.title = player.paid ? "Click to mark unpaid" : "Click to mark paid";
     paidIcon.style.marginLeft = "10px";
+    paidIcon.style.pointerEvents = player.eliminated ? "none" : "auto";
+    paidIcon.style.opacity = player.eliminated ? "0.5" : "1";
     paidIcon.onclick = () => {
       player.paid = !player.paid;
       player.buyins = player.paid ? 1 : 0;

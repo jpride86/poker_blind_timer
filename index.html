@@ -1067,11 +1067,19 @@ function toggleAllPaid() {
 
 
   function celebrateWinner(name) {
-    alert(`${name} is the winner!`);
-    document.body.classList.add("celebrate");
-    startConfetti();
-    document.getElementById("winSound").play().catch(() => {});
-  }
+  alert(`${name} is the winner!`);
+  document.body.classList.add("celebrate");
+  startConfetti();
+  const winSound = document.getElementById("winSound");
+  winSound.play().catch(() => {});
+
+  // Stop celebration after 10 seconds
+  setTimeout(() => {
+    document.body.classList.remove("celebrate", "flash");
+    clearConfetti();
+  }, 10000); // 10 seconds in milliseconds
+}
+
 
   // Simple confetti animation
   let confettiInterval;

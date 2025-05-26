@@ -661,15 +661,23 @@ function updatePlayerList() {
     cardIcon.style.display = player.dealer ? "inline" : "none";
 
     // Dealer checkbox
-    const dealerCheckbox = document.createElement("input");
-    dealerCheckbox.type = "checkbox";
-    dealerCheckbox.checked = player.dealer;
-    dealerCheckbox.style.marginLeft = "10px";
-    dealerCheckbox.onchange = () => {
-      player.dealer = dealerCheckbox.checked;
-      cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-      updatePlayerList();
-    };
+   const dealerLabel = document.createElement("label");
+dealerLabel.style.marginLeft = "10px";
+dealerLabel.style.cursor = "pointer";
+
+const dealerCheckbox = document.createElement("input");
+dealerCheckbox.type = "checkbox";
+dealerCheckbox.checked = player.dealer;
+dealerCheckbox.style.marginRight = "5px";
+dealerCheckbox.onchange = () => {
+  player.dealer = dealerCheckbox.checked;
+  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
+  updatePlayerList();
+};
+
+dealerLabel.appendChild(dealerCheckbox);
+dealerLabel.appendChild(document.createTextNode("Dealer"));
+
 
     const paidIcon = document.createElement("span");
     paidIcon.textContent = player.paid ? "💰" : "💸";

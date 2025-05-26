@@ -1,4 +1,4 @@
-
+]
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -246,6 +246,12 @@
   font-weight: bold;
   pointer-events: none;
 }
+.current-level {
+  background-color: #333;
+  border-left: 4px solid lime;
+  padding: 6px;
+  font-weight: bold;
+}
 
     
 </style>
@@ -484,21 +490,23 @@ function loadStandardPreset() {
 }
 
   function updateDisplay() {
-    if (blindStructure.length === 0) return;
-    const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-    const seconds = (timeRemaining % 60).toString().padStart(2, '0');
-    document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
-    const level = blindStructure[currentLevel];
-    document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
+  if (blindStructure.length === 0) return;
+  const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+  const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+  document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
+  const level = blindStructure[currentLevel];
+  document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
 
-    if (timeRemaining === 60 && !whistlePlayed) {
-      document.body.classList.add("flash");
-      const whistle = document.getElementById("whistleSound");
-      whistle.volume = 1.0;
-      whistle.play().catch(e => console.log("Audio play blocked:", e));
-      whistlePlayed = true;
-    }
+  updateBlindList(); // ✅ This keeps the highlight synced
+
+  if (timeRemaining === 60 && !whistlePlayed) {
+    document.body.classList.add("flash");
+    const whistle = document.getElementById("whistleSound");
+    whistle.volume = 1.0;
+    whistle.play().catch(e => console.log("Audio play blocked:", e));
+    whistlePlayed = true;
   }
+}
 
 function startTimer() {
   if (running || blindStructure.length === 0) return;

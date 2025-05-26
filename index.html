@@ -876,6 +876,47 @@ removeBtn.disabled = player.eliminated;
   updateChipStats();
 }
 
+function updateLeagueTable() {
+  const tableBody = document.querySelector("#leagueTable tbody");
+  tableBody.innerHTML = "";
+
+  players.forEach((p, index) => {
+    const row = document.createElement("tr");
+    row.style.textAlign = "center";
+
+    const nameCell = document.createElement("td");
+    nameCell.textContent = p.name;
+
+    const buyinsCell = document.createElement("td");
+    buyinsCell.textContent = p.buyins;
+
+    const statusCell = document.createElement("td");
+    statusCell.textContent = p.paid ? "Paid" : "Unpaid";
+
+    const dealerCell = document.createElement("td");
+    dealerCell.textContent = p.dealer ? "🂡" : "";
+
+    const placeCell = document.createElement("td");
+    const knockoutIndex = knockoutOrder.indexOf(p.name);
+    if (p.eliminated && knockoutIndex !== -1) {
+      const place = players.length - knockoutIndex;
+      placeCell.textContent = `#${place}`;
+    } else {
+      placeCell.textContent = p.eliminated ? "—" : "In";
+    }
+
+    row.appendChild(nameCell);
+    row.appendChild(buyinsCell);
+    row.appendChild(statusCell);
+    row.appendChild(dealerCell);
+    row.appendChild(placeCell);
+
+    tableBody.appendChild(row);
+  });
+}
+
+
+  
 function toggleAllPaid() {
   const allPaid = players.every(p => p.paid);
   players.forEach(p => {

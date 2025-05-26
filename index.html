@@ -459,8 +459,9 @@ function loadStandardPreset() {
     li.className = (index === currentLevel) ? "current-level" : "";
 
     li.innerHTML = b.break
-      ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`
-      : `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)} min)`;
+  ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`
+  : `Level ${b.level}: ${b.small} (S) / ${b.big} (B) (${Math.floor(b.duration / 60)} min)`;
+
 
     const delBtn = document.createElement("button");
     delBtn.textContent = "Delete";

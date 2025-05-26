@@ -650,46 +650,37 @@ function updatePlayerList() {
   players.forEach((player, index) => {
     const li = document.createElement("li");
     li.className = player.eliminated ? "eliminated" : "";
-    
-    // Display player name and buy-ins
-    li.textContent = "";  // Clear any prior content
 
-const nameSpan = document.createElement("span");
-nameSpan.textContent = player.name;
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = player.name;
 
-const dealerCheckbox = document.createElement("input");
-dealerCheckbox.type = "checkbox";
-dealerCheckbox.checked = player.dealer;
-dealerCheckbox.style.marginLeft = "10px";
-dealerCheckbox.title = "Mark as dealer";
-dealerCheckbox.onchange = () => {
-  player.dealer = dealerCheckbox.checked;
-  updatePlayerList();
-};
+    const dealerCheckbox = document.createElement("input");
+    dealerCheckbox.type = "checkbox";
+    dealerCheckbox.checked = player.dealer;
+    dealerCheckbox.style.marginLeft = "10px";
+    dealerCheckbox.title = "Mark as dealer";
+    dealerCheckbox.onchange = () => {
+      player.dealer = dealerCheckbox.checked;
+      updatePlayerList();
+    };
 
-const nameSpan = document.createElement("span");
-nameSpan.textContent = player.name;
-
-const dealerCheckbox = document.createElement("input");
-dealerCheckbox.type = "checkbox";
-dealerCheckbox.checked = player.dealer;
-dealerCheckbox.style.marginLeft = "10px";
-dealerCheckbox.title = "Mark as dealer";
-dealerCheckbox.onchange = () => {
-  player.dealer = dealerCheckbox.checked;
-  updatePlayerList();
-};
-
-li.appendChild(nameSpan);
-li.appendChild(dealerCheckbox);
+    const paidIcon = document.createElement("span");
+    paidIcon.textContent = player.paid ? "💰" : "💸";
+    paidIcon.style.cursor = "pointer";
+    paidIcon.title = player.paid ? "Click to mark unpaid" : "Click to mark paid";
+    paidIcon.style.marginLeft = "10px";
+    paidIcon.onclick = () => {
+      player.paid = !player.paid;
+      player.buyins = player.paid ? 1 : 0;
+      updatePlayerList();
+    };
 
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 
     li.appendChild(nameSpan);
+    li.appendChild(dealerCheckbox);
     li.appendChild(paidIcon);
     li.appendChild(buyinsText);
-
-
 
     const buyBtn = document.createElement("button");
     buyBtn.textContent = "+1 Re-buy";
@@ -705,7 +696,7 @@ li.appendChild(dealerCheckbox);
     removeBtn.textContent = "Remove";
     removeBtn.className = "delete-button";
     removeBtn.onclick = () => removePlayer(index);
-   
+
     li.appendChild(buyBtn);
     li.appendChild(koBtn);
     li.appendChild(removeBtn);
@@ -716,6 +707,7 @@ li.appendChild(dealerCheckbox);
   updateKnockoutLog();
   updateTotalPot();
 }
+
 
 
   function updateRemainingCount() {

@@ -477,7 +477,7 @@ function loadStandardPreset() {
   const seconds = (timeRemaining % 60).toString().padStart(2, '0');
   document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
   const level = blindStructure[currentLevel];
-  document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} / ${level.big}`;
+  document.getElementById("blindLevel").textContent = `Level ${level.level}: ${level.small} (S) / ${level.big} (B)`;
 
   updateBlindList(); // ✅ This keeps the highlight synced
 

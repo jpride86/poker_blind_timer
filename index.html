@@ -959,6 +959,18 @@ window.addEventListener("DOMContentLoaded", () => {
   loadInputs();                  
 });
 
+function toggleBlindList() {
+  const list = document.getElementById("blindList");
+  const btn = document.getElementById("toggleBlindListBtn");
+
+  if (list.style.display === "none") {
+    list.style.display = "block";
+    btn.textContent = "Hide Blind Levels";
+  } else {
+    list.style.display = "none";
+    btn.textContent = "Show Blind Levels";
+  }
+}
 
 function removePlayer(index) {
   players.splice(index, 1);               // Remove from player list

@@ -222,10 +222,13 @@
   <button class="default-button" onclick="loadStandardPreset()">Use Standard Structure</button>
 
  <div id="blindSetup">
-  <input type="number" id="smallBlind" placeholder="Small Blind" />
-  <input type="number" id="bigBlind" placeholder="Big Blind" />
-  <input type="number" id="duration" placeholder="Duration (min)" />
-  <button class="default-button" onclick="addBlindLevel()">Add Level</button>
+  <input type="number" id="buyInValue" placeholder="Buy-In ($)" onchange="saveInputs()" />
+<input type="number" id="smallBlind" placeholder="Small Blind" onchange="saveInputs()" />
+<input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
+<input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
+<input type="number" id="dealerFee" placeholder="Dealer Fee ($)" onchange="saveInputs()" />
+
+   <button class="default-button" onclick="addBlindLevel()">Add Level</button>
 </div>
 <div class="player-section">
   <h2>Dealer Setup</h2>

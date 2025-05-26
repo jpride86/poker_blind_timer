@@ -296,15 +296,17 @@
 
   <button class="default-button" onclick="loadStandardPreset()">Use Standard Structure</button>
 <button class="default-button" id="toggleBlindListBtn" onclick="toggleBlindList()">Hide Blind Levels</button>
-
+<button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
 
  <div id="blindSetup">
   <input type="number" id="smallBlind" placeholder="Small Blind" onchange="saveInputs()" />
-<input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
-<input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
-
-   <button class="default-button" onclick="addBlindLevel()">Add Level</button>
+  <input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
+  <input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
+  <button class="default-button" onclick="addBlindLevel()">Add Level</button>
 </div>
+  <ul id="blindList"></ul>
+</div>
+  
 <div class="player-section">
   <h2>Dealer Setup</h2>
   <div class="input-dollar-wrapper">
@@ -317,8 +319,7 @@
   <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
 </div>
 
-  <button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
-  
+   
   <ul id="blindList"></ul>
 </div>
 

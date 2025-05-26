@@ -865,21 +865,18 @@ function calculateDealerSplit() {
     return;
   }
 
-  const dealerCheckboxes = document.querySelectorAll("#dealerSelect input[name='dealer']:checked");
-  const dealerNames = Array.from(dealerCheckboxes).map(cb => cb.value);
-
-  if (dealerNames.length === 0) {
-    alert("Please select at least one dealer.");
+  const dealers = players.filter(p => p.dealer);
+  if (dealers.length === 0) {
+    alert("Please mark at least one player as a dealer.");
     return;
   }
 
-  // Count how many players are NOT dealers
-  const payingPlayers = players.filter(p => !dealerNames.includes(p.name));
-  const numPayers = payingPlayers.length;
-  const totalCollected = dealerFee * numPayers;
-  const payoutPerDealer = totalCollected / dealerNames.length;
+  const payingPlayers = players.filter(p => !p.dealer);
+  const totalCollected = dealerFee * payingPlayers.length;
+  const payoutPerDealer = totalCollected / dealers.length;
 
-  const resultText = `Total: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames.join(", ")}): $${payoutPerDealer.toFixed(2)}`;
+  const dealerNames = dealers.map(p => p.name).join(", ");
+  const resultText = `Total: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames}): $${payoutPerDealer.toFixed(2)}`;
   document.getElementById("dealerResult").textContent = resultText;
 }
 

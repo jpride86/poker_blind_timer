@@ -873,11 +873,11 @@ function toggleAllPaid() {
   player.eliminated = !player.eliminated;
 
   if (player.eliminated) {
-    knockoutOrder.push(player.name);
-    triggerRunnerAnimation();  // 👉 trigger animation only on KO
-  } else {
-    knockoutOrder = knockoutOrder.filter(name => name !== player.name);
-  }
+  knockoutOrder.push(player.name);
+} else {
+  knockoutOrder = knockoutOrder.filter(name => name !== player.name);
+}
+
 
   updatePlayerList();
 }

@@ -289,7 +289,7 @@
   <span class="dollar-sign">$</span>
   <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
 </div>
-
+<button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
 <div class="player-section">
   <h2>Chip Statistics</h2>
   <input type="number" id="startingChips" placeholder="Starting Chips (e.g. 1500)" onchange="updateChipStats()" />
@@ -315,8 +315,7 @@
   
 
   <div id="dealerSelect"></div>
-  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
-  <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
+    <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
 </div>
 
    

@@ -842,8 +842,11 @@ dealerLabel.appendChild(document.createTextNode("Dealer"));
 }
 window.addEventListener("DOMContentLoaded", () => {
   const initialDefaults = [
-    "Andrew", "Cristian", "Dan", ...
-  ];
+  "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+  "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+  "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+];
+
   const existing = JSON.parse(localStorage.getItem("savedPlayers"));
   if (!existing || !Array.isArray(existing)) {
     localStorage.setItem("savedPlayers", JSON.stringify(initialDefaults));

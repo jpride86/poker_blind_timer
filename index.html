@@ -667,20 +667,21 @@ dealerCheckbox.onchange = () => {
   updatePlayerList();
 };
 
+const nameSpan = document.createElement("span");
+nameSpan.textContent = player.name;
+
+const dealerCheckbox = document.createElement("input");
+dealerCheckbox.type = "checkbox";
+dealerCheckbox.checked = player.dealer;
+dealerCheckbox.style.marginLeft = "10px";
+dealerCheckbox.title = "Mark as dealer";
+dealerCheckbox.onchange = () => {
+  player.dealer = dealerCheckbox.checked;
+  updatePlayerList();
+};
+
 li.appendChild(nameSpan);
 li.appendChild(dealerCheckbox);
-
-
-    const paidIcon = document.createElement("span");
-    paidIcon.textContent = player.paid ? "💰" : "💸";
-    paidIcon.style.cursor = "pointer";
-    paidIcon.title = player.paid ? "Click to mark unpaid" : "Click to mark paid";
-    paidIcon.style.marginLeft = "10px";
-    paidIcon.onclick = () => {
-      player.paid = !player.paid;
-      player.buyins = player.paid ? 1 : 0;
-      updatePlayerList();
-    };
 
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 

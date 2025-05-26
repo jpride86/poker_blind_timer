@@ -246,6 +246,13 @@
 
   <h1>FSOP Poker Blind Timer</h1>
 
+  <!-- Tournament Info -->
+<div class="player-section">
+  <h2>Tournament Info</h2>
+  <input type="text" id="tournamentName" placeholder="Tournament Name (e.g. FSOP Week 5)" />
+</div>
+
+
 <button class="default-button" onclick="clearAllInputs()">Clear All Inputs</button>
 
 
@@ -1239,6 +1246,9 @@ function updateChipStats() {
 function saveLeagueResults() {
   const results = [];
 
+  const tournamentName = document.getElementById("tournamentName")?.value.trim() || "Unnamed Tournament";
+  const timestamp = new Date().toISOString();
+
   players.forEach((p) => {
     const knockoutIndex = knockoutOrder.indexOf(p.name);
     if (p.eliminated && knockoutIndex !== -1 && p.buyins > 0) {
@@ -1250,20 +1260,17 @@ function saveLeagueResults() {
         buyins: p.buyins,
         finish: finishPosition,
         points: parseFloat(points.toFixed(2)),
-        date: new Date().toISOString()  // ✅ optional: to track when
+        tournament: tournamentName,
+        date: timestamp
       });
     }
   });
 
-  // ✅ Load existing history if any
   const existing = JSON.parse(localStorage.getItem("fsopLeagueResults")) || [];
-
-  // ✅ Append new results
   const allResults = existing.concat(results);
-
-  // ✅ Save back to localStorage
   localStorage.setItem("fsopLeagueResults", JSON.stringify(allResults));
 }
+
 function showLeagueHistory() {
   const historyList = document.getElementById("leagueHistoryList");
   const cumulativeList = document.getElementById("cumulativeLeaderboardList");

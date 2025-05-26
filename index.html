@@ -246,23 +246,7 @@
   font-weight: bold;
   pointer-events: none;
 }
-.current-level {
-  background-color: #333;
-  border-left: 5px solid #28a745;
-  padding-left: 10px;
-  font-weight: bold;
-}
-@keyframes pulseHighlight {
-  0% { background-color: yellow; }
-  100% { background-color: #333; }  /* matches .current-level base */
-}
 
-.pulse {
-  animation: pulseHighlight 1s ease;
-}
-#startingChips {
-  text-align: center;
-}
     
 </style>
 
@@ -287,14 +271,6 @@
 
       </div>
 </div>
-<div class="player-section">
-  <h2>Dealer Payout</h2>
-  <div class="input-dollar-wrapper">
-    <span class="dollar-sign">$</span>
-    <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
-  </div>
-  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
-</div>
 
 <div class="player-section">
   <h2>Chip Statistics</h2>
@@ -302,27 +278,39 @@
   <div id="chipStats" style="margin-top: 10px; font-weight: bold;">Total Chips: 0 | Avg Stack: 0</div>
 </div>
 
+
 <div class="player-section">
   <h2>Blind Levels</h2>
 
   <button class="default-button" onclick="loadStandardPreset()">Use Standard Structure</button>
 <button class="default-button" id="toggleBlindListBtn" onclick="toggleBlindList()">Hide Blind Levels</button>
-<button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
+
 
  <div id="blindSetup">
   <input type="number" id="smallBlind" placeholder="Small Blind" onchange="saveInputs()" />
-  <input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
-  <input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
-  <button class="default-button" onclick="addBlindLevel()">Add Level</button>
+<input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
+<input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
+
+   <button class="default-button" onclick="addBlindLevel()">Add Level</button>
 </div>
-  <ul id="blindList"></ul>
+<div class="player-section">
+  <h2>Dealer Setup</h2>
+  <div class="input-dollar-wrapper">
+  <span class="dollar-sign">$</span>
+  <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
 </div>
-  
 
   <div id="dealerSelect"></div>
-    <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
+  <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
 
- <div class="player-section">
+  <button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
+  
+  <ul id="blindList"></ul>
+</div>
+
+<div class="player-section">
 <h2>Players</h2>
 
 <!-- Dropdown First -->
@@ -360,7 +348,7 @@
   <input type="text" id="playerName" placeholder="Enter player name" />
   <button class="default-button" onclick="addPlayer()">Add Player</button>
 </div>
-<div id="totalPlayers">Total players: 0</div>
+
   <div id="playersRemaining">Players remaining: 0</div>
   <div id="totalPot">Total Pot: $0</div>
   <ul id="playerList"></ul>
@@ -384,7 +372,6 @@
 <button id="pauseBtn" onclick="pauseTimer()">Pause</button>
 <button id="resetBtn" onclick="resetTimer()">Reset</button>
 
- 
 <script>
   let blindStructure = [];
   let currentLevel = 0;
@@ -479,9 +466,7 @@ function loadStandardPreset() {
 
   blindStructure.forEach((b, index) => {
     const li = document.createElement("li");
-li.id = `blind-level-${index}`;
-li.className = (index === currentLevel) ? "current-level" : "";
-
+    li.className = (index === currentLevel) ? "current-level" : "";
 
     li.innerHTML = b.break
       ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`
@@ -511,14 +496,6 @@ li.className = (index === currentLevel) ? "current-level" : "";
       whistle.play().catch(e => console.log("Audio play blocked:", e));
       whistlePlayed = true;
     }
-    const currentLi = document.getElementById(`blind-level-${currentLevel}`);
-if (currentLi) {
-  // 🔔 Pulse highlight only, no scrolling
-  currentLi.classList.remove("pulse"); // reset if previously added
-  void currentLi.offsetWidth;          // force reflow
-  currentLi.classList.add("pulse");
-}
-
   }
 
 function startTimer() {
@@ -844,8 +821,6 @@ removeBtn.disabled = player.eliminated;
   updateKnockoutLog();
   updateTotalPot();
   updateChipStats();
-  if (!document.getElementById("totalPlayers").dataset.locked) {
-  document.getElementById("totalPlayers").textContent = `Total players: ${players.length}`;
 }
 
 

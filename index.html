@@ -677,9 +677,6 @@ dealerCheckbox.addEventListener("change", () => {
   cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
 });
 
-li.appendChild(nameSpan);
-li.appendChild(dealerCheckbox);
-li.appendChild(cardIcon);
 
     const paidIcon = document.createElement("span");
     paidIcon.textContent = player.paid ? "💰" : "💸";
@@ -695,9 +692,10 @@ li.appendChild(cardIcon);
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 
     li.appendChild(nameSpan);
-    li.appendChild(dealerCheckbox);
-    li.appendChild(paidIcon);
-    li.appendChild(buyinsText);
+li.appendChild(dealerCheckbox);
+li.appendChild(cardIcon);
+li.appendChild(paidIcon);
+li.appendChild(buyinsText);
 
     const buyBtn = document.createElement("button");
     buyBtn.textContent = "+1 Re-buy";

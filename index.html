@@ -654,7 +654,9 @@ function updatePlayerList() {
     // Display player name and buy-ins
     li.textContent = "";  // Clear any prior content
 
-    const nameSpan = document.createElement("span");
+    li.appendChild(nameSpan);
+li.appendChild(dealerCheckbox);
+
     nameSpan.textContent = player.name;
     const dealerCheckbox = document.createElement("input");
 dealerCheckbox.type = "checkbox";

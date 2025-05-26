@@ -847,6 +847,8 @@ removeBtn.disabled = player.eliminated;
   updateKnockoutLog();
   updateTotalPot();
   updateChipStats();
+  if (!document.getElementById("totalPlayers").dataset.locked) {
+  document.getElementById("totalPlayers").textContent = `Total players: ${players.length}`;
 }
 
 

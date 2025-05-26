@@ -681,6 +681,7 @@ dealerLabel.style.cursor = "pointer";
 const dealerCheckbox = document.createElement("input");
 dealerCheckbox.type = "checkbox";
 dealerCheckbox.checked = player.dealer;
+dealerCheckbox.disabled = player.eliminated;
 dealerCheckbox.style.marginRight = "5px";
 dealerCheckbox.onchange = () => {
   player.dealer = dealerCheckbox.checked;

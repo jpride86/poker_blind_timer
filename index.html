@@ -503,6 +503,10 @@ li.className = (index === currentLevel) ? "current-level" : "";
       whistle.play().catch(e => console.log("Audio play blocked:", e));
       whistlePlayed = true;
     }
+    const currentLi = document.getElementById(`blind-level-${currentLevel}`);
+if (currentLi) {
+  currentLi.scrollIntoView({ behavior: "smooth", block: "center" });
+}
   }
 
 function startTimer() {

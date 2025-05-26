@@ -687,14 +687,14 @@ function addSavedPlayer() {
     players.push({ name: name, buyins: 0, eliminated: false, paid: false, dealer: false });
     updatePlayerList();
 
-    // Remove selected option from the dropdown
     const selectedOption = select.querySelector(`option[value="${name}"]`);
     if (selectedOption) {
       selectedOption.remove();
     }
-
-    select.selectedIndex = 0;
   }
+
+  // ✅ This belongs here
+  select.selectedIndex = 0;
 }
 
     // Reset dropdown back to placeholder

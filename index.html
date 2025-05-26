@@ -1375,11 +1375,20 @@ li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrd
   });
 
   const sortedNames = Object.keys(totals).sort((a, b) => totals[b].points - totals[a].points);
-  sortedNames.forEach(name => {
-    const li = document.createElement("li");
-    li.textContent = `${name}: ${totals[name].points.toFixed(2)} pts, $${totals[name].winnings.toFixed(2)} winnings over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
-    cumulativeList.appendChild(li);
-  });
+  sortedNames.forEach((name, index) => {
+  const li = document.createElement("li");
+
+  const medals = ["🥇", "🥈", "🥉"];
+  const medal = index < 3 ? medals[index] + " " : "";
+
+  li.textContent = `${medal}${name}: ${totals[name].points.toFixed(2)} pts, $${totals[name].winnings.toFixed(2)} winnings over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
+
+  if (index < 3) {
+    li.style.fontWeight = "bold"; // 🟡 make top 3 bold
+  }
+
+  cumulativeList.appendChild(li);
+});
 }
 
 // Optional: Helper to make "1st", "2nd", "3rd" suffixes

@@ -652,28 +652,24 @@ function updatePlayerList() {
     li.className = player.eliminated ? "eliminated" : "";
 
     const nameSpan = document.createElement("span");
-nameSpan.textContent = player.name;
+    nameSpan.textContent = player.name;
 
-// 🂡 Card icon
-const cardIcon = document.createElement("span");
-cardIcon.textContent = " 🂡";
-cardIcon.title = "Dealer";
-cardIcon.style.display = player.dealer ? "inline" : "none";
+    // 🂡 Card icon
+    const cardIcon = document.createElement("span");
+    cardIcon.textContent = " 🂡";
+    cardIcon.title = "Dealer";
+    cardIcon.style.display = player.dealer ? "inline" : "none";
 
-// Dealer checkbox
-const dealerCheckbox = document.createElement("input");
-dealerCheckbox.type = "checkbox";
-dealerCheckbox.checked = player.dealer;
-dealerCheckbox.style.marginLeft = "10px";
-dealerCheckbox.onchange = () => {
-  player.dealer = dealerCheckbox.checked;
-  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-  updatePlayerList();
-};
-
-
-    dealerLabel.appendChild(dealerCheckbox);
-    dealerLabel.appendChild(document.createTextNode("Dealer"));
+    // Dealer checkbox
+    const dealerCheckbox = document.createElement("input");
+    dealerCheckbox.type = "checkbox";
+    dealerCheckbox.checked = player.dealer;
+    dealerCheckbox.style.marginLeft = "10px";
+    dealerCheckbox.onchange = () => {
+      player.dealer = dealerCheckbox.checked;
+      cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
+      updatePlayerList();
+    };
 
     const paidIcon = document.createElement("span");
     paidIcon.textContent = player.paid ? "💰" : "💸";
@@ -688,9 +684,10 @@ dealerCheckbox.onchange = () => {
 
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 
+    // Append all UI parts in order
     li.appendChild(nameSpan);
-    li.appendChild(dealerLabel);    // ✔ dealer checkbox + label
-    li.appendChild(cardIcon);       // ✔ 🂡 icon
+    li.appendChild(cardIcon);
+    li.appendChild(dealerCheckbox);
     li.appendChild(paidIcon);
     li.appendChild(buyinsText);
 
@@ -712,6 +709,7 @@ dealerCheckbox.onchange = () => {
     li.appendChild(buyBtn);
     li.appendChild(koBtn);
     li.appendChild(removeBtn);
+
     list.appendChild(li);
   });
 
@@ -719,7 +717,6 @@ dealerCheckbox.onchange = () => {
   updateKnockoutLog();
   updateTotalPot();
 }
-
 
 
   function updateRemainingCount() {

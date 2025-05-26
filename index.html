@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FSOP Poker Blind Timer</title>
+  <title>Poker Blind Timer</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#121212">
   <link rel="apple-touch-icon" href="icon.png">
@@ -245,23 +245,7 @@
   font-weight: bold;
   pointer-events: none;
 }
-.current-level {
-  background-color: #333;
-  border-left: 5px solid #28a745;
-  padding-left: 10px;
-  font-weight: bold;
-}
-@keyframes pulseHighlight {
-  0% { background-color: yellow; }
-  100% { background-color: #333; }  /* matches .current-level base */
-}
 
-.pulse {
-  animation: pulseHighlight 1s ease;
-}
-#startingChips {
-  text-align: center;
-}
     
 </style>
 
@@ -271,7 +255,7 @@
   <audio id="whistleSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_005eb8bfc8.mp3" preload="auto"></audio>
   <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" preload="auto"></audio>
 
-  <h1>FSOP Poker Blind Timer</h1>
+  <h1>Poker Blind Timer</h1>
 
 <button class="default-button" onclick="clearAllInputs()">Clear All Inputs</button>
 
@@ -279,20 +263,8 @@
  <div id="buyinSetup" class="player-section">
   <h2>Set Buy-In Amount</h2>
   <div class="inline-group">
-    <div class="input-dollar-wrapper">
-  <span class="dollar-sign">$</span>
-  <input type="number" id="buyInValue" placeholder="Buy-In" onchange="saveInputs()" />
-</div>
-
+    <input type="number" id="buyInValue" placeholder="Buy-In ($)" onchange="saveInputs()" />
       </div>
-</div>
-<div class="player-section">
-  <h2>Dealer Payout</h2>
-  <div class="input-dollar-wrapper">
-    <span class="dollar-sign">$</span>
-    <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
-  </div>
-  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Fee/Split</button>
 </div>
 
 <div class="player-section">
@@ -301,27 +273,33 @@
   <div id="chipStats" style="margin-top: 10px; font-weight: bold;">Total Chips: 0 | Avg Stack: 0</div>
 </div>
 
+
 <div class="player-section">
   <h2>Blind Levels</h2>
 
   <button class="default-button" onclick="loadStandardPreset()">Use Standard Structure</button>
-<button class="default-button" id="toggleBlindListBtn" onclick="toggleBlindList()">Hide Blind Levels</button>
-<button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
 
  <div id="blindSetup">
   <input type="number" id="smallBlind" placeholder="Small Blind" onchange="saveInputs()" />
-  <input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
-  <input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
-  <button class="default-button" onclick="addBlindLevel()">Add Level</button>
+<input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
+<input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
+
+   <button class="default-button" onclick="addBlindLevel()">Add Level</button>
 </div>
+<div class="player-section">
+  <h2>Dealer Setup</h2>
+  <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee ($)" />
+  <div id="dealerSelect"></div>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
+  <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
+
+  <button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
+  
   <ul id="blindList"></ul>
 </div>
-  
 
-  <div id="dealerSelect"></div>
-    <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
-
- <div class="player-section">
+<div class="player-section">
 <h2>Players</h2>
 
 <!-- Dropdown First -->
@@ -359,7 +337,7 @@
   <input type="text" id="playerName" placeholder="Enter player name" />
   <button class="default-button" onclick="addPlayer()">Add Player</button>
 </div>
-<div id="totalPlayers">Total players: 0</div>
+
   <div id="playersRemaining">Players remaining: 0</div>
   <div id="totalPot">Total Pot: $0</div>
   <ul id="playerList"></ul>
@@ -383,7 +361,6 @@
 <button id="pauseBtn" onclick="pauseTimer()">Pause</button>
 <button id="resetBtn" onclick="resetTimer()">Reset</button>
 
- 
 <script>
   let blindStructure = [];
   let currentLevel = 0;
@@ -473,27 +450,22 @@ function loadStandardPreset() {
   }
 
   function updateBlindList() {
-  const ul = document.getElementById("blindList");
-  ul.innerHTML = "";
+    const ul = document.getElementById("blindList");
+    ul.innerHTML = "";
+    blindStructure.forEach((b, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = b.break
+  ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`
+  : `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)} min)`;
 
-  blindStructure.forEach((b, index) => {
-    const li = document.createElement("li");
-li.id = `blind-level-${index}`;
-li.className = (index === currentLevel) ? "current-level" : "";
-
-
-    li.innerHTML = b.break
-      ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min)`
-      : `Level ${b.level}: ${b.small} / ${b.big} (${Math.floor(b.duration / 60)} min)`;
-
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "Delete";
-    delBtn.className = "delete-button";
-    delBtn.onclick = () => deleteBlindLevel(index);
-    li.appendChild(delBtn);
-    ul.appendChild(li);
-  });
-}
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.className = "delete-button";
+      delBtn.onclick = () => deleteBlindLevel(index);
+      li.appendChild(delBtn);
+      ul.appendChild(li);
+    });
+  }
 
   function updateDisplay() {
     if (blindStructure.length === 0) return;
@@ -510,14 +482,6 @@ li.className = (index === currentLevel) ? "current-level" : "";
       whistle.play().catch(e => console.log("Audio play blocked:", e));
       whistlePlayed = true;
     }
-    const currentLi = document.getElementById(`blind-level-${currentLevel}`);
-if (currentLi) {
-  // 🔔 Pulse highlight only, no scrolling
-  currentLi.classList.remove("pulse"); // reset if previously added
-  void currentLi.offsetWidth;          // force reflow
-  currentLi.classList.add("pulse");
-}
-
   }
 
 function startTimer() {
@@ -843,11 +807,10 @@ removeBtn.disabled = player.eliminated;
   updateKnockoutLog();
   updateTotalPot();
   updateChipStats();
-  if (!document.getElementById("totalPlayers").dataset.locked) {
-  document.getElementById("totalPlayers").textContent = `Total players: ${players.length}`;
 }
 
-function updateRemainingCount() {
+
+  function updateRemainingCount() {
     const remaining = players.filter(p => !p.eliminated).length;
     document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining}`;
     if (remaining === 1 && players.length > 1) {
@@ -865,7 +828,6 @@ function updateRemainingCount() {
       log.appendChild(li);
     });
   }
-  
 
   function addBuyin(index) {
     players[index].buyins++;
@@ -875,25 +837,17 @@ function updateRemainingCount() {
 
   function toggleElimination(index) {
   const player = players[index];
-  const wasEliminated = player.eliminated;
-
-  // Toggle elimination state
   player.eliminated = !player.eliminated;
 
   if (player.eliminated) {
-    // Add to knockout log if not already in it
-    if (!knockoutOrder.includes(player.name)) {
-      knockoutOrder.push(player.name);
-    }
-    triggerRunnerAnimation();  // KO animation
+    knockoutOrder.push(player.name);
+    triggerRunnerAnimation();  // 👉 trigger animation only on KO
   } else {
-    // Remove from knockout log on undo
     knockoutOrder = knockoutOrder.filter(name => name !== player.name);
   }
 
-  updatePlayerList();  // ⬅️ This re-renders the updated status
+  updatePlayerList();
 }
-
 function triggerRunnerAnimation() {
   const runner = document.getElementById("runner");
   if (!runner) return;
@@ -995,18 +949,6 @@ window.addEventListener("DOMContentLoaded", () => {
   loadInputs();                  
 });
 
-function toggleBlindList() {
-  const list = document.getElementById("blindList");
-  const btn = document.getElementById("toggleBlindListBtn");
-
-  if (list.style.display === "none") {
-    list.style.display = "block";
-    btn.textContent = "Hide Blind Levels";
-  } else {
-    list.style.display = "none";
-    btn.textContent = "Show Blind Levels";
-  }
-}
 
 function removePlayer(index) {
   players.splice(index, 1);               // Remove from player list
@@ -1122,35 +1064,6 @@ function updateChipStats() {
   document.getElementById("chipStats").textContent =
     `Total Chips: ${totalChips.toLocaleString()} | Avg Stack: ${avgChips.toLocaleString()}`;
 }
-window.addEventListener("DOMContentLoaded", () => {
-  const initialDefaults = [
-    "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
-    "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
-    "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
-  ];
-
-  const existing = JSON.parse(localStorage.getItem("savedPlayers"));
-  if (!existing || !Array.isArray(existing)) {
-    localStorage.setItem("savedPlayers", JSON.stringify(initialDefaults));
-  }
-
-  refreshSavedPlayersDropdown();
-  loadInputs();
-
-  // ✅ Ensure your button-linked functions are globally accessible
-  window.loadStandardPreset = loadStandardPreset;
-  window.toggleBlindList = toggleBlindList;
-  window.toggleCustomBlind = toggleCustomBlind;
-  window.addPlayer = addPlayer;
-  window.addSavedPlayer = addSavedPlayer;
-  window.startTimer = startTimer;
-  window.pauseTimer = pauseTimer;
-  window.resetTimer = resetTimer;
-  window.showPayouts = showPayouts;
-  window.calculateDealerSplit = calculateDealerSplit;
-  window.clearAllInputs = clearAllInputs;
-});
-
 
   
 </script>

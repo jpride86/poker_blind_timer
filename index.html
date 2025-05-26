@@ -366,11 +366,14 @@
     </thead>
     <tbody></tbody>
   </table>
-    <button class="default-button" onclick="showLeagueHistory()">Show League History</button>
+    <button class="default-button" id="toggleLeagueBtn" onclick="toggleLeagueHistory()">Show League History</button>
   <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
+  <div id="leagueHistoryContainer" style="display: none;">
   <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
   <h3>Cumulative Leaderboard</h3>
-<ul id="cumulativeLeaderboardList" style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+  <ul id="cumulativeLeaderboardList" style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+</div>
+
 
 
 </div>
@@ -1340,6 +1343,19 @@ function clearLeagueHistory() {
   }
 }
   
+function toggleLeagueHistory() {
+  const container = document.getElementById("leagueHistoryContainer");
+  const btn = document.getElementById("toggleLeagueBtn");
+
+  if (container.style.display === "none") {
+    showLeagueHistory();  // Load and show
+    container.style.display = "block";
+    btn.textContent = "Hide League History";
+  } else {
+    container.style.display = "none";
+    btn.textContent = "Show League History";
+  }
+}
   
 </script>
   

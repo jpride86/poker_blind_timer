@@ -353,6 +353,7 @@
 
 <div class="player-section">
   <h2>League Table</h2>
+  <div id="leagueTableContainer">
   <table id="leagueTable" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
     <thead>
       <tr>
@@ -361,11 +362,12 @@
         <th>Status</th>
         <th>Dealer</th>
         <th>Place</th>
-         <th>Points</th>
+        <th>Points</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
+</div>
     <button class="default-button" id="toggleLeagueBtn" onclick="toggleLeagueHistory()">Show League History</button>
   <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
   <div id="leagueHistoryContainer" style="display: none;">

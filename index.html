@@ -788,6 +788,7 @@ removeBtn.disabled = player.eliminated;
       knockoutOrder = knockoutOrder.filter(name => name !== player.name);
     }
     updatePlayerList();
+    updateChipStats();updatePlayerList()
   }
 
   function celebrateWinner(name) {

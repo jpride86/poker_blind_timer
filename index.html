@@ -880,6 +880,7 @@ function removePlayer(index) {
   players.splice(index, 1);               // Remove from player list
   updatePlayerList();                     // Refresh UI
   refreshSavedPlayersDropdown();          // Rebuild dropdown
+  updateChipStats();
 }
 
 function calculateDealerSplit() {

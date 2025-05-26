@@ -892,7 +892,7 @@ function saveInputs() {
     smallBlind: document.getElementById("smallBlind").value,
     bigBlind: document.getElementById("bigBlind").value,
     duration: document.getElementById("duration").value,
-    dealerFee: document.getElementById("dealerFee").value
+    dealerFee: document.getElementById("dealerFeeInput").value
   };
   localStorage.setItem("pokerInputs", JSON.stringify(inputData));
 }
@@ -905,7 +905,7 @@ function loadInputs() {
   document.getElementById("smallBlind").value = saved.smallBlind || "";
   document.getElementById("bigBlind").value = saved.bigBlind || "";
   document.getElementById("duration").value = saved.duration || "";
-  document.getElementById("dealerFee").value = saved.dealerFee || "";
+  document.getElementById("dealerFeeInput").value = saved.dealerFee || "";
 }
 function clearAllInputs() {
   localStorage.removeItem("pokerInputs");

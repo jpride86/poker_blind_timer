@@ -916,6 +916,17 @@ function clearAllInputs() {
   document.getElementById("duration").value = "";
   document.getElementById("dealerFee").value = "";
 }
+function clearAllInputs() {
+  if (!confirm("Are you sure you want to clear all saved inputs?")) return;
+
+  localStorage.removeItem("pokerInputs");
+
+  document.getElementById("buyInValue").value = "";
+  document.getElementById("smallBlind").value = "";
+  document.getElementById("bigBlind").value = "";
+  document.getElementById("duration").value = "";
+  document.getElementById("dealerFee").value = "";
+}
 
   
 </script>

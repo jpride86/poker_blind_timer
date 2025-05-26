@@ -959,7 +959,6 @@ if (p.eliminated && finishIndex !== -1 && p.buyins > 0) {
 
 row.appendChild(pointsCell);
 const winningsCell = document.createElement("td");
-const finishIndex = knockoutOrder.indexOf(p.name);
 const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
 const totalPot = totalBuyIns * buyInAmount;
 

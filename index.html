@@ -1241,12 +1241,20 @@ function saveLeagueResults() {
         name: p.name,
         buyins: p.buyins,
         finish: finishPosition,
-        points: parseFloat(points.toFixed(2))
+        points: parseFloat(points.toFixed(2)),
+        date: new Date().toISOString()  // ✅ optional: to track when
       });
     }
   });
 
-  localStorage.setItem("fsopLeagueResults", JSON.stringify(results));
+  // ✅ Load existing history if any
+  const existing = JSON.parse(localStorage.getItem("fsopLeagueResults")) || [];
+
+  // ✅ Append new results
+  const allResults = existing.concat(results);
+
+  // ✅ Save back to localStorage
+  localStorage.setItem("fsopLeagueResults", JSON.stringify(allResults));
 }
 function showLeagueHistory() {
   const historyList = document.getElementById("leagueHistoryList");

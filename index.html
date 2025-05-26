@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+g<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -814,16 +814,37 @@ removeBtn.disabled = player.eliminated;
   }
 
   function toggleElimination(index) {
-    const player = players[index];
-    player.eliminated = !player.eliminated;
-    if (player.eliminated) {
-      knockoutOrder.push(player.name);
-    } else {
-      knockoutOrder = knockoutOrder.filter(name => name !== player.name);
-    }
-    updatePlayerList();
-    
+  const player = players[index];
+  player.eliminated = !player.eliminated;
+
+  if (player.eliminated) {
+    knockoutOrder.push(player.name);
+    triggerRunnerAnimation();  // 👉 trigger animation only on KO
+  } else {
+    knockoutOrder = knockoutOrder.filter(name => name !== player.name);
   }
+
+  updatePlayerList();
+}
+function triggerRunnerAnimation() {
+  const runner = document.getElementById("runner");
+  if (!runner) return;
+
+  // Reset the animation
+  runner.classList.remove("run-animation");
+
+  // Force reflow to restart animation
+  void runner.offsetWidth;
+
+  // Add class to trigger animation
+  runner.classList.add("run-animation");
+
+  // Optionally remove the class after it's done
+  setTimeout(() => {
+    runner.classList.remove("run-animation");
+  }, 2500); // Match duration of animation
+}
+
 
   function celebrateWinner(name) {
     alert(`${name} is the winner!`);

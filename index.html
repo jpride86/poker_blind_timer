@@ -289,16 +289,17 @@
 <div class="player-section">
   <h2>Dealer Payout</h2>
   <div class="input-dollar-wrapper">
-  <span class="dollar-sign">$</span>
-  <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
+    <span class="dollar-sign">$</span>
+    <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
+  </div>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
 </div>
-<button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Split</button>
+
 <div class="player-section">
   <h2>Chip Statistics</h2>
   <input type="number" id="startingChips" placeholder="Starting Chips (e.g. 1500)" onchange="updateChipStats()" />
   <div id="chipStats" style="margin-top: 10px; font-weight: bold;">Total Chips: 0 | Avg Stack: 0</div>
 </div>
-
 
 <div class="player-section">
   <h2>Blind Levels</h2>

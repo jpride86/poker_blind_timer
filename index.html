@@ -1283,18 +1283,30 @@ function showLeagueHistory() {
     return;
   }
 
-  // Sort by highest points
-  saved.sort((a, b) => b.points - a.points);
-
-  // Show single-session results
+  // 🗂️ Group results by player name
+  const grouped = {};
   saved.forEach(entry => {
-    const li = document.createElement("li");
-    const dateFormatted = new Date(entry.date).toLocaleDateString();
-li.innerHTML = `🏆 <strong>${entry.tournament}</strong> — ${entry.name}: ${entry.points.toFixed(2)} pts — ${entry.finish}${getOrdinalSuffix(entry.finish)} place (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) <em>(${dateFormatted})</em>`;
-    historyList.appendChild(li);
+    if (!grouped[entry.name]) grouped[entry.name] = [];
+    grouped[entry.name].push(entry);
   });
 
-  // Compute cumulative leaderboard
+  Object.keys(grouped).sort().forEach(name => {
+    const playerHeader = document.createElement("li");
+    playerHeader.innerHTML = `<strong>${name}</strong>`;
+    playerHeader.style.marginTop = "15px";
+    historyList.appendChild(playerHeader);
+
+    const playerEntries = grouped[name].sort((a, b) => new Date(b.date) - new Date(a.date));
+    playerEntries.forEach(entry => {
+      const li = document.createElement("li");
+      const dateFormatted = new Date(entry.date).toLocaleDateString();
+      li.innerHTML = `🏆 <em>${entry.tournament}</em> — ${entry.finish}${getOrdinalSuffix(entry.finish)} place, ${entry.points.toFixed(2)} pts (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) – ${dateFormatted}`;
+      li.style.marginLeft = "15px";
+      historyList.appendChild(li);
+    });
+  });
+
+  // 🏁 Cumulative leaderboard (unchanged)
   const totals = {};
   saved.forEach(entry => {
     if (!totals[entry.name]) {

@@ -353,7 +353,7 @@
   <h2>Payout Breakdown</h2>
   <button class="default-button" onclick="showPayouts()">Show Payouts</button>
   <ul id="payoutList"></ul>
-</div>
+  </div>
 
   
   <div class="level" id="blindLevel">Level 1: -- / --</div>
@@ -583,28 +583,24 @@ function showPayouts() {
   const places = ["1st", "2nd", "3rd", "4th", "5th"];
   let payouts = structure.map(pct => totalPot * pct);
 
-// Round down to nearest 5
-let rounded = payouts.map(amt => Math.floor(amt / 5) * 5);
+  // Round down to nearest 5
+  let rounded = payouts.map(amt => Math.floor(amt / 5) * 5);
+  let totalRounded = rounded.reduce((a, b) => a + b, 0);
+  let leftover = Math.round(totalPot - totalRounded);
 
-// Calculate total remaining from rounding
-let totalRounded = rounded.reduce((a, b) => a + b, 0);
-let leftover = Math.round(totalPot - totalRounded);
+  let i = 0;
+  while (leftover >= 5 && i < rounded.length) {
+    rounded[i] += 5;
+    leftover -= 5;
+    i++;
+  }
 
-// Distribute leftover in $5 chunks to higher-ranked players
-let i = 0;
-while (leftover >= 5 && i < rounded.length) {
-  rounded[i] += 5;
-  leftover -= 5;
-  i++;
-}
-
-// Now display
-rounded.forEach((amt, i) => {
-  const li = document.createElement("li");
-  const percent = (structure[i] * 100).toFixed(0);
-  li.textContent = `${places[i]} Place (${percent}%): $${amt.toFixed(2)}`;
-  payoutList.appendChild(li);
-});
+  rounded.forEach((amt, i) => {
+    const li = document.createElement("li");
+    const percent = (structure[i] * 100).toFixed(0);
+    li.textContent = `${places[i]} Place (${percent}%): $${amt.toFixed(2)}`;
+    payoutList.appendChild(li);
+  });
 
   const totalLi = document.createElement("li");
   totalLi.style.marginTop = "10px";
@@ -612,6 +608,25 @@ rounded.forEach((amt, i) => {
   totalLi.style.listStyle = "none";
   totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
   payoutList.appendChild(totalLi);
+
+  // ✅ Add dealer split info (if valid)
+  const dealerFee = parseFloat(document.getElementById("dealerFeeDealer").value);
+  const dealers = players.filter(p => p.dealer);
+  const payingPlayers = players.filter(p => !p.dealer);
+
+  if (!isNaN(dealerFee) && dealerFee > 0 && dealers.length > 0) {
+    const totalCollected = dealerFee * payingPlayers.length;
+    const payoutPerDealer = totalCollected / dealers.length;
+    const dealerNames = dealers.map(p => p.name).join(", ");
+
+    const dealerLi = document.createElement("li");
+    dealerLi.style.listStyle = "none";
+    dealerLi.style.marginTop = "8px";
+    dealerLi.textContent = `Dealer Fee Split: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames}): $${payoutPerDealer.toFixed(2)}`;
+    payoutList.appendChild(dealerLi);
+  }
+
+  // ✅ Also show chip stats
   const chipsPerBuyin = parseInt(document.getElementById("startingChips").value);
   if (!isNaN(chipsPerBuyin) && chipsPerBuyin > 0) {
     const totalChips = totalBuyIns * chipsPerBuyin;

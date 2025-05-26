@@ -773,7 +773,7 @@ dealerCheckbox.style.marginRight = "5px";
 dealerCheckbox.onchange = () => {
   player.dealer = dealerCheckbox.checked;
   cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
-  updatePlayerList();
+  // Don't call updatePlayerList() here
 };
 
 dealerLabel.appendChild(dealerCheckbox);
@@ -788,10 +788,10 @@ dealerLabel.appendChild(document.createTextNode("Dealer"));
     paidIcon.style.pointerEvents = player.eliminated ? "none" : "auto";
     paidIcon.style.opacity = player.eliminated ? "0.5" : "1";
     paidIcon.onclick = () => {
-      player.paid = !player.paid;
-      player.buyins = player.paid ? 1 : 0;
-      updatePlayerList();
-    };
+  player.paid = !player.paid;
+  player.buyins = player.paid ? 1 : 0;
+  // Let the list update naturally later
+};
 
     const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
 

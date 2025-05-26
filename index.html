@@ -958,6 +958,34 @@ if (p.eliminated && finishIndex !== -1 && p.buyins > 0) {
 }
 
 row.appendChild(pointsCell);
+const winningsCell = document.createElement("td");
+const finishIndex = knockoutOrder.indexOf(p.name);
+const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+const totalPot = totalBuyIns * buyInAmount;
+
+let payout = 0;
+
+if (p.eliminated && finishIndex !== -1 && p.buyins > 0) {
+  const finishPos = players.length - finishIndex;
+  let payoutStructure = [];
+
+  if (players.length <= 10) {
+    payoutStructure = [0.5, 0.3, 0.2];
+  } else if (players.length <= 20) {
+    payoutStructure = [0.5, 0.25, 0.15, 0.10];
+  } else if (players.length <= 30) {
+    payoutStructure = [0.4, 0.25, 0.2, 0.1, 0.05];
+  }
+
+  if (finishPos <= payoutStructure.length) {
+    payout = totalPot * payoutStructure[finishPos - 1];
+    payout = Math.floor(payout / 5) * 5; // round to nearest $5
+  }
+}
+
+winningsCell.textContent = payout > 0 ? `$${payout.toFixed(2)}` : "—";
+row.appendChild(winningsCell);
+tableBody.appendChild(row);  // ✅ already existing
 
     tableBody.appendChild(row);
   });

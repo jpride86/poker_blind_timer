@@ -653,6 +653,23 @@ function updatePlayerList() {
 
     const nameSpan = document.createElement("span");
     nameSpan.textContent = player.name;
+    // Create a dealer checkbox with label
+const dealerLabel = document.createElement("label");
+dealerLabel.style.marginLeft = "10px";
+dealerLabel.style.cursor = "pointer";
+
+const dealerCheckbox = document.createElement("input");
+dealerCheckbox.type = "checkbox";
+dealerCheckbox.checked = player.dealer;
+dealerCheckbox.style.marginRight = "5px";
+dealerCheckbox.onchange = () => {
+  player.dealer = dealerCheckbox.checked;
+  updatePlayerList();
+};
+
+dealerLabel.appendChild(dealerCheckbox);
+dealerLabel.appendChild(document.createTextNode("Dealer"));
+
 
     const dealerCheckbox = document.createElement("input");
 dealerCheckbox.type = "checkbox";

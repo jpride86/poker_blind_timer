@@ -854,20 +854,26 @@ function toggleAllPaid() {
 
   function toggleElimination(index) {
   const player = players[index];
-  player.eliminated = !player.eliminated;
 
   if (player.eliminated) {
-    // Only add to knockout log if not already included
-    if (!knockoutOrder.includes(player.name)) {
-      knockoutOrder.push(player.name);
+    // Undo KO
+    player.eliminated = false;
+
+    // Remove the last occurrence of their name from the knockout order
+    const reversedIndex = [...knockoutOrder].reverse().indexOf(player.name);
+    if (reversedIndex !== -1) {
+      knockoutOrder.splice(knockoutOrder.length - 1 - reversedIndex, 1);
     }
   } else {
-    // Remove from knockout log on undo
-    knockoutOrder = knockoutOrder.filter(name => name !== player.name);
+    // KO the player
+    player.eliminated = true;
+    knockoutOrder.push(player.name);
+    triggerRunnerAnimation();  // Optional: only if animation is re-enabled
   }
 
   updatePlayerList();
 }
+
 
   function celebrateWinner(name) {
     alert(`${name} is the winner!`);

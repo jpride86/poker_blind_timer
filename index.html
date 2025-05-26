@@ -827,21 +827,19 @@ function triggerRunnerAnimation() {
   const runner = document.getElementById("runner");
   if (!runner) return;
 
-  // Reset the animation
+  runner.style.display = "block";
   runner.classList.remove("run-animation");
 
   // Force reflow to restart animation
   void runner.offsetWidth;
 
-  // Add class to trigger animation
   runner.classList.add("run-animation");
 
-  // Optionally remove the class after it's done
   setTimeout(() => {
     runner.classList.remove("run-animation");
-  }, 2500); // Match duration of animation
+    runner.style.display = "none";
+  }, 2500);
 }
-
 
   function celebrateWinner(name) {
     alert(`${name} is the winner!`);

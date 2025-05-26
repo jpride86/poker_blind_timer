@@ -852,11 +852,14 @@ function toggleAllPaid() {
   player.eliminated = !player.eliminated;
 
   if (player.eliminated) {
-  knockoutOrder.push(player.name);
-} else {
-  knockoutOrder = knockoutOrder.filter(name => name !== player.name);
-}
-
+    // Only add to knockout log if not already included
+    if (!knockoutOrder.includes(player.name)) {
+      knockoutOrder.push(player.name);
+    }
+  } else {
+    // Remove from knockout log on undo
+    knockoutOrder = knockoutOrder.filter(name => name !== player.name);
+  }
 
   updatePlayerList();
 }

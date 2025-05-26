@@ -543,6 +543,17 @@ function showPayouts() {
   totalLi.style.listStyle = "none";
   totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
   payoutList.appendChild(totalLi);
+  const chipsPerBuyin = parseInt(document.getElementById("startingChips").value);
+  if (!isNaN(chipsPerBuyin) && chipsPerBuyin > 0) {
+    const totalChips = totalBuyIns * chipsPerBuyin;
+    const remainingPlayers = players.filter(p => !p.eliminated).length;
+    const avgChips = remainingPlayers > 0 ? Math.round(totalChips / remainingPlayers) : 0;
+
+    const chipLi = document.createElement("li");
+    chipLi.style.listStyle = "none";
+    chipLi.textContent = `Total Chips: ${totalChips.toLocaleString()} | Avg Stack: ${avgChips.toLocaleString()}`;
+    payoutList.appendChild(chipLi);
+  }
 }
 
  function pauseTimer() {

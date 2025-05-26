@@ -811,7 +811,7 @@ buyBtn.disabled = player.eliminated;
 const koBtn = document.createElement("button");
 koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
 koBtn.className = "knockout-button";
-koBtn.addEventListener("click", () => toggleElimination(index));
+koBtn.onclick = () => toggleElimination(index);
 
 
 const removeBtn = document.createElement("button");

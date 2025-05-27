@@ -250,6 +250,14 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   Winner!
 </div>
   <h1>FSOP Poker Blind Timer</h1>
+<div id="authSection" class="player-section">
+  <h2>Login</h2>
+  <input type="email" id="emailInput" placeholder="Email" />
+  <input type="password" id="passwordInput" placeholder="Password" />
+  <button class="default-button" onclick="login()">Login</button>
+  <button class="default-button" onclick="register()">Register</button>
+  <div id="authStatus" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
 
   <!-- Tournament Info -->
 <div class="player-section">
@@ -410,6 +418,8 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js"></script>
 <!-- Add Firestore -->
 <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js"></script>
+<!-- Add Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js"></script>
 
 <script>
   const firebaseConfig = {

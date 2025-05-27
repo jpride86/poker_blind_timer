@@ -1565,20 +1565,20 @@ function toggleLeagueTable() {
       });
   }
 
- function enableAppFeatures() {
+function enableAppFeatures() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
-   refreshSavedPlayersDropdown(); 
+
+  refreshSavedPlayersDropdown(); // ✅ THIS IS CRITICAL
 
   const bindOnce = (id, handler) => {
     const btn = document.getElementById(id);
     if (btn && !btn.dataset.bound) {
       btn.addEventListener("click", handler);
-      btn.dataset.bound = "true"; // prevent rebinding
+      btn.dataset.bound = "true";
     }
   };
 
-  // ✅ Rebind all buttons that previously used onclick
   bindOnce("loadPresetBtn", loadStandardPreset);
   bindOnce("clearInputsBtn", clearAllInputs);
   bindOnce("toggleAllPaidBtn", toggleAllPaid);

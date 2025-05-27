@@ -421,59 +421,6 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <!-- Add Firebase Auth -->
 <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js"></script>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
-    authDomain: "fsop-poker-blind-timer.firebaseapp.com",
-    projectId: "fsop-poker-blind-timer",
-    storageBucket: "fsop-poker-blind-timer.firebasestorage.app",
-    messagingSenderId: "327865291955",
-    appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore(); // You can now use `db` to interact with Firestore
-  const auth = firebase.auth();
-
-  function login() {
-    const email = document.getElementById("emailInput").value;
-    const password = document.getElementById("passwordInput").value;
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("authStatus").textContent = "✅ Logged in!";
-        enableAppFeatures();
-      })
-      .catch(error => {
-        document.getElementById("authStatus").textContent = `❌ Login failed: ${error.message}`;
-      });
-  }
-
-  function register() {
-    const email = document.getElementById("emailInput").value;
-    const password = document.getElementById("passwordInput").value;
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("authStatus").textContent = "✅ Registered and logged in!";
-        enableAppFeatures();
-      })
-      .catch(error => {
-        document.getElementById("authStatus").textContent = `❌ Registration failed: ${error.message}`;
-      });
-  }
-
-  function enableAppFeatures() {
-    document.getElementById("authSection").style.display = "none";
-    // You can also unhide the rest of the app here if needed
-  }
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
-      enableAppFeatures();
-    }
-  });
-</script>
  
 <script>
   let blindStructure = [];
@@ -1576,6 +1523,59 @@ function toggleLeagueTable() {
 }
 
   
+</script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
+    authDomain: "fsop-poker-blind-timer.firebaseapp.com",
+    projectId: "fsop-poker-blind-timer",
+    storageBucket: "fsop-poker-blind-timer.firebasestorage.app",
+    messagingSenderId: "327865291955",
+    appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore(); // You can now use `db` to interact with Firestore
+  const auth = firebase.auth();
+
+  function login() {
+    const email = document.getElementById("emailInput").value;
+    const password = document.getElementById("passwordInput").value;
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById("authStatus").textContent = "✅ Logged in!";
+        enableAppFeatures();
+      })
+      .catch(error => {
+        document.getElementById("authStatus").textContent = `❌ Login failed: ${error.message}`;
+      });
+  }
+
+  function register() {
+    const email = document.getElementById("emailInput").value;
+    const password = document.getElementById("passwordInput").value;
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById("authStatus").textContent = "✅ Registered and logged in!";
+        enableAppFeatures();
+      })
+      .catch(error => {
+        document.getElementById("authStatus").textContent = `❌ Registration failed: ${error.message}`;
+      });
+  }
+
+  function enableAppFeatures() {
+    document.getElementById("authSection").style.display = "none";
+    // You can also unhide the rest of the app here if needed
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
+      enableAppFeatures();
+    }
+  });
 </script>
   
 </body>

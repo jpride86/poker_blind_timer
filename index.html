@@ -1210,14 +1210,6 @@ window.addEventListener("DOMContentLoaded", () => {
   loadInputs();
 });
 
-// ✅ This part is now outside the DOMContentLoaded block and always runs
-document.addEventListener("DOMContentLoaded", function () {
-  const btn = document.getElementById("loadPresetBtn");
-  if (btn) {
-    btn.addEventListener("click", loadStandardPreset);
-  }
-});
-
 function toggleBlindList() {
   const list = document.getElementById("blindList");
   const btn = document.getElementById("toggleBlindListBtn");
@@ -1574,8 +1566,18 @@ function toggleLeagueTable() {
 
   function enableAppFeatures() {
   document.getElementById("authSection").style.display = "none";
-  document.getElementById("appSection").style.display = "block";  // ✅ show the app
+  document.getElementById("appSection").style.display = "block";
+
+  // ✅ Bind event listeners now that the section is visible
+  const presetBtn = document.getElementById("loadPresetBtn");
+  if (presetBtn && !presetBtn.dataset.bound) {
+    presetBtn.addEventListener("click", loadStandardPreset);
+    presetBtn.dataset.bound = "true"; // prevent double binding
+  }
+
+  // (Optional) Add other buttons here if needed in future
 }
+
 
  function logout() {
     auth.signOut()

@@ -1361,10 +1361,18 @@ results.push({
     }
   });
 
+    // Optional: Still save to localStorage for offline fallback
   const existing = JSON.parse(localStorage.getItem("fsopLeagueResults")) || [];
   const allResults = existing.concat(results);
   localStorage.setItem("fsopLeagueResults", JSON.stringify(allResults));
-}
+
+  // NEW: Also save to Firebase Firestore
+  results.forEach(entry => {
+    db.collection("leagueHistory").add(entry)
+      .then(() => console.log("Saved to Firestore:", entry))
+      .catch(err => console.error("Firestore save failed:", err));
+  });
+
 
 function showLeagueHistory() {
   const historyList = document.getElementById("leagueHistoryList");
@@ -1372,13 +1380,33 @@ function showLeagueHistory() {
   historyList.innerHTML = "";
   cumulativeList.innerHTML = "";
 
-  const saved = JSON.parse(localStorage.getItem("fsopLeagueResults"));
-  if (!saved || saved.length === 0) {
-    historyList.innerHTML = "<li>No history found.</li>";
-    return;
-  }
+  db.collection("leagueHistory")
+  .orderBy("date", "desc")
+  .get()
+  .then(snapshot => {
+    if (snapshot.empty) {
+      historyList.innerHTML = "<li>No history found.</li>";
+      return;
+    }
 
-  // 🗂️ Group results by player name
+    const saved = [];
+    snapshot.forEach(doc => saved.push(doc.data()));
+
+    renderLeagueHistory(saved); // ⬅ we'll extract the rendering logic into a new function
+  })
+  .catch(error => {
+    console.error("Failed to load Firestore history:", error);
+    historyList.innerHTML = "<li>Error loading history.</li>";
+  });
+
+  }
+function renderLeagueHistory(saved) {
+  const historyList = document.getElementById("leagueHistoryList");
+  const cumulativeList = document.getElementById("cumulativeLeaderboardList");
+  historyList.innerHTML = "";
+  cumulativeList.innerHTML = "";
+  
+// 🗂️ Group results by player name
   const grouped = {};
   saved.forEach(entry => {
     if (!grouped[entry.name]) grouped[entry.name] = [];
@@ -1430,8 +1458,7 @@ li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrd
 
   cumulativeList.appendChild(li);
 });
-}
-
+  
 // Optional: Helper to make "1st", "2nd", "3rd" suffixes
 function getOrdinalSuffix(n) {
   const s = ["th", "st", "nd", "rd"];

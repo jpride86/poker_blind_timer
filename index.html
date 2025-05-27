@@ -250,6 +250,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   Winner!
 </div>
   <h1>FSOP Poker Blind Timer</h1>
+  <button class="default-button" onclick="logout()" style="margin-bottom: 20px;">Logout</button>
 <div id="authSection" class="player-section">
   <h2>Login</h2>
   <input type="email" id="emailInput" placeholder="Email" />
@@ -1571,7 +1572,22 @@ function toggleLeagueTable() {
   document.getElementById("appSection").style.display = "block";  // ✅ show the app
 }
 
+ function logout() {
+    auth.signOut()
+      .then(() => {
+        document.getElementById("authStatus").textContent = "Logged out.";
+        document.getElementById("authSection").style.display = "block";
+        document.getElementById("appSection").style.display = "none";
+      })
+      .catch(error => {
+        alert("Logout failed: " + error.message);
+      });
+  }
 
+  auth.onAuthStateChanged(user => {
+    ...
+  });
+</script>
   auth.onAuthStateChanged(user => {
   if (user) {
     document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;

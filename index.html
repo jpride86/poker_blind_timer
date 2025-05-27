@@ -791,20 +791,16 @@ function savePlayerToLocal(name) {
 }
 
 function refreshSavedPlayersDropdown() {
-  const dropdown = document.getElementById("savedPlayers");
-
-  // Clear existing options
-  dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
-
-  db.collection("savedPlayers").get()
-    .then(snapshot => {
-      const firestoreNames = [];
-      snapshot.forEach(doc => {
-        const name = doc.data().name;
-        if (name && !firestoreNames.includes(name)) {
-          firestoreNames.push(name);
-        }
-      });
+  console.log("Refreshing player dropdown..."); // 🔍 for debugging
+  const dropdown = document.getElementById("playerDropdown");
+  dropdown.innerHTML = '<option value="">Select Player</option>';
+  savedPlayers.forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    dropdown.appendChild(option);
+  });
+}
 
       firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 

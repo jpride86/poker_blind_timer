@@ -1567,6 +1567,7 @@ function toggleLeagueTable() {
  function enableAppFeatures() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
+   refreshSavedPlayersDropdown(); 
 
   const bindOnce = (id, handler) => {
     const btn = document.getElementById(id);

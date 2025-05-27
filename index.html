@@ -1402,25 +1402,24 @@ function showLeagueHistory() {
   cumulativeList.innerHTML = "";
 
   db.collection("leagueHistory")
-  .orderBy("date", "desc")
-  .get()
-  .then(snapshot => {
-    if (snapshot.empty) {
-      historyList.innerHTML = "<li>No history found.</li>";
-      return;
-    }
+    .orderBy("date", "desc")
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        historyList.innerHTML = "<li>No history found.</li>";
+        return;
+      }
 
-    const saved = [];
-    snapshot.forEach(doc => saved.push(doc.data()));
+      const saved = [];
+      snapshot.forEach(doc => saved.push(doc.data()));
 
-    renderLeagueHistory(saved); // ⬅ we'll extract the rendering logic into a new function
-  })
-  .catch(error => {
-    console.error("Failed to load Firestore history:", error);
-    historyList.innerHTML = "<li>Error loading history.</li>";
-  });
-
-  }
+      renderLeagueHistory(saved);
+    })
+    .catch(error => {
+      console.error("Failed to load Firestore history:", error);
+      historyList.innerHTML = "<li>Error loading history.</li>";
+    });
+}
 function renderLeagueHistory(saved) {
   const historyList = document.getElementById("leagueHistoryList");
   const cumulativeList = document.getElementById("cumulativeLeaderboardList");

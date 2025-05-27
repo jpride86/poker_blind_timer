@@ -1196,10 +1196,10 @@ function toggleAllPaid() {
 }
 window.addEventListener("DOMContentLoaded", () => {
   const initialDefaults = [
-  "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
-  "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
-  "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
-];
+    "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+    "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+    "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+  ];
 
   const existing = JSON.parse(localStorage.getItem("savedPlayers"));
   if (!existing || !Array.isArray(existing)) {
@@ -1207,8 +1207,15 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   refreshSavedPlayersDropdown();
-  loadInputs();      
-   document.getElementById("loadPresetBtn").addEventListener("click", loadStandardPreset);
+  loadInputs();
+});
+
+// ✅ This part is now outside the DOMContentLoaded block and always runs
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("loadPresetBtn");
+  if (btn) {
+    btn.addEventListener("click", loadStandardPreset);
+  }
 });
 
 function toggleBlindList() {

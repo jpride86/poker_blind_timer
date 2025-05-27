@@ -784,24 +784,49 @@ function savePlayerToLocal(name) {
     saved.push(name);
     saved.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
     localStorage.setItem("savedPlayers", JSON.stringify(saved));
+
+    // 🔄 Also save to Firestore
+    db.collection("savedPlayers").add({ name: name })
+      .then(() => console.log("Saved to Firestore:", name))
+      .catch(err => console.error("Failed to save player to Firestore:", err));
   }
 
-  refreshSavedPlayersDropdown();  // ✅ this must always run
+  refreshSavedPlayersDropdown();
 }
 
 function refreshSavedPlayersDropdown() {
   const dropdown = document.getElementById("savedPlayers");
-  const saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
 
+  // Clear existing options
   dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
-  saved.forEach(name => {
-    if (!players.some(p => p.name === name)) {
-      const option = document.createElement("option");
-      option.value = name;
-      option.textContent = name;
-      dropdown.appendChild(option);
-    }
-  });
+
+  db.collection("savedPlayers").get()
+    .then(snapshot => {
+      const firestoreNames = [];
+      snapshot.forEach(doc => {
+        const name = doc.data().name;
+        if (name && !firestoreNames.includes(name)) {
+          firestoreNames.push(name);
+        }
+      });
+
+      firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+      // Optional: sync back to localStorage for offline fallback
+      localStorage.setItem("savedPlayers", JSON.stringify(firestoreNames));
+
+      firestoreNames.forEach(name => {
+        if (!players.some(p => p.name === name)) {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          dropdown.appendChild(option);
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Error loading saved players from Firestore:", err);
+    });
 }
 
 function addSavedPlayer() {

@@ -1474,12 +1474,6 @@ function clearLeagueHistory() {
   }
 }
 
-  if (confirm("Are you sure you want to delete all saved league history?")) {
-    localStorage.removeItem("fsopLeagueResults");
-    document.getElementById("leagueHistoryList").innerHTML = "<li>History cleared.</li>";
-    document.getElementById("cumulativeLeaderboardList").innerHTML = "";
-  }
-}
   
 function toggleLeagueHistory() {
   const container = document.getElementById("leagueHistoryContainer");

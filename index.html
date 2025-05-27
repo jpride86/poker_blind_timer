@@ -273,19 +273,22 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <button class="default-button" onclick="clearAllInputs()">Clear All Inputs</button>
 
 
- <div id="buyinSetup" class="player-section">
+<div id="buyinSetup" class="player-section">
   <h2>Set Buy-In Amount</h2>
   <div class="inline-group">
     <div class="input-dollar-wrapper">
-  <span class="dollar-sign">$</span>
-  <input type="number" id="buyInValue" placeholder="Buy-In" onchange="saveInputs()" />
+      <span class="dollar-sign">$</span>
+      <input type="number" id="buyInValue" placeholder="Buy-In" onchange="saveInputs()" />
+    </div>
+  </div>
 </div>
+
 <div class="player-section">
   <h2>Dealer Setup</h2>
   <div class="input-dollar-wrapper">
-  <span class="dollar-sign">$</span>
-  <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
-</div>
+    <span class="dollar-sign">$</span>
+    <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
+  </div>
 
   <div id="dealerSelect"></div>
   <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Fee/Split</button>

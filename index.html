@@ -406,13 +406,12 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <button id="pauseBtn" onclick="pauseTimer()">Pause</button>
 <button id="resetBtn" onclick="resetTimer()">Reset</button>
 
-<script type="module"> 
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+<!-- Firebase App (the core SDK) -->
+<script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js"></script>
+<!-- Add Firestore -->
+<script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js"></script>
 
-  // Your web app's Firebase configuration
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
     authDomain: "fsop-poker-blind-timer.firebaseapp.com",
@@ -423,7 +422,8 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   };
 
   // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore(); // You can now use `db` to interact with Firestore
 </script>
 
   

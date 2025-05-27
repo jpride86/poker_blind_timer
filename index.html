@@ -1405,8 +1405,8 @@ function renderLeagueHistory(saved) {
   const cumulativeList = document.getElementById("cumulativeLeaderboardList");
   historyList.innerHTML = "";
   cumulativeList.innerHTML = "";
-  
-// 🗂️ Group results by player name
+
+  // 🗂️ Group results by player name
   const grouped = {};
   saved.forEach(entry => {
     if (!grouped[entry.name]) grouped[entry.name] = [];
@@ -1424,14 +1424,14 @@ function renderLeagueHistory(saved) {
       const li = document.createElement("li");
       const dateFormatted = new Date(entry.date).toLocaleDateString();
       const medals = ["🥇", "🥈", "🥉"];
-const medal = entry.finish <= 3 ? medals[entry.finish - 1] + " " : "";
-li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrdinalSuffix(entry.finish)} place, ${entry.points.toFixed(2)} pts (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) – ${dateFormatted}`;
+      const medal = entry.finish <= 3 ? medals[entry.finish - 1] + " " : "";
+      li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrdinalSuffix(entry.finish)} place, ${entry.points.toFixed(2)} pts (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) – ${dateFormatted}`;
       li.style.marginLeft = "15px";
       historyList.appendChild(li);
     });
   });
 
-  // 🏁 Cumulative leaderboard (unchanged)
+  // 🏁 Cumulative leaderboard
   const totals = {};
   saved.forEach(entry => {
     if (!totals[entry.name]) {
@@ -1440,26 +1440,18 @@ li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrd
     totals[entry.name].points += entry.points;
     totals[entry.name].games += 1;
     totals[entry.name].winnings += entry.winnings || 0;
-
   });
 
   const sortedNames = Object.keys(totals).sort((a, b) => totals[b].points - totals[a].points);
   sortedNames.forEach((name, index) => {
-  const li = document.createElement("li");
-
-  const medals = ["🥇", "🥈", "🥉"];
-  const medal = index < 3 ? medals[index] + " " : "";
-
-  li.textContent = `${medal}${name}: ${totals[name].points.toFixed(2)} pts, $${totals[name].winnings.toFixed(2)} winnings over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
-
-  if (index < 3) {
-    li.style.fontWeight = "bold"; // 🟡 make top 3 bold
-  }
-
-  cumulativeList.appendChild(li);
-});
-  
-// Optional: Helper to make "1st", "2nd", "3rd" suffixes
+    const li = document.createElement("li");
+    const medals = ["🥇", "🥈", "🥉"];
+    const medal = index < 3 ? medals[index] + " " : "";
+    li.textContent = `${medal}${name}: ${totals[name].points.toFixed(2)} pts, $${totals[name].winnings.toFixed(2)} winnings over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
+    if (index < 3) li.style.fontWeight = "bold";
+    cumulativeList.appendChild(li);
+  });
+}
 function getOrdinalSuffix(n) {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
@@ -1467,13 +1459,20 @@ function getOrdinalSuffix(n) {
 }
 
 function clearLeagueHistory() {
-  const correctPin = "1865"; // 🔐 Set your secret PIN here
+  const correctPin = "1865"; // 🔐 Set your PIN here
 
   const pin = prompt("Enter PIN to clear league history:");
   if (pin !== correctPin) {
     alert("Incorrect PIN. Action denied.");
     return;
   }
+
+  if (confirm("Are you sure you want to delete all saved league history?")) {
+    localStorage.removeItem("fsopLeagueResults");
+    document.getElementById("leagueHistoryList").innerHTML = "<li>History cleared.</li>";
+    document.getElementById("cumulativeLeaderboardList").innerHTML = "";
+  }
+}
 
   if (confirm("Are you sure you want to delete all saved league history?")) {
     localStorage.removeItem("fsopLeagueResults");

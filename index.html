@@ -1393,7 +1393,7 @@ results.push({
       .then(() => console.log("Saved to Firestore:", entry))
       .catch(err => console.error("Firestore save failed:", err));
   });
-
+} // ✅ close saveLeagueResults
 
 function showLeagueHistory() {
   const historyList = document.getElementById("leagueHistoryList");

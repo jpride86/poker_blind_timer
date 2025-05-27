@@ -1207,7 +1207,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   refreshSavedPlayersDropdown();
-  loadInputs();                  
+  loadInputs();      
+   document.getElementById("loadPresetBtn").addEventListener("click", loadStandardPreset);
 });
 
 function toggleBlindList() {

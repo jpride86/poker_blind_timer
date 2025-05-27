@@ -1584,17 +1584,16 @@ function toggleLeagueTable() {
       });
   }
   
-</script>
+<script>
   auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
-    enableAppFeatures();
-  } else {
-    document.getElementById("authSection").style.display = "block";
-    document.getElementById("appSection").style.display = "none";
-  }
-
+    if (user) {
+      document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
+      enableAppFeatures();
+    } else {
+      document.getElementById("authSection").style.display = "block";
+      document.getElementById("appSection").style.display = "none";
+    }
+  });
 </script>
-  
 </body>
 </html>

@@ -270,7 +270,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 </div>
 
 
-<button class="default-button" onclick="clearAllInputs()">Clear All Inputs</button>
+<button class="default-button" id="clearInputsBtn">Clear All Inputs</button>
 
 
 <div id="buyinSetup" class="player-section">
@@ -362,7 +362,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 
   <div id="playersRemaining">Players remaining: 0</div>
   <div id="totalPot">Total Pot: $0</div>
-  <button class="default-button" onclick="toggleAllPaid()">Toggle All Paid</button>
+  <button class="default-button" id="toggleAllPaidBtn">Toggle All Paid</button>
     <ul id="playerList"></ul>
 </div>
 
@@ -405,7 +405,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 
 <div class="player-section">
   <h2>Payout Breakdown</h2>
-  <button class="default-button" onclick="showPayouts()">Show Payouts</button>
+  <button class="default-button" id="showPayoutsBtn">Show Payouts</button>
   <ul id="payoutList"></ul>
   </div>
 
@@ -1564,18 +1564,25 @@ function toggleLeagueTable() {
       });
   }
 
-  function enableAppFeatures() {
+ function enableAppFeatures() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
 
-  // ✅ Bind event listeners now that the section is visible
-  const presetBtn = document.getElementById("loadPresetBtn");
-  if (presetBtn && !presetBtn.dataset.bound) {
-    presetBtn.addEventListener("click", loadStandardPreset);
-    presetBtn.dataset.bound = "true"; // prevent double binding
-  }
+  const bindOnce = (id, handler) => {
+    const btn = document.getElementById(id);
+    if (btn && !btn.dataset.bound) {
+      btn.addEventListener("click", handler);
+      btn.dataset.bound = "true"; // prevent rebinding
+    }
+  };
 
-  // (Optional) Add other buttons here if needed in future
+  // ✅ Rebind all buttons that previously used onclick
+  bindOnce("loadPresetBtn", loadStandardPreset);
+  bindOnce("clearInputsBtn", clearAllInputs);
+  bindOnce("toggleAllPaidBtn", toggleAllPaid);
+  bindOnce("showPayoutsBtn", showPayouts);
+  bindOnce("toggleLeagueBtn", toggleLeagueHistory);
+  bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
 }
 
 

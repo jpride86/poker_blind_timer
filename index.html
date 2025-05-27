@@ -406,6 +406,27 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <button id="pauseBtn" onclick="pauseTimer()">Pause</button>
 <button id="resetBtn" onclick="resetTimer()">Reset</button>
 
+<script type="module"> 
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
+    authDomain: "fsop-poker-blind-timer.firebaseapp.com",
+    projectId: "fsop-poker-blind-timer",
+    storageBucket: "fsop-poker-blind-timer.firebasestorage.app",
+    messagingSenderId: "327865291955",
+    appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+
+  
 <script>
   let blindStructure = [];
   let currentLevel = 0;

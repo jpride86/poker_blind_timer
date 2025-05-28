@@ -1567,19 +1567,24 @@ function toggleLeagueTable() {
   }
 
 function enableAppFeatures() {
+  console.log("✅ enableAppFeatures() is running");
+
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
-
   refreshSavedPlayersDropdown();
 
   const bindOnce = (id, handler) => {
     const btn = document.getElementById(id);
     if (btn && !btn.dataset.bound) {
+      console.log("Binding:", id);  // ✅ Add this
       btn.addEventListener("click", handler);
       btn.dataset.bound = "true";
+    } else if (!btn) {
+      console.warn("❌ Button not found for ID:", id);
     }
   };
 
+  // Bind all buttons
   bindOnce("loadPresetBtn", loadStandardPreset);
   bindOnce("clearInputsBtn", clearAllInputs);
   bindOnce("toggleAllPaidBtn", toggleAllPaid);
@@ -1590,8 +1595,6 @@ function enableAppFeatures() {
   bindOnce("pauseBtn", pauseTimer);
   bindOnce("resetBtn", resetTimer);
   bindOnce("addPlayerBtn", addPlayer);
-
-  // ✅ These were missing
   bindOnce("calculateDealerSplitBtn", calculateDealerSplit);
   bindOnce("clearLeagueHistoryBtn", clearLeagueHistory);
   bindOnce("toggleBlindListBtn", toggleBlindList);

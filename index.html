@@ -324,8 +324,8 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <div class="player-section">
 <h2>Players</h2>
 
-<!-- Dropdown First -->
-<div style="margin-bottom: 15px;">
+<!-- ✅ Wrapped in a hidden container that is shown after login -->
+<div id="savedPlayersContainer" style="display: none; margin-bottom: 15px;">
   <label for="savedPlayers"><strong>Select Saved Player:</strong></label><br>
   <select id="savedPlayers" onchange="addSavedPlayer()">
     <option value="">-- Select Saved Player --</option>
@@ -1207,7 +1207,6 @@ window.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("savedPlayers", JSON.stringify(initialDefaults));
   }
 
-  refreshSavedPlayersDropdown();
   loadInputs();
 });
 
@@ -1568,8 +1567,9 @@ function toggleLeagueTable() {
 function enableAppFeatures() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
+  document.getElementById("savedPlayersContainer").style.display = "block"; // ✅ Show dropdown after login
 
-  refreshSavedPlayersDropdown(); // ✅ THIS IS CRITICAL
+  refreshSavedPlayersDropdown(); // Populate Firestore names
 
   const bindOnce = (id, handler) => {
     const btn = document.getElementById(id);
@@ -1587,18 +1587,19 @@ function enableAppFeatures() {
   bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
 }
 
-
  function logout() {
-    auth.signOut()
-      .then(() => {
-        document.getElementById("authStatus").textContent = "Logged out.";
-        document.getElementById("authSection").style.display = "block";
-        document.getElementById("appSection").style.display = "none";
-      })
-      .catch(error => {
-        alert("Logout failed: " + error.message);
-      });
-  }
+  auth.signOut()
+    .then(() => {
+      document.getElementById("authStatus").textContent = "Logged out.";
+      document.getElementById("authSection").style.display = "block";
+      document.getElementById("appSection").style.display = "none";
+      document.getElementById("savedPlayersContainer").style.display = "none"; // ✅ Hide dropdown on logout
+    })
+    .catch(error => {
+      alert("Logout failed: " + error.message);
+    });
+}
+
   
   auth.onAuthStateChanged(user => {
     if (user) {

@@ -1580,22 +1580,23 @@ function enableAppFeatures() {
     }
   };
 
-  // Existing bindings
   bindOnce("loadPresetBtn", loadStandardPreset);
   bindOnce("clearInputsBtn", clearAllInputs);
   bindOnce("toggleAllPaidBtn", toggleAllPaid);
   bindOnce("showPayoutsBtn", showPayouts);
   bindOnce("toggleLeagueBtn", toggleLeagueHistory);
   bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
-
-  // 🆕 NEW bindings for buttons that had inline onclick
   bindOnce("startBtn", startTimer);
   bindOnce("pauseBtn", pauseTimer);
   bindOnce("resetBtn", resetTimer);
   bindOnce("addPlayerBtn", addPlayer);
+
+  // ✅ These were missing
+  bindOnce("calculateDealerSplitBtn", calculateDealerSplit);
+  bindOnce("clearLeagueHistoryBtn", clearLeagueHistory);
+  bindOnce("toggleBlindListBtn", toggleBlindList);
+  bindOnce("toggleCustomBtn", toggleCustomBlind);
 }
-
-
 
  function logout() {
     auth.signOut()

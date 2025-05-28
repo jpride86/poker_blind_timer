@@ -499,7 +499,57 @@ function loadStandardPreset() {
   document.getElementById("blindSetup").style.display = "none";
   document.getElementById("toggleCustomBtn").textContent = "Show Custom Blind Setup";
 }
+function refreshSavedPlayersDropdown() {
+const dropdown = document.getElementById("savedPlayers");
+const status = document.getElementById("playerLoadStatus");
 
+dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
+
+db.collection("savedPlayers").get()
+ .then(snapshot => {
+   const names = [];
+   snapshot.forEach(doc => {
+     const name = doc.data().name;
+     if (name && !names.includes(name)) {
+       names.push(name);
+     }
+   });
+
+   if (names.length > 0) {
+     names.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+     localStorage.setItem("savedPlayers", JSON.stringify(names));
+     names.forEach(name => {
+       const option = document.createElement("option");
+       option.value = name;
+       option.textContent = name;
+       dropdown.appendChild(option);
+     });
+
+     if (status) {
+       status.textContent = "✅ Loaded from Firestore";
+       status.style.color = "lightgreen";
+     }
+   } else {
+     throw new Error("Empty Firestore result");
+   }
+ })
+ .catch(err => {
+   console.warn("⚠️ Using fallback list:", err);
+   const fallback = JSON.parse(localStorage.getItem("savedPlayers")) || savedPlayerNames;
+   fallback.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+   fallback.forEach(name => {
+     const option = document.createElement("option");
+     option.value = name;
+     option.textContent = name;
+     dropdown.appendChild(option);
+   });
+
+   if (status) {
+     status.textContent = "⚠️ Loaded defaults (local or hardcoded)";
+     status.style.color = "orange";
+   }
+ });
+}
   function deleteBlindLevel(index) {
     blindStructure.splice(index, 1);
     blindStructure.forEach((b, i) => b.level = i + 1);

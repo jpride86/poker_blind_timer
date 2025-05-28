@@ -732,6 +732,23 @@ function showPayouts() {
   const rawName = nameInput.value.trim();
   const name = toTitleCase(rawName);
 
+  if (name === "") {
+    alert("Please enter a player name.");
+    return;
+  }
+
+  db.collection("savedPlayers").add({ name })
+    .then(() => {
+      console.log("✅ Player added to Firestore:", name);
+      nameInput.value = ""; // Clear input field
+      refreshSavedPlayersDropdown(); // Refresh dropdown
+    })
+    .catch(err => {
+      console.error("❌ Error adding player:", err);
+      alert("Failed to add player. See console for details.");
+    });
+}
+
   if (!buyInAmount) {
     const entered = parseFloat(document.getElementById("buyInValue").value);
     if (!isNaN(entered) && entered > 0) {

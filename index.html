@@ -291,7 +291,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   </div>
 
   <div id="dealerSelect"></div>
-  <button class="default-button" id="calculateDealerSplitBtn">Calculate Dealer Fee/Split</button>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Fee/Split</button>
   <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
 </div>
 
@@ -357,7 +357,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <div style="margin-bottom: 15px;">
   <label for="playerName"><strong>Or Add Player Manually:</strong></label><br>
   <input type="text" id="playerName" placeholder="Enter player name" />
-  <button class="default-button" id="addPlayerBtn">Add Player</button>
+  <button class="default-button" onclick="addPlayer()">Add Player</button>
 </div>
 
   <div id="playersRemaining">Players remaining: 0</div>
@@ -387,7 +387,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   <button class="default-button" id="toggleLeagueTableBtn">Hide League Table</button>
 <button class="default-button" id="toggleLeagueBtn">Show League History</button>
 
-  <button class="default-button" id="clearLeagueHistoryBtn">Clear League History</button>
+  <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
   <div id="leagueHistoryContainer" style="display: none;">
   <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
   <h3>Cumulative Leaderboard</h3>
@@ -413,10 +413,9 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   
   <div class="level" id="blindLevel">Level 1: -- / --</div>
   <div class="timer" id="countdown">00:00</div>
-<button id="startBtn">Start</button>
-<button id="pauseBtn">Pause</button>
-<button id="resetBtn">Reset</button>
-<button class="default-button" id="addPlayerBtn">Add Player</button>
+<button id="startBtn" onclick="startTimer()">Start</button>
+<button id="pauseBtn" onclick="pauseTimer()">Pause</button>
+<button id="resetBtn" onclick="resetTimer()">Reset</button>
 </div> <!-- ✅ Closes #appSection -->
 
 <!-- Firebase App (classic v8 SDK) -->
@@ -793,19 +792,19 @@ function savePlayerToLocal(name) {
 
 function refreshSavedPlayersDropdown() {
   const dropdown = document.getElementById("savedPlayers");
-  dropdown.innerHTML = '<option value="">-- Select Saved Player --</option>';
 
-  const saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
-  saved.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+  // Clear existing options
+  dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
 
-  saved.forEach(name => {
-    const option = document.createElement("option");
-    option.value = name;
-    option.textContent = name;
-    dropdown.appendChild(option);
-  });
-}
-
+  db.collection("savedPlayers").get()
+    .then(snapshot => {
+      const firestoreNames = [];
+      snapshot.forEach(doc => {
+        const name = doc.data().name;
+        if (name && !firestoreNames.includes(name)) {
+          firestoreNames.push(name);
+        }
+      });
 
       firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
@@ -1567,39 +1566,27 @@ function toggleLeagueTable() {
   }
 
 function enableAppFeatures() {
-  console.log("✅ enableAppFeatures() is running");
-
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
-  refreshSavedPlayersDropdown();
+
+  refreshSavedPlayersDropdown(); // ✅ THIS IS CRITICAL
 
   const bindOnce = (id, handler) => {
     const btn = document.getElementById(id);
     if (btn && !btn.dataset.bound) {
-      console.log("Binding:", id);  // ✅ Add this
       btn.addEventListener("click", handler);
       btn.dataset.bound = "true";
-    } else if (!btn) {
-      console.warn("❌ Button not found for ID:", id);
     }
   };
 
-  // Bind all buttons
   bindOnce("loadPresetBtn", loadStandardPreset);
   bindOnce("clearInputsBtn", clearAllInputs);
   bindOnce("toggleAllPaidBtn", toggleAllPaid);
   bindOnce("showPayoutsBtn", showPayouts);
   bindOnce("toggleLeagueBtn", toggleLeagueHistory);
   bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
-  bindOnce("startBtn", startTimer);
-  bindOnce("pauseBtn", pauseTimer);
-  bindOnce("resetBtn", resetTimer);
-  bindOnce("addPlayerBtn", addPlayer);
-  bindOnce("calculateDealerSplitBtn", calculateDealerSplit);
-  bindOnce("clearLeagueHistoryBtn", clearLeagueHistory);
-  bindOnce("toggleBlindListBtn", toggleBlindList);
-  bindOnce("toggleCustomBtn", toggleCustomBlind);
 }
+
 
  function logout() {
     auth.signOut()
@@ -1613,8 +1600,7 @@ function enableAppFeatures() {
       });
   }
   
-  document.addEventListener("DOMContentLoaded", () => {
-  firebase.auth().onAuthStateChanged(user => {
+  auth.onAuthStateChanged(user => {
     if (user) {
       document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
       enableAppFeatures();
@@ -1623,10 +1609,7 @@ function enableAppFeatures() {
       document.getElementById("appSection").style.display = "none";
     }
   });
-});
-
 </script>
 </body>
 </html>
-
 

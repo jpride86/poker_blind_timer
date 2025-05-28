@@ -807,9 +807,7 @@ function refreshSavedPlayersDropdown() {
       });
 
       firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-
-      // Optional: sync back to localStorage for offline fallback
-      localStorage.setItem("savedPlayers", JSON.stringify(firestoreNames));
+      localStorage.setItem("savedPlayers", JSON.stringify(firestoreNames)); // optional sync
 
       firestoreNames.forEach(name => {
         if (!players.some(p => p.name === name)) {
@@ -821,7 +819,23 @@ function refreshSavedPlayersDropdown() {
       });
     })
     .catch(err => {
-      console.error("Error loading saved players from Firestore:", err);
+      console.error("Error loading from Firestore. Falling back to localStorage or hardcoded:", err);
+      const fallbackNames =
+        JSON.parse(localStorage.getItem("savedPlayers")) || [
+          "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+          "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+          "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+        ];
+
+      fallbackNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      fallbackNames.forEach(name => {
+        if (!players.some(p => p.name === name)) {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          dropdown.appendChild(option);
+        }
+      });
     });
 }
 

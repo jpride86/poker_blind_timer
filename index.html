@@ -812,6 +812,7 @@ function refreshSavedPlayersDropdown() {
         option.value = name;
         option.textContent = name;
         dropdown.appendChild(option);
+        console.log("Appended to dropdown:", name);
       });
     })
     .catch(error => {

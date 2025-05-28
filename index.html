@@ -1624,6 +1624,17 @@ window.enableAppFeatures = function () {
       document.getElementById("appSection").style.display = "none";
     }
   });
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    console.log("✅ Logged in as:", user.email);
+    enableAppFeatures(); // <== this triggers the dropdown load
+  } else {
+    console.log("🚪 Logged out");
+    // Optional: show login form or disable features
+  }
+});
+
+  
 </script>
 </body>
 </html>

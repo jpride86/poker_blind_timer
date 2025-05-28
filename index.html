@@ -328,9 +328,8 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <div id="savedPlayersContainer" style="display: none; margin-bottom: 15px;">
   <label for="savedPlayers"><strong>Select Saved Player:</strong></label><br>
   <select id="savedPlayers" onchange="addSavedPlayer()">
-  <option value="">-- Select Saved Player --</option>
-</select>
-
+    <option value="">-- Select Saved Player --</option>
+  </select>
 </div>
 
 <!-- Manual Add Second -->
@@ -339,7 +338,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   <input type="text" id="playerName" placeholder="Enter player name" />
   <button class="default-button" onclick="addPlayer()">Add Player</button>
 </div>
-
+  
   <div id="playersRemaining">Players remaining: 0</div>
   <div id="totalPot">Total Pot: $0</div>
   <button class="default-button" id="toggleAllPaidBtn">Toggle All Paid</button>

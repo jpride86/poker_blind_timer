@@ -792,8 +792,6 @@ function savePlayerToLocal(name) {
 
 function refreshSavedPlayersDropdown() {
   const dropdown = document.getElementById("savedPlayers");
-
-  // Clear existing options
   dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
 
   db.collection("savedPlayers").get()
@@ -801,6 +799,7 @@ function refreshSavedPlayersDropdown() {
       const firestoreNames = [];
       snapshot.forEach(doc => {
         const name = doc.data().name;
+        console.log("Loaded name from Firestore:", name); // ✅ Debug log
         if (name && !firestoreNames.includes(name)) {
           firestoreNames.push(name);
         }
@@ -808,20 +807,15 @@ function refreshSavedPlayersDropdown() {
 
       firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
-      // Optional: sync back to localStorage for offline fallback
-      localStorage.setItem("savedPlayers", JSON.stringify(firestoreNames));
-
       firestoreNames.forEach(name => {
-        if (!players.some(p => p.name === name)) {
-          const option = document.createElement("option");
-          option.value = name;
-          option.textContent = name;
-          dropdown.appendChild(option);
-        }
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        dropdown.appendChild(option);
       });
     })
-    .catch(err => {
-      console.error("Error loading saved players from Firestore:", err);
+    .catch(error => {
+      console.error("Error loading saved players from Firestore:", error);
     });
 }
 

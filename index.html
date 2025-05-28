@@ -1182,6 +1182,20 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   loadInputs();
+  window.testDropdown = function () {
+    const dropdown = document.getElementById("savedPlayers");
+    dropdown.innerHTML = `<option value="">-- Test Start --</option>`;
+
+    const testNames = ["Alice", "Bob", "Charlie"];
+    testNames.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      dropdown.appendChild(option);
+    });
+
+    console.log("✅ Test names appended to dropdown.");
+  };
 });
 
 function toggleBlindList() {

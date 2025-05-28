@@ -413,9 +413,10 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   
   <div class="level" id="blindLevel">Level 1: -- / --</div>
   <div class="timer" id="countdown">00:00</div>
-<button id="startBtn" onclick="startTimer()">Start</button>
-<button id="pauseBtn" onclick="pauseTimer()">Pause</button>
-<button id="resetBtn" onclick="resetTimer()">Reset</button>
+<button id="startBtn">Start</button>
+<button id="pauseBtn">Pause</button>
+<button id="resetBtn">Reset</button>
+<button class="default-button" id="addPlayerBtn">Add Player</button>
 </div> <!-- ✅ Closes #appSection -->
 
 <!-- Firebase App (classic v8 SDK) -->
@@ -791,16 +792,20 @@ function savePlayerToLocal(name) {
 }
 
 function refreshSavedPlayersDropdown() {
-  console.log("Refreshing player dropdown..."); // 🔍 for debugging
-  const dropdown = document.getElementById("playerDropdown");
-  dropdown.innerHTML = '<option value="">Select Player</option>';
-  savedPlayers.forEach(name => {
+  const dropdown = document.getElementById("savedPlayers");
+  dropdown.innerHTML = '<option value="">-- Select Saved Player --</option>';
+
+  const saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
+  saved.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+  saved.forEach(name => {
     const option = document.createElement("option");
     option.value = name;
     option.textContent = name;
     dropdown.appendChild(option);
   });
 }
+
 
       firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
@@ -1565,7 +1570,7 @@ function enableAppFeatures() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("appSection").style.display = "block";
 
-  refreshSavedPlayersDropdown(); // ✅ THIS IS CRITICAL
+  refreshSavedPlayersDropdown();
 
   const bindOnce = (id, handler) => {
     const btn = document.getElementById(id);
@@ -1575,13 +1580,21 @@ function enableAppFeatures() {
     }
   };
 
+  // Existing bindings
   bindOnce("loadPresetBtn", loadStandardPreset);
   bindOnce("clearInputsBtn", clearAllInputs);
   bindOnce("toggleAllPaidBtn", toggleAllPaid);
   bindOnce("showPayoutsBtn", showPayouts);
   bindOnce("toggleLeagueBtn", toggleLeagueHistory);
   bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
+
+  // 🆕 NEW bindings for buttons that had inline onclick
+  bindOnce("startBtn", startTimer);
+  bindOnce("pauseBtn", pauseTimer);
+  bindOnce("resetBtn", resetTimer);
+  bindOnce("addPlayerBtn", addPlayer);
 }
+
 
 
  function logout() {

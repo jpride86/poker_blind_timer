@@ -291,7 +291,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   </div>
 
   <div id="dealerSelect"></div>
-  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Fee/Split</button>
+  <button class="default-button" id="calculateDealerSplitBtn">Calculate Dealer Fee/Split</button>
   <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
 </div>
 
@@ -357,7 +357,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
 <div style="margin-bottom: 15px;">
   <label for="playerName"><strong>Or Add Player Manually:</strong></label><br>
   <input type="text" id="playerName" placeholder="Enter player name" />
-  <button class="default-button" onclick="addPlayer()">Add Player</button>
+  <button class="default-button" id="addPlayerBtn">Add Player</button>
 </div>
 
   <div id="playersRemaining">Players remaining: 0</div>
@@ -387,7 +387,7 @@ border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
   <button class="default-button" id="toggleLeagueTableBtn">Hide League Table</button>
 <button class="default-button" id="toggleLeagueBtn">Show League History</button>
 
-  <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
+  <button class="default-button" id="clearLeagueHistoryBtn">Clear League History</button>
   <div id="leagueHistoryContainer" style="display: none;">
   <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
   <h3>Cumulative Leaderboard</h3>
@@ -1609,7 +1609,8 @@ function enableAppFeatures() {
       });
   }
   
-  auth.onAuthStateChanged(user => {
+  document.addEventListener("DOMContentLoaded", () => {
+  firebase.auth().onAuthStateChanged(user => {
     if (user) {
       document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
       enableAppFeatures();
@@ -1618,6 +1619,8 @@ function enableAppFeatures() {
       document.getElementById("appSection").style.display = "none";
     }
   });
+});
+
 </script>
 </body>
 </html>

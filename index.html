@@ -727,7 +727,7 @@ function showPayouts() {
     document.body.classList.remove("flash");
     updateDisplay();
   }
-  function addPlayer() {
+  window.addPlayer = function () {
   const nameInput = document.getElementById("playerName");
   const rawName = nameInput.value.trim();
   const name = toTitleCase(rawName);
@@ -747,7 +747,8 @@ function showPayouts() {
       console.error("❌ Error adding player:", err);
       alert("Failed to add player. See console for details.");
     });
-}
+};
+
 
   if (!buyInAmount) {
     const entered = parseFloat(document.getElementById("buyInValue").value);

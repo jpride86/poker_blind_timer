@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,16 +13,21 @@
   <div class="max-w-3xl mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">FSOP Tournament App</h1>
 
+    <!-- Auth Section -->
     <div id="auth-section" class="mb-6">
       <input id="email" type="email" placeholder="Email" class="block w-full p-2 rounded text-black mb-2">
       <input id="password" type="password" placeholder="Password" class="block w-full p-2 rounded text-black mb-2">
       <div class="flex gap-2">
         <button onclick="login()" class="bg-green-600 px-4 py-2 rounded">Login</button>
         <button onclick="register()" class="bg-blue-600 px-4 py-2 rounded">Register</button>
-        <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
       </div>
       <button onclick="resetPassword()" class="underline text-sm mt-2">Forgot Password?</button>
-      <p id="user-email" class="mt-4 text-sm text-gray-400"></p>
+    </div>
+
+    <!-- User Info and Logout -->
+    <div id="user-info" class="mb-6 hidden">
+      <p id="user-email" class="text-sm text-gray-400 mb-2"></p>
+      <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
     </div>
 
     <div id="league-table" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
@@ -33,6 +37,52 @@
         <tbody id="standings-body"></tbody>
       </table>
     </div>
+
+    <div id="player-management" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+      <h2 class="text-2xl font-semibold mb-4">Registered Players</h2>
+      <ul id="player-list" class="mb-4 text-sm list-disc pl-5"></ul>
+      <div class="flex gap-2">
+        <input id="new-player-name" type="text" placeholder="Full Name" class="p-2 text-black rounded w-full">
+        <button onclick="addPlayer()" class="bg-blue-600 px-4 py-2 rounded">Add Player</button>
+      </div>
+    </div>
+
+    <div id="blind-timer" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+      <h2 class="text-2xl font-semibold mb-4">Blind Timer</h2>
+      <div class="mb-2">
+        <p class="text-lg">Current Level: <span id="current-level">1</span></p>
+        <p class="text-lg">Blinds: <span id="current-blinds">25 / 50</span></p>
+        <p class="text-lg">Time Left: <span id="time-left">10:00</span></p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="startTimer()" class="bg-green-600 px-4 py-2 rounded">Start</button>
+        <button onclick="pauseTimer()" class="bg-yellow-600 px-4 py-2 rounded">Pause</button>
+        <button onclick="nextLevel()" class="bg-blue-600 px-4 py-2 rounded">Next Level</button>
+        <button onclick="resetTimer()" class="bg-red-600 px-4 py-2 rounded">Reset</button>
+      </div>
+    </div>
+
+    <div id="event-creation" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+      <h2 class="text-2xl font-semibold mb-4">Create New Tournament</h2>
+      <input id="event-name" type="text" placeholder="Event Name" class="block w-full p-2 mb-2 rounded text-black">
+      <input id="event-date" type="datetime-local" class="block w-full p-2 mb-2 rounded text-black">
+      <input id="event-location" type="text" placeholder="Location" class="block w-full p-2 mb-2 rounded text-black">
+      <input id="event-group-size" type="number" min="1" placeholder="Group Size (e.g. 8)" class="block w-full p-2 mb-2 rounded text-black">
+      <textarea id="event-description" placeholder="Description (optional)" class="block w-full p-2 mb-2 rounded text-black"></textarea>
+      <button onclick="createEvent()" class="bg-green-600 px-4 py-2 rounded">Create Event</button>
+    </div>
+
+    <!-- Upcoming Events Section -->
+    <div id="upcoming-events" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+      <h2 class="text-2xl font-semibold mb-4">Upcoming Events</h2>
+      <ul id="events-list" class="list-disc pl-5 text-sm"></ul>
+    </div>
+<!-- Registered Users Section -->
+<div id="registered-users" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+  <h2 class="text-2xl font-semibold mb-4">All Registered Users</h2>
+  <ul id="registered-users-list" class="list-disc pl-5 text-sm"></ul>
+</div>
+
   </div>
 
   <script>
@@ -51,56 +101,433 @@
 
     auth.onAuthStateChanged(user => {
       if (user) {
+        document.getElementById("auth-section").classList.add("hidden");
+        document.getElementById("user-info").classList.remove("hidden");
         document.getElementById("user-email").textContent = "Logged in as: " + user.email;
         document.getElementById("league-table").classList.remove("hidden");
+        document.getElementById("player-management").classList.remove("hidden");
+        document.getElementById("blind-timer").classList.remove("hidden");
+        document.getElementById("event-creation").classList.remove("hidden");
+        document.getElementById("upcoming-events").classList.remove("hidden");
+
         loadLeagueTable(user.uid);
+        loadPlayers();
+        updateBlindDisplay();
+        loadUpcomingEvents();
+        loadRegisteredUsers(); // ✅ This makes the user list appear
+
+
+        db.collection("timerState").doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            currentLevel = data.level ?? 0;
+            timeRemaining = data.timeRemaining ?? 600;
+            updateBlindDisplay();
+          }
+        });
       } else {
+        document.getElementById("auth-section").classList.remove("hidden");
+        document.getElementById("user-info").classList.add("hidden");
         document.getElementById("user-email").textContent = "";
         document.getElementById("league-table").classList.add("hidden");
+        document.getElementById("player-management").classList.add("hidden");
+        document.getElementById("blind-timer").classList.add("hidden");
+        document.getElementById("event-creation").classList.add("hidden");
+        document.getElementById("upcoming-events").classList.add("hidden");
         document.getElementById("standings-body").innerHTML = "";
+        document.getElementById("events-list").innerHTML = "";
       }
     });
 
-    function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-    }
+    function loadUpcomingEvents() {
+  const now = new Date();
+  const user = firebase.auth().currentUser;
 
-    function register() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const name = prompt("Enter your full name");
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCred => {
-          return db.collection("players").doc(userCred.user.uid).set({ email, name, uid: userCred.user.uid });
-        })
-        .catch(err => alert(err.message));
-    }
+  db.collection("events")
+    .where("date", ">", now)
+    .orderBy("date", "asc")
+    .onSnapshot(snapshot => {
+      const list = document.getElementById("events-list");
+      list.innerHTML = "";
 
-    function logout() {
-      auth.signOut();
-    }
+      if (snapshot.empty) {
+        list.innerHTML = "<li>No upcoming events.</li>";
+        return;
+      }
 
-    function resetPassword() {
-      const email = document.getElementById("email").value;
-      if (!email) return alert("Enter your email first.");
-      auth.sendPasswordResetEmail(email).then(() => alert("Password reset sent."));
-    }
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        const eventId = doc.id;
+        const dateStr = new Date(event.date.seconds * 1000).toLocaleString();
 
-    function loadLeagueTable(uid) {
-      const year = new Date().getFullYear();
-      db.collection("league_" + year).get().then(snapshot => {
-        const tbody = document.getElementById("standings-body");
-        tbody.innerHTML = "";
-        snapshot.forEach(doc => {
-          const p = doc.data();
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${p.name}</td><td>${p.points}</td><td>${p.games}</td><td>$${p.winnings}</td>`;
-          tbody.appendChild(tr);
-        });
+        const li = document.createElement("li");
+        li.className = "mb-4";
+        li.innerHTML = `
+  <strong>${event.name}</strong> — ${dateStr}<br>
+  ${event.location}<br>
+  <button onclick="rsvpEvent('${eventId}')" class="mt-1 bg-blue-600 px-2 py-1 rounded text-sm">RSVP</button>
+  <button onclick="cancelRsvpEvent('${eventId}')" class="mt-1 bg-red-600 px-2 py-1 rounded text-sm ml-2">Cancel RSVP</button>
+  <span id="rsvp-status-${eventId}" class="text-sm ml-2"></span>
+`;
+
+
+        // Check if already RSVPed and show correct status
+db.collection("events").doc(eventId).collection("rsvps").doc(user.uid).get()
+  .then(rsvpDoc => {
+    const statusSpan = li.querySelector(`#rsvp-status-${eventId}`);
+    if (rsvpDoc.exists && statusSpan) {
+      const status = rsvpDoc.data().status;
+      if (status === "confirmed") {
+        statusSpan.textContent = "✔ Confirmed RSVP";
+        statusSpan.classList.add("text-green-400");
+      } else {
+        statusSpan.textContent = "⏳ Waitlisted";
+        statusSpan.classList.add("text-yellow-400");
+      }
+    }
+  });
+
+
+// Fetch and display confirmed and waitlisted users
+Promise.all([
+  db.collection("events").doc(eventId).collection("rsvps")
+    .where("status", "==", "confirmed")
+    .orderBy("timestamp", "asc")
+    .get(),
+  db.collection("events").doc(eventId).collection("rsvps")
+    .where("status", "==", "waitlist")
+    .orderBy("timestamp", "asc")
+    .get()
+]).then(([confirmedSnap, waitlistSnap]) => {
+  const confirmedNames = confirmedSnap.docs.map(doc => doc.data().username || doc.data().email);
+  const waitlistNames = waitlistSnap.docs.map(doc => doc.data().username || doc.data().email);
+
+
+  const listDiv = document.createElement("div");
+  listDiv.className = "mt-2 text-sm";
+
+  if (confirmedNames.length > 0) {
+    listDiv.innerHTML += `<p class="text-green-400">✔ Confirmed: ${confirmedNames.join(', ')}</p>`;
+  }
+
+  if (waitlistNames.length > 0) {
+    listDiv.innerHTML += `<p class="text-yellow-400">⏳ Waitlist: ${waitlistNames.join(', ')}</p>`;
+  }
+
+  li.appendChild(listDiv);
+  list.appendChild(li);
+});
       });
+    });
+}
+function rsvpEvent(eventId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("You must be logged in to RSVP.");
+
+  const eventRef = db.collection("events").doc(eventId);
+  const rsvpsRef = eventRef.collection("rsvps");
+
+  db.runTransaction(async (transaction) => {
+    const eventDoc = await transaction.get(eventRef);
+    if (!eventDoc.exists) throw "Event does not exist.";
+
+    const groupSize = eventDoc.data().groupSize || 8;
+
+    const snapshot = await rsvpsRef.orderBy("timestamp").get();
+    const rsvpCount = snapshot.size;
+
+    let status = rsvpCount < groupSize ? "confirmed" : "waitlist";
+
+    transaction.set(rsvpsRef.doc(user.uid), {
+  uid: user.uid,
+  email: user.email,
+  username: user.displayName || user.email.split('@')[0],
+  status,
+  timestamp: firebase.firestore.FieldValue.serverTimestamp()
+});
+
+    return status;
+  }).then(status => {
+    const statusSpan = document.getElementById(`rsvp-status-${eventId}`);
+    if (status === "confirmed") {
+      statusSpan.textContent = "✔ Confirmed RSVP";
+      statusSpan.classList.remove("text-yellow-400");
+      statusSpan.classList.add("text-green-400");
+    } else {
+      statusSpan.textContent = "⏳ Waitlisted";
+      statusSpan.classList.remove("text-green-400");
+      statusSpan.classList.add("text-yellow-400");
     }
-  </script>
+  }).catch(error => {
+    console.error("RSVP failed:", error);
+    alert("There was a problem with your RSVP.");
+  });
+}
+function cancelRsvpEvent(eventId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("You must be logged in.");
+
+  const eventRef = db.collection("events").doc(eventId);
+  const rsvpDocRef = eventRef.collection("rsvps").doc(user.uid);
+
+  db.runTransaction(async (transaction) => {
+    const rsvpDoc = await transaction.get(rsvpDocRef);
+    if (!rsvpDoc.exists) throw "RSVP not found";
+
+    const wasConfirmed = rsvpDoc.data().status === "confirmed";
+
+    transaction.delete(rsvpDocRef);
+
+    // Promote next waitlisted user if needed
+    if (wasConfirmed) {
+      const waitlistSnapshot = await eventRef.collection("rsvps")
+        .where("status", "==", "waitlist")
+        .orderBy("timestamp", "asc")
+        .limit(1)
+        .get();
+
+      if (!waitlistSnapshot.empty) {
+        const nextInLine = waitlistSnapshot.docs[0];
+        transaction.update(nextInLine.ref, { status: "confirmed" });
+      }
+    }
+  }).then(() => {
+    loadUpcomingEvents(); // Refresh the list
+  }).catch(err => {
+    console.error("Cancel RSVP error:", err);
+    alert("Could not cancel RSVP.");
+  });
+}
+function logout() {
+  auth.signOut().then(() => {
+    console.log("User signed out");
+  }).catch((error) => {
+    console.error("Error signing out:", error);
+    alert("Failed to sign out.");
+  });
+}
+
+function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(async userCredential => {
+      const user = userCredential.user;
+
+      // Check if user is already in Firestore
+      const doc = await db.collection("registeredUsers").doc(user.uid).get();
+      if (!doc.exists) {
+        // Add to Firestore if missing
+        await db.collection("registeredUsers").doc(user.uid).set({
+          uid: user.uid,
+          email: user.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("User added to Firestore on login:", user.email);
+      }
+
+      console.log("Login successful:", user.email);
+    })
+    .catch(error => {
+      console.error("Login error:", error);
+      alert("Login failed: " + error.message);
+    });
+}
+
+function register() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const user = userCredential.user;
+
+      // ✅ Save the user to Firestore under 'registeredUsers'
+      db.collection("registeredUsers").doc(user.uid).set({
+        uid: user.uid,
+        email: user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      console.log("Registered and saved:", user.email);
+    })
+    .catch(error => {
+      console.error("Register error:", error);
+      alert("Registration failed: " + error.message);
+    });
+}
+
+function resetPassword() {
+  const email = document.getElementById("email").value.trim();
+  if (!email) return alert("Enter your email to reset your password.");
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => alert("Password reset email sent."))
+    .catch(error => {
+      console.error("Reset password error:", error);
+      alert("Failed to send reset email: " + error.message);
+    });
+}
+
+// Timer state variables
+let timerInterval;
+let timeRemaining = 600; // 10 minutes in seconds
+let currentLevel = 1;
+const blinds = [
+  { level: 1, value: "25 / 50" },
+  { level: 2, value: "50 / 100" },
+  { level: 3, value: "100 / 200" },
+  // Add more levels as needed
+];
+
+function updateBlindDisplay() {
+  document.getElementById("current-level").textContent = currentLevel;
+  const blind = blinds.find(b => b.level === currentLevel);
+  document.getElementById("current-blinds").textContent = blind ? blind.value : "N/A";
+  document.getElementById("time-left").textContent = formatTime(timeRemaining);
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateBlindDisplay();
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      alert("Level complete!");
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function resetTimer() {
+  pauseTimer();
+  timeRemaining = 600;
+  currentLevel = 1;
+  updateBlindDisplay();
+}
+
+function nextLevel() {
+  currentLevel++;
+  timeRemaining = 600;
+  updateBlindDisplay();
+}
+
+// Add player logic
+function addPlayer() {
+  const nameInput = document.getElementById("new-player-name");
+  const name = nameInput.value.trim();
+  if (!name) return alert("Enter a player name.");
+
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  db.collection("users").doc(user.uid).collection("players").add({ name }).then(() => {
+    nameInput.value = "";
+    loadPlayers();
+  });
+}
+
+function loadPlayers() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  db.collection("users").doc(user.uid).collection("players").get().then(snapshot => {
+    const list = document.getElementById("player-list");
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+      const li = document.createElement("li");
+      li.textContent = doc.data().name;
+      list.appendChild(li);
+    });
+  });
+}
+function loadRegisteredUsers() {
+  const listContainer = document.getElementById("registered-users");
+  const list = document.getElementById("registered-users-list");
+
+  db.collection("registeredUsers")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      list.innerHTML = "";
+      if (snapshot.empty) {
+        list.innerHTML = "<li>No registered users found.</li>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const user = doc.data();
+        const li = document.createElement("li");
+        li.textContent = user.email;
+        list.appendChild(li);
+      });
+
+      listContainer.classList.remove("hidden");
+    });
+}
+function createEvent() {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("You must be logged in to create an event.");
+
+  const name = document.getElementById("event-name").value.trim();
+  const date = document.getElementById("event-date").value;
+  const location = document.getElementById("event-location").value.trim();
+  const groupSize = parseInt(document.getElementById("event-group-size").value);
+  const description = document.getElementById("event-description").value.trim();
+
+  if (!name || !date || !location || !groupSize) {
+    return alert("Please fill in all required fields.");
+  }
+
+  db.collection("events").add({
+    name,
+    date: new Date(date),
+    location,
+    groupSize,
+    description,
+    createdBy: user.uid,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    alert("Event created successfully!");
+    document.getElementById("event-name").value = "";
+    document.getElementById("event-date").value = "";
+    document.getElementById("event-location").value = "";
+    document.getElementById("event-group-size").value = "";
+    document.getElementById("event-description").value = "";
+
+    loadUpcomingEvents(); // Refresh event list
+  }).catch(error => {
+    console.error("Error creating event:", error);
+    alert("Failed to create event. Try again.");
+  });
+}
+// Ensure functions are exposed to global scope
+window.createEvent = createEvent;
+window.login = login;
+window.register = register;
+window.resetPassword = resetPassword;
+window.logout = logout;
+window.addPlayer = addPlayer;
+window.startTimer = startTimer;
+window.pauseTimer = pauseTimer;
+window.resetTimer = resetTimer;
+window.nextLevel = nextLevel;
+window.rsvpEvent = rsvpEvent;
+window.cancelRsvpEvent = cancelRsvpEvent;
+    
+</script>
 </body>
 </html>

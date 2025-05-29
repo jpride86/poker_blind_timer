@@ -312,8 +312,22 @@ function login() {
   const password = document.getElementById("password").value;
 
   auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      console.log("Login successful:", userCredential.user.email);
+    .then(async userCredential => {
+      const user = userCredential.user;
+
+      // Check if user is already in Firestore
+      const doc = await db.collection("registeredUsers").doc(user.uid).get();
+      if (!doc.exists) {
+        // Add to Firestore if missing
+        await db.collection("registeredUsers").doc(user.uid).set({
+          uid: user.uid,
+          email: user.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("User added to Firestore on login:", user.email);
+      }
+
+      console.log("Login successful:", user.email);
     })
     .catch(error => {
       console.error("Login error:", error);

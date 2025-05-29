@@ -1,68 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FSOP Poker Blind Timer</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#121212">
-  <link rel="apple-touch-icon" href="icon.png">
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      background: #121212;
-      color: white;
-      padding: 30px;
-      transition: background-color 0.5s ease;
+// FSOP App using WSOP-style point system
+
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, onSnapshot, query, increment } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
+  authDomain: "fsop-poker-blind-timer.firebaseapp.com",
+  projectId: "fsop-poker-blind-timer",
+  storageBucket: "fsop-poker-blind-timer.firebasestorage.app",
+  messagingSenderId: "327865291955",
+  appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
+};
+
+initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
+
+function calculateWSOPPoints(rank, entries) {
+  if (rank === 1) return Math.round(10 * Math.sqrt(entries));
+  if (rank === 2) return Math.round(7 * Math.sqrt(entries));
+  if (rank === 3) return Math.round(5 * Math.sqrt(entries));
+  if (rank <= Math.floor(entries * 0.15)) return Math.round(3 * Math.sqrt(entries - rank + 1));
+  return 0;
+}
+
+const FSOPApp = () => {
+  const [user, setUser] = useState(null);
+  const [leagueStats, setLeagueStats] = useState([]);
+  const [year, setYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      const statsRef = query(collection(db, `league_${year}`));
+      onSnapshot(statsRef, (querySnapshot) => {
+        const stats = [];
+        querySnapshot.forEach((doc) => stats.push(doc.data()));
+        stats.sort((a, b) => b.points - a.points);
+        setLeagueStats(stats);
+      });
     }
-    .flash {
-      animation: flashRed 1s alternate infinite;
+  }, [user, year]);
+
+  const updateLeague = async (finalResults, winnings) => {
+    const entries = finalResults.length;
+    for (let i = 0; i < finalResults.length; i++) {
+      const player = finalResults[i];
+      const points = calculateWSOPPoints(player.rank, entries);
+      const prize = winnings[i] || 0;
+      const docRef = doc(db, `league_${year}`, player.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        await updateDoc(docRef, {
+          points: increment(points),
+          games: increment(1),
+          buyins: increment(1),
+          winnings: increment(prize),
+          [`history.${new Date().toISOString()}`]: player.rank
+        });
+      } else {
+        await setDoc(docRef, {
+          uid: player.uid,
+          name: player.name,
+          points,
+          games: 1,
+          buyins: 1,
+          winnings: prize,
+          history: {
+            [new Date().toISOString()]: player.rank
+          }
+        });
+      }
     }
-    .celebrate {
-      animation: rainbow 2.5s infinite alternate ease-in-out;
-    }
-    @keyframes flashRed {
-      from { background-color: #121212; }
-      to { background-color: red; }
-    }
-    @keyframes rainbow {
-      0% { background-color: red; }
-      20% { background-color: orange; }
-      40% { background-color: yellow; }
-      60% { background-color: green; }
-      80% { background-color: blue; }
-      100% { background-color: purple; }
-    }
-  </style>
-</head>
-<body>
+  };
 
-  <h1>FSOP Poker Blind Timer</h1>
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <h1 className="text-4xl font-bold text-center mb-6">FSOP Tournament League</h1>
 
-  <!-- Placeholder for app UI (login, timer, players, etc.) -->
+      {user && (
+        <div className="bg-gray-800 p-4 rounded-xl max-w-4xl mx-auto mt-8">
+          <h2 className="text-2xl font-semibold mb-4">League Table - {year}</h2>
+          <div className="mb-4">
+            <label className="block mb-2">Select Year:</label>
+            <select className="text-black p-2 rounded" value={year} onChange={(e) => setYear(Number(e.target.value))}>
+              {[...Array(5)].map((_, i) => {
+                const y = new Date().getFullYear() - i;
+                return <option key={y} value={y}>{y}</option>;
+              })}
+            </select>
+          </div>
+          <table className="w-full text-sm mt-4">
+            <thead>
+              <tr className="border-b border-gray-600">
+                <th>Name</th>
+                <th>🏅</th>
+                <th>Points</th>
+                <th>Games</th>
+                <th>Buyins</th>
+                <th>Winnings</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leagueStats.map((p, i) => (
+                <tr key={p.uid} className="border-b border-gray-700">
+                  <td>{p.name}</td>
+                  <td>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''}</td>
+                  <td>{p.points}</td>
+                  <td>{p.games}</td>
+                  <td>{p.buyins}</td>
+                  <td>${p.winnings}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-
-  <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
-      authDomain: "fsop-poker-blind-timer.firebaseapp.com",
-      projectId: "fsop-poker-blind-timer",
-      storageBucket: "fsop-poker-blind-timer.firebasestorage.app",
-      messagingSenderId: "327865291955",
-      appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-  </script>
-
-</body>
-</html>
+export default FSOPApp;

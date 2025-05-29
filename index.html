@@ -14,17 +14,22 @@
   <div class="max-w-3xl mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">FSOP Tournament App</h1>
 
-    <div id="auth-section" class="mb-6">
-      <input id="email" type="email" placeholder="Email" class="block w-full p-2 rounded text-black mb-2">
-      <input id="password" type="password" placeholder="Password" class="block w-full p-2 rounded text-black mb-2">
-      <div class="flex gap-2">
-        <button onclick="login()" class="bg-green-600 px-4 py-2 rounded">Login</button>
-        <button onclick="register()" class="bg-blue-600 px-4 py-2 rounded">Register</button>
-        <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
-      </div>
-      <button onclick="resetPassword()" class="underline text-sm mt-2">Forgot Password?</button>
-      <p id="user-email" class="mt-4 text-sm text-gray-400"></p>
-    </div>
+    <!-- Auth Section: only login/register/password/reset -->
+<div id="auth-section" class="mb-6">
+  <input id="email" type="email" placeholder="Email" class="block w-full p-2 rounded text-black mb-2">
+  <input id="password" type="password" placeholder="Password" class="block w-full p-2 rounded text-black mb-2">
+  <div class="flex gap-2">
+    <button onclick="login()" class="bg-green-600 px-4 py-2 rounded">Login</button>
+    <button onclick="register()" class="bg-blue-600 px-4 py-2 rounded">Register</button>
+  </div>
+  <button onclick="resetPassword()" class="underline text-sm mt-2">Forgot Password?</button>
+</div>
+
+<!-- User Info and Logout (visible after login) -->
+<div id="user-info" class="mb-6 hidden">
+  <p id="user-email" class="text-sm text-gray-400 mb-2"></p>
+  <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
+</div>
 
     <div id="league-table" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
       <h2 class="text-2xl font-semibold mb-4">League Standings</h2>
@@ -78,20 +83,29 @@
     auth.onAuthStateChanged(user => {
   if (user) {
     document.getElementById("auth-section").classList.add("hidden");
+    document.getElementById("user-info").classList.remove("hidden");
     document.getElementById("user-email").textContent = "Logged in as: " + user.email;
     document.getElementById("league-table").classList.remove("hidden");
     document.getElementById("player-management").classList.remove("hidden");
-    document.getElementById("blind-timer").classList.remove("hidden"); // ✅ SHOW TIMER
-
+    document.getElementById("blind-timer").classList.remove("hidden");
     loadLeagueTable(user.uid);
     loadPlayers();
-    updateBlindDisplay(); // ✅ Ensure blind timer UI is set up
+    updateBlindDisplay();
+    db.collection("timerState").doc(user.uid).get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        currentLevel = data.level ?? 0;
+        timeRemaining = data.timeRemaining ?? 600;
+        updateBlindDisplay();
+      }
+    });
   } else {
     document.getElementById("auth-section").classList.remove("hidden");
+    document.getElementById("user-info").classList.add("hidden");
     document.getElementById("user-email").textContent = "";
     document.getElementById("league-table").classList.add("hidden");
     document.getElementById("player-management").classList.add("hidden");
-    document.getElementById("blind-timer").classList.add("hidden"); // ✅ HIDE TIMER
+    document.getElementById("blind-timer").classList.add("hidden");
     document.getElementById("standings-body").innerHTML = "";
   }
 });
@@ -139,7 +153,7 @@
     }
 
   function loadPlayers() {
-  db.collection("players").get().then(snapshot => {
+  db.collection("players").onSnapshot(snapshot => {
     const list = document.getElementById("player-list");
     list.innerHTML = "";
     snapshot.forEach(doc => {
@@ -151,6 +165,7 @@
     document.getElementById("player-management").classList.remove("hidden");
   });
 }
+
 
 function addPlayer() {
   const name = document.getElementById("new-player-name").value.trim();

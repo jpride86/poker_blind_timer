@@ -156,22 +156,59 @@
         const li = document.createElement("li");
         li.className = "mb-4";
         li.innerHTML = `
-          <strong>${event.name}</strong> — ${dateStr}<br>
-          ${event.location}<br>
-          <button onclick="rsvpEvent('${eventId}')" class="mt-1 bg-blue-600 px-2 py-1 rounded text-sm">RSVP</button>
-          <span id="rsvp-status-${eventId}" class="text-sm text-green-400 ml-2"></span>
-        `;
+  <strong>${event.name}</strong> — ${dateStr}<br>
+  ${event.location}<br>
+  <button onclick="rsvpEvent('${eventId}')" class="mt-1 bg-blue-600 px-2 py-1 rounded text-sm">RSVP</button>
+  <button onclick="cancelRsvpEvent('${eventId}')" class="mt-1 bg-red-600 px-2 py-1 rounded text-sm ml-2">Cancel RSVP</button>
+  <span id="rsvp-status-${eventId}" class="text-sm ml-2"></span>
+`;
 
-        // Check if already RSVPed
-        db.collection("events").doc(eventId).collection("rsvps").doc(user.uid).get()
-          .then(rsvpDoc => {
-            if (rsvpDoc.exists) {
-              const statusSpan = li.querySelector(`#rsvp-status-${eventId}`);
-              statusSpan.textContent = "✔ RSVPed";
-            }
-          });
 
-        list.appendChild(li);
+        // Check if already RSVPed and show correct status
+db.collection("events").doc(eventId).collection("rsvps").doc(user.uid).get()
+  .then(rsvpDoc => {
+    const statusSpan = li.querySelector(`#rsvp-status-${eventId}`);
+    if (rsvpDoc.exists && statusSpan) {
+      const status = rsvpDoc.data().status;
+      if (status === "confirmed") {
+        statusSpan.textContent = "✔ Confirmed RSVP";
+        statusSpan.classList.add("text-green-400");
+      } else {
+        statusSpan.textContent = "⏳ Waitlisted";
+        statusSpan.classList.add("text-yellow-400");
+      }
+    }
+  });
+
+
+// Fetch and display confirmed and waitlisted users
+Promise.all([
+  db.collection("events").doc(eventId).collection("rsvps")
+    .where("status", "==", "confirmed")
+    .orderBy("timestamp", "asc")
+    .get(),
+  db.collection("events").doc(eventId).collection("rsvps")
+    .where("status", "==", "waitlist")
+    .orderBy("timestamp", "asc")
+    .get()
+]).then(([confirmedSnap, waitlistSnap]) => {
+  const confirmedNames = confirmedSnap.docs.map(doc => doc.data().email);
+  const waitlistNames = waitlistSnap.docs.map(doc => doc.data().email);
+
+  const listDiv = document.createElement("div");
+  listDiv.className = "mt-2 text-sm";
+
+  if (confirmedNames.length > 0) {
+    listDiv.innerHTML += `<p class="text-green-400">✔ Confirmed: ${confirmedNames.join(', ')}</p>`;
+  }
+
+  if (waitlistNames.length > 0) {
+    listDiv.innerHTML += `<p class="text-yellow-400">⏳ Waitlist: ${waitlistNames.join(', ')}</p>`;
+  }
+
+  li.appendChild(listDiv);
+  list.appendChild(li);
+});
       });
     });
 }
@@ -179,13 +216,77 @@ function rsvpEvent(eventId) {
   const user = firebase.auth().currentUser;
   if (!user) return alert("You must be logged in to RSVP.");
 
-  db.collection("events").doc(eventId).collection("rsvps").doc(user.uid).set({
-    uid: user.uid,
-    email: user.email,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
+  const eventRef = db.collection("events").doc(eventId);
+  const rsvpsRef = eventRef.collection("rsvps");
+
+  db.runTransaction(async (transaction) => {
+    const eventDoc = await transaction.get(eventRef);
+    if (!eventDoc.exists) throw "Event does not exist.";
+
+    const groupSize = eventDoc.data().groupSize || 8;
+
+    const snapshot = await rsvpsRef.orderBy("timestamp").get();
+    const rsvpCount = snapshot.size;
+
+    let status = rsvpCount < groupSize ? "confirmed" : "waitlist";
+
+    transaction.set(rsvpsRef.doc(user.uid), {
+      uid: user.uid,
+      email: user.email,
+      status,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    return status;
+  }).then(status => {
     const statusSpan = document.getElementById(`rsvp-status-${eventId}`);
-    if (statusSpan) statusSpan.textContent = "✔ RSVPed";
+    if (status === "confirmed") {
+      statusSpan.textContent = "✔ Confirmed RSVP";
+      statusSpan.classList.remove("text-yellow-400");
+      statusSpan.classList.add("text-green-400");
+    } else {
+      statusSpan.textContent = "⏳ Waitlisted";
+      statusSpan.classList.remove("text-green-400");
+      statusSpan.classList.add("text-yellow-400");
+    }
+  }).catch(error => {
+    console.error("RSVP failed:", error);
+    alert("There was a problem with your RSVP.");
+  });
+}
+function cancelRsvpEvent(eventId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("You must be logged in.");
+
+  const eventRef = db.collection("events").doc(eventId);
+  const rsvpDocRef = eventRef.collection("rsvps").doc(user.uid);
+
+  db.runTransaction(async (transaction) => {
+    const rsvpDoc = await transaction.get(rsvpDocRef);
+    if (!rsvpDoc.exists) throw "RSVP not found";
+
+    const wasConfirmed = rsvpDoc.data().status === "confirmed";
+
+    transaction.delete(rsvpDocRef);
+
+    // Promote next waitlisted user if needed
+    if (wasConfirmed) {
+      const waitlistSnapshot = await eventRef.collection("rsvps")
+        .where("status", "==", "waitlist")
+        .orderBy("timestamp", "asc")
+        .limit(1)
+        .get();
+
+      if (!waitlistSnapshot.empty) {
+        const nextInLine = waitlistSnapshot.docs[0];
+        transaction.update(nextInLine.ref, { status: "confirmed" });
+      }
+    }
+  }).then(() => {
+    loadUpcomingEvents(); // Refresh the list
+  }).catch(err => {
+    console.error("Cancel RSVP error:", err);
+    alert("Could not cancel RSVP.");
   });
 }
 

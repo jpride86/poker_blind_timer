@@ -339,6 +339,92 @@ function resetPassword() {
       alert("Failed to send reset email: " + error.message);
     });
 }
+<script>
+// Timer state variables
+let timerInterval;
+let timeRemaining = 600; // 10 minutes in seconds
+let currentLevel = 1;
+const blinds = [
+  { level: 1, value: "25 / 50" },
+  { level: 2, value: "50 / 100" },
+  { level: 3, value: "100 / 200" },
+  // Add more levels as needed
+];
+
+function updateBlindDisplay() {
+  document.getElementById("current-level").textContent = currentLevel;
+  const blind = blinds.find(b => b.level === currentLevel);
+  document.getElementById("current-blinds").textContent = blind ? blind.value : "N/A";
+  document.getElementById("time-left").textContent = formatTime(timeRemaining);
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateBlindDisplay();
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      alert("Level complete!");
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function resetTimer() {
+  pauseTimer();
+  timeRemaining = 600;
+  currentLevel = 1;
+  updateBlindDisplay();
+}
+
+function nextLevel() {
+  currentLevel++;
+  timeRemaining = 600;
+  updateBlindDisplay();
+}
+
+// Add player logic
+function addPlayer() {
+  const nameInput = document.getElementById("new-player-name");
+  const name = nameInput.value.trim();
+  if (!name) return alert("Enter a player name.");
+
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  db.collection("users").doc(user.uid).collection("players").add({ name }).then(() => {
+    nameInput.value = "";
+    loadPlayers();
+  });
+}
+
+function loadPlayers() {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  db.collection("users").doc(user.uid).collection("players").get().then(snapshot => {
+    const list = document.getElementById("player-list");
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+      const li = document.createElement("li");
+      li.textContent = doc.data().name;
+      list.appendChild(li);
+    });
+  });
+}
     
 </script>
 </body>

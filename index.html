@@ -479,8 +479,9 @@ function loadRegisteredUsers() {
     });
 }
 function createEvent() {
-  const user = firebase.auth().currentUser;
-  if (!user) return alert("You must be logged in to create an event.");
+  console.log("🟢 createEvent called");
+  alert("Create Event button is working.");
+}
 
   const name = document.getElementById("event-name").value.trim();
   const date = document.getElementById("event-date").value;

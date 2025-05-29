@@ -483,18 +483,23 @@ function createEvent() {
   if (!user) return alert("You must be logged in to create an event.");
 
   const name = document.getElementById("event-name").value.trim();
-  const date = document.getElementById("event-date").value;
+  const dateInput = document.getElementById("event-date").value;
   const location = document.getElementById("event-location").value.trim();
   const groupSize = parseInt(document.getElementById("event-group-size").value);
   const description = document.getElementById("event-description").value.trim();
 
-  if (!name || !date || !location || !groupSize) {
+  if (!name || !dateInput || !location || !groupSize) {
     return alert("Please fill in all required fields.");
+  }
+
+  const eventDate = new Date(dateInput);
+  if (isNaN(eventDate.getTime())) {
+    return alert("Invalid date format.");
   }
 
   db.collection("events").add({
     name,
-    date: new Date(date),
+    date: firebase.firestore.Timestamp.fromDate(eventDate),
     location,
     groupSize,
     description,

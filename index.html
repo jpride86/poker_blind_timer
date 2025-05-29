@@ -67,6 +67,7 @@
       <input id="event-name" type="text" placeholder="Event Name" class="block w-full p-2 mb-2 rounded text-black">
       <input id="event-date" type="datetime-local" class="block w-full p-2 mb-2 rounded text-black">
       <input id="event-location" type="text" placeholder="Location" class="block w-full p-2 mb-2 rounded text-black">
+      <input id="event-group-size" type="number" min="1" placeholder="Group Size (e.g. 8)" class="block w-full p-2 mb-2 rounded text-black">
       <textarea id="event-description" placeholder="Description (optional)" class="block w-full p-2 mb-2 rounded text-black"></textarea>
       <button onclick="createEvent()" class="bg-green-600 px-4 py-2 rounded">Create Event</button>
     </div>
@@ -132,27 +133,63 @@
     });
 
     function loadUpcomingEvents() {
-      const now = new Date();
-      db.collection("events")
-        .where("date", ">", now)
-        .orderBy("date", "asc")
-        .onSnapshot(snapshot => {
-          const list = document.getElementById("events-list");
-          list.innerHTML = "";
-          if (snapshot.empty) {
-            list.innerHTML = "<li>No upcoming events.</li>";
-            return;
-          }
+  const now = new Date();
+  const user = firebase.auth().currentUser;
 
-          snapshot.forEach(doc => {
-            const event = doc.data();
-            const dateStr = new Date(event.date.seconds * 1000).toLocaleString();
-            const li = document.createElement("li");
-            li.innerHTML = `<strong>${event.name}</strong> — ${dateStr}<br>${event.location}`;
-            list.appendChild(li);
+  db.collection("events")
+    .where("date", ">", now)
+    .orderBy("date", "asc")
+    .onSnapshot(snapshot => {
+      const list = document.getElementById("events-list");
+      list.innerHTML = "";
+
+      if (snapshot.empty) {
+        list.innerHTML = "<li>No upcoming events.</li>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        const eventId = doc.id;
+        const dateStr = new Date(event.date.seconds * 1000).toLocaleString();
+
+        const li = document.createElement("li");
+        li.className = "mb-4";
+        li.innerHTML = `
+          <strong>${event.name}</strong> — ${dateStr}<br>
+          ${event.location}<br>
+          <button onclick="rsvpEvent('${eventId}')" class="mt-1 bg-blue-600 px-2 py-1 rounded text-sm">RSVP</button>
+          <span id="rsvp-status-${eventId}" class="text-sm text-green-400 ml-2"></span>
+        `;
+
+        // Check if already RSVPed
+        db.collection("events").doc(eventId).collection("rsvps").doc(user.uid).get()
+          .then(rsvpDoc => {
+            if (rsvpDoc.exists) {
+              const statusSpan = li.querySelector(`#rsvp-status-${eventId}`);
+              statusSpan.textContent = "✔ RSVPed";
+            }
           });
-        });
-    }
+
+        list.appendChild(li);
+      });
+    });
+}
+function rsvpEvent(eventId) {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("You must be logged in to RSVP.");
+
+  db.collection("events").doc(eventId).collection("rsvps").doc(user.uid).set({
+    uid: user.uid,
+    email: user.email,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    const statusSpan = document.getElementById(`rsvp-status-${eventId}`);
+    if (statusSpan) statusSpan.textContent = "✔ RSVPed";
+  });
+}
+
+    
   </script>
 </body>
 </html>

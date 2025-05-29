@@ -30,13 +30,11 @@
     </div>
 
     <!-- Player Management -->
-    <div id="player-management" class="hidden">
-      <h2 class="text-2xl font-semibold mb-4">Players</h2>
-      <ul id="player-list" class="mb-4 list-disc pl-6 text-sm"></ul>
-      <div class="flex gap-2">
-        <input id="new-player" type="text" placeholder="Player Name" class="p-2 text-black rounded w-full">
-        <button onclick="addPlayer()" class="bg-blue-600 px-4 py-2 rounded">Add</button>
-      </div>
+<div id="player-management" class="hidden">
+  <h2 class="text-2xl font-semibold mb-4">Registered Players</h2>
+  <ul id="player-list" class="list-disc pl-6 text-sm"></ul>
+</div>
+
     </div>
 
     <!-- Blind Timer -->
@@ -97,28 +95,27 @@
       auth.signOut();
     }
 
-    function addPlayer() {
-  const nameInput = document.getElementById("new-player-name");
-  const name = nameInput.value.trim();
-  if (!name) return alert("Enter a player name.");
-
-  db.collection("sharedPlayers").add({ name }).then(() => {
-    nameInput.value = "";
-    loadPlayers();
-  });
-}
-
+    
     function loadPlayers() {
-  db.collection("sharedPlayers").orderBy("name").onSnapshot(snapshot => {
-    const list = document.getElementById("player-list");
+  const list = document.getElementById("player-list");
+
+  db.collection("registeredUsers").orderBy("createdAt", "asc").onSnapshot(snapshot => {
     list.innerHTML = "";
+
+    if (snapshot.empty) {
+      list.innerHTML = "<li>No registered players found.</li>";
+      return;
+    }
+
     snapshot.forEach(doc => {
+      const user = doc.data();
       const li = document.createElement("li");
-      li.textContent = doc.data().name;
+      li.textContent = user.email;
       list.appendChild(li);
     });
   });
 }
+
 
     let timer;
     let time = 600;

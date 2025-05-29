@@ -514,6 +514,19 @@ function createEvent() {
     alert("Failed to create event. Try again.");
   });
 }
+// Ensure functions are exposed to global scope
+window.createEvent = createEvent;
+window.login = login;
+window.register = register;
+window.resetPassword = resetPassword;
+window.logout = logout;
+window.addPlayer = addPlayer;
+window.startTimer = startTimer;
+window.pauseTimer = pauseTimer;
+window.resetTimer = resetTimer;
+window.nextLevel = nextLevel;
+window.rsvpEvent = rsvpEvent;
+window.cancelRsvpEvent = cancelRsvpEvent;
     
 </script>
 </body>

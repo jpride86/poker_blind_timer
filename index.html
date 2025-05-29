@@ -98,31 +98,27 @@
     }
 
     function addPlayer() {
-      const name = document.getElementById("new-player").value.trim();
-      if (!name) return alert("Enter a name");
-      const user = auth.currentUser;
-      if (!user) return;
+  const nameInput = document.getElementById("new-player-name");
+  const name = nameInput.value.trim();
+  if (!name) return alert("Enter a player name.");
 
-      db.collection("users").doc(user.uid).collection("players").add({ name }).then(() => {
-        document.getElementById("new-player").value = "";
-        loadPlayers();
-      });
-    }
+  db.collection("sharedPlayers").add({ name }).then(() => {
+    nameInput.value = "";
+    loadPlayers();
+  });
+}
 
     function loadPlayers() {
-      const list = document.getElementById("player-list");
-      list.innerHTML = "";
-      const user = auth.currentUser;
-      if (!user) return;
-
-      db.collection("users").doc(user.uid).collection("players").get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const li = document.createElement("li");
-          li.textContent = doc.data().name;
-          list.appendChild(li);
-        });
-      });
-    }
+  db.collection("sharedPlayers").orderBy("name").onSnapshot(snapshot => {
+    const list = document.getElementById("player-list");
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+      const li = document.createElement("li");
+      li.textContent = doc.data().name;
+      list.appendChild(li);
+    });
+  });
+}
 
     let timer;
     let time = 600;

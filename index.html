@@ -291,6 +291,14 @@ function cancelRsvpEvent(eventId) {
     alert("Could not cancel RSVP.");
   });
 }
+function logout() {
+  auth.signOut().then(() => {
+    console.log("User signed out");
+  }).catch((error) => {
+    console.error("Error signing out:", error);
+    alert("Failed to sign out.");
+  });
+}
 
     
   </script>

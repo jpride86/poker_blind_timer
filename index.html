@@ -43,6 +43,21 @@
   </div>
 </div>
 
+<!-- Blind Timer Section -->
+<div id="blind-timer" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+  <h2 class="text-2xl font-semibold mb-4">Blind Timer</h2>
+  <div class="mb-2">
+    <p class="text-lg">Current Level: <span id="current-level">1</span></p>
+    <p class="text-lg">Blinds: <span id="current-blinds">25 / 50</span></p>
+    <p class="text-lg">Time Left: <span id="time-left">10:00</span></p>
+  </div>
+  <div class="flex gap-2">
+    <button onclick="startTimer()" class="bg-green-600 px-4 py-2 rounded">Start</button>
+    <button onclick="pauseTimer()" class="bg-yellow-600 px-4 py-2 rounded">Pause</button>
+    <button onclick="nextLevel()" class="bg-blue-600 px-4 py-2 rounded">Next Level</button>
+    <button onclick="resetTimer()" class="bg-red-600 px-4 py-2 rounded">Reset</button>
+  </div>
+</div>
     
   </div>
 
@@ -62,15 +77,22 @@
 
     auth.onAuthStateChanged(user => {
   if (user) {
+    document.getElementById("auth-section").classList.add("hidden");
     document.getElementById("user-email").textContent = "Logged in as: " + user.email;
     document.getElementById("league-table").classList.remove("hidden");
+    document.getElementById("player-management").classList.remove("hidden");
+    document.getElementById("blind-timer").classList.remove("hidden"); // ✅ SHOW TIMER
+
     loadLeagueTable(user.uid);
-    loadPlayers(); // ✅ Load player list when logged in
+    loadPlayers();
+    updateBlindDisplay(); // ✅ Ensure blind timer UI is set up
   } else {
+    document.getElementById("auth-section").classList.remove("hidden");
     document.getElementById("user-email").textContent = "";
     document.getElementById("league-table").classList.add("hidden");
+    document.getElementById("player-management").classList.add("hidden");
+    document.getElementById("blind-timer").classList.add("hidden"); // ✅ HIDE TIMER
     document.getElementById("standings-body").innerHTML = "";
-    document.getElementById("player-management").classList.add("hidden"); // ✅ Hide player section when logged out
   }
 });
 
@@ -146,6 +168,63 @@ function addPlayer() {
   });
 }
 
+const blindLevels = [
+  { level: 1, sb: 25, bb: 50 },
+  { level: 2, sb: 50, bb: 100 },
+  { level: 3, sb: 100, bb: 200 },
+  { level: 4, sb: 200, bb: 400 },
+  { level: 5, sb: 400, bb: 800 }
+];
+
+let currentLevel = 0;
+let timeRemaining = 10 * 60; // 10 minutes
+let timerInterval = null;
+
+function updateBlindDisplay() {
+  const level = blindLevels[currentLevel];
+  document.getElementById("current-level").textContent = level.level;
+  document.getElementById("current-blinds").textContent = `${level.sb} / ${level.bb}`;
+  const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+  const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+  document.getElementById("time-left").textContent = `${minutes}:${seconds}`;
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateBlindDisplay();
+    } else {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      nextLevel();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function resetTimer() {
+  pauseTimer();
+  currentLevel = 0;
+  timeRemaining = 10 * 60;
+  updateBlindDisplay();
+}
+
+function nextLevel() {
+  pauseTimer();
+  if (currentLevel < blindLevels.length - 1) {
+    currentLevel++;
+    timeRemaining = 10 * 60;
+    updateBlindDisplay();
+  } else {
+    alert("Final blind level reached.");
+  }
+}
 
   
   </script>

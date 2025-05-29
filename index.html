@@ -485,11 +485,14 @@ function createEvent() {
   const name = document.getElementById("event-name").value.trim();
   const dateInput = document.getElementById("event-date").value;
   const location = document.getElementById("event-location").value.trim();
-  const groupSize = parseInt(document.getElementById("event-group-size").value);
+  const groupSize = parseInt(document.getElementById("event-group-size").value, 10);
   const description = document.getElementById("event-description").value.trim();
 
-  if (!name || !dateInput || !location || !groupSize) {
-    return alert("Please fill in all required fields.");
+  // Debug print
+  console.log({ name, dateInput, location, groupSize, description });
+
+  if (!name || !dateInput || !location || isNaN(groupSize)) {
+    return alert("Please fill in all required fields with valid data.");
   }
 
   const eventDate = new Date(dateInput);
@@ -512,11 +515,10 @@ function createEvent() {
     document.getElementById("event-location").value = "";
     document.getElementById("event-group-size").value = "";
     document.getElementById("event-description").value = "";
-
-    loadUpcomingEvents(); // Refresh event list
+    loadUpcomingEvents(); // Refresh list
   }).catch(error => {
-    console.error("Error creating event:", error);
-    alert("Failed to create event. Try again.");
+    console.error("Create Event error:", error);
+    alert("Failed to create event. Check console for details.");
   });
 }
 // Ensure functions are exposed to global scope

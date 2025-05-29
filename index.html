@@ -62,6 +62,17 @@
     <button onclick="nextLevel()" class="bg-blue-600 px-4 py-2 rounded">Next Level</button>
     <button onclick="resetTimer()" class="bg-red-600 px-4 py-2 rounded">Reset</button>
   </div>
+<!-- Event Creation Section -->
+<div id="event-creation" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+  <h2 class="text-2xl font-semibold mb-4">Create New Tournament</h2>
+  <input id="event-name" type="text" placeholder="Event Name" class="block w-full p-2 mb-2 rounded text-black">
+  <input id="event-date" type="datetime-local" class="block w-full p-2 mb-2 rounded text-black">
+  <input id="event-location" type="text" placeholder="Location" class="block w-full p-2 mb-2 rounded text-black">
+  <textarea id="event-description" placeholder="Description (optional)" class="block w-full p-2 mb-2 rounded text-black"></textarea>
+  <button onclick="createEvent()" class="bg-green-600 px-4 py-2 rounded">Create Event</button>
+</div>
+
+  
 </div>
     
   </div>
@@ -88,9 +99,12 @@
     document.getElementById("league-table").classList.remove("hidden");
     document.getElementById("player-management").classList.remove("hidden");
     document.getElementById("blind-timer").classList.remove("hidden");
+    document.getElementById("event-creation").classList.remove("hidden"); // ✅ Show event creation
+
     loadLeagueTable(user.uid);
     loadPlayers();
     updateBlindDisplay();
+
     db.collection("timerState").doc(user.uid).get().then(doc => {
       if (doc.exists) {
         const data = doc.data();
@@ -106,6 +120,7 @@
     document.getElementById("league-table").classList.add("hidden");
     document.getElementById("player-management").classList.add("hidden");
     document.getElementById("blind-timer").classList.add("hidden");
+    document.getElementById("event-creation").classList.add("hidden"); // ✅ Hide event creation
     document.getElementById("standings-body").innerHTML = "";
   }
 });
@@ -239,6 +254,38 @@ function nextLevel() {
   } else {
     alert("Final blind level reached.");
   }
+}
+function createEvent() {
+  const name = document.getElementById("event-name").value.trim();
+  const date = document.getElementById("event-date").value;
+  const location = document.getElementById("event-location").value.trim();
+  const description = document.getElementById("event-description").value.trim();
+  const createdBy = firebase.auth().currentUser?.uid;
+
+  if (!name || !date || !location) {
+    alert("Please fill out name, date, and location.");
+    return;
+  }
+
+  db.collection("events").add({
+    name,
+    date: new Date(date),
+    location,
+    description,
+    createdBy,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    alert("Event created successfully!");
+    document.getElementById("event-name").value = "";
+    document.getElementById("event-date").value = "";
+    document.getElementById("event-location").value = "";
+    document.getElementById("event-description").value = "";
+  })
+  .catch(error => {
+    console.error("Error creating event: ", error);
+    alert("Error creating event.");
+  });
 }
 
   

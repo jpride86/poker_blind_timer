@@ -478,6 +478,42 @@ function loadRegisteredUsers() {
       listContainer.classList.remove("hidden");
     });
 }
+function createEvent() {
+  const user = firebase.auth().currentUser;
+  if (!user) return alert("You must be logged in to create an event.");
+
+  const name = document.getElementById("event-name").value.trim();
+  const date = document.getElementById("event-date").value;
+  const location = document.getElementById("event-location").value.trim();
+  const groupSize = parseInt(document.getElementById("event-group-size").value);
+  const description = document.getElementById("event-description").value.trim();
+
+  if (!name || !date || !location || !groupSize) {
+    return alert("Please fill in all required fields.");
+  }
+
+  db.collection("events").add({
+    name,
+    date: new Date(date),
+    location,
+    groupSize,
+    description,
+    createdBy: user.uid,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    alert("Event created successfully!");
+    document.getElementById("event-name").value = "";
+    document.getElementById("event-date").value = "";
+    document.getElementById("event-location").value = "";
+    document.getElementById("event-group-size").value = "";
+    document.getElementById("event-description").value = "";
+
+    loadUpcomingEvents(); // Refresh event list
+  }).catch(error => {
+    console.error("Error creating event:", error);
+    alert("Failed to create event. Try again.");
+  });
+}
     
 </script>
 </body>

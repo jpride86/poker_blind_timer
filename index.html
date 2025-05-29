@@ -77,6 +77,11 @@
       <h2 class="text-2xl font-semibold mb-4">Upcoming Events</h2>
       <ul id="events-list" class="list-disc pl-5 text-sm"></ul>
     </div>
+<!-- Registered Users Section -->
+<div id="registered-users" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+  <h2 class="text-2xl font-semibold mb-4">All Registered Users</h2>
+  <ul id="registered-users-list" class="list-disc pl-5 text-sm"></ul>
+</div>
 
   </div>
 
@@ -109,6 +114,8 @@
         loadPlayers();
         updateBlindDisplay();
         loadUpcomingEvents();
+        loadRegisteredUsers(); // ✅ This makes the user list appear
+
 
         db.collection("timerState").doc(user.uid).get().then(doc => {
           if (doc.exists) {
@@ -320,7 +327,16 @@ function register() {
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(userCredential => {
-      console.log("Registered:", userCredential.user.email);
+      const user = userCredential.user;
+
+      // ✅ Save the user to Firestore under 'registeredUsers'
+      db.collection("registeredUsers").doc(user.uid).set({
+        uid: user.uid,
+        email: user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      console.log("Registered and saved:", user.email);
     })
     .catch(error => {
       console.error("Register error:", error);
@@ -424,6 +440,29 @@ function loadPlayers() {
       list.appendChild(li);
     });
   });
+}
+function loadRegisteredUsers() {
+  const listContainer = document.getElementById("registered-users");
+  const list = document.getElementById("registered-users-list");
+
+  db.collection("registeredUsers")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      list.innerHTML = "";
+      if (snapshot.empty) {
+        list.innerHTML = "<li>No registered users found.</li>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const user = doc.data();
+        const li = document.createElement("li");
+        li.textContent = user.email;
+        list.appendChild(li);
+      });
+
+      listContainer.classList.remove("hidden");
+    });
 }
     
 </script>

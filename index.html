@@ -1,9 +1,18 @@
-// FSOP App using WSOP-style point system
-
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, onSnapshot, query, increment } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  collection,
+  onSnapshot,
+  query,
+  increment,
+  getDocs
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
@@ -29,11 +38,13 @@ function calculateWSOPPoints(rank, entries) {
 const FSOPApp = () => {
   const [user, setUser] = useState(null);
   const [leagueStats, setLeagueStats] = useState([]);
+  const [playerHistory, setPlayerHistory] = useState([]);
   const [year, setYear] = useState(new Date().getFullYear());
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return () => unsubscribe();
+    const unsub = onAuthStateChanged(auth, setUser);
+    return () => unsub();
   }, []);
 
   useEffect(() => {
@@ -47,6 +58,24 @@ const FSOPApp = () => {
       });
     }
   }, [user, year]);
+
+  useEffect(() => {
+    if (user) fetchHistory();
+  }, [user]);
+
+  const fetchHistory = async () => {
+    const history = [];
+    for (let y = new Date().getFullYear(); y >= new Date().getFullYear() - 4; y--) {
+      const snapshot = await getDocs(collection(db, `league_${y}`));
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.uid === user.uid) {
+          history.push({ year: y, history: data.history });
+        }
+      });
+    }
+    setPlayerHistory(history);
+  };
 
   const updateLeague = async (finalResults, winnings) => {
     const entries = finalResults.length;
@@ -81,48 +110,96 @@ const FSOPApp = () => {
     }
   };
 
+  const clearAllState = () => {
+    localStorage.clear();
+    setAlert("Local storage cleared. App reset.");
+    setTimeout(() => window.location.reload(), 1500);
+  };
+
+  const handleLogout = () => {
+    signOut(auth);
+    setAlert("Logged out successfully.");
+    setTimeout(() => setAlert(null), 3000);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-4xl font-bold text-center mb-6">FSOP Tournament League</h1>
+    <div className="min-h-screen bg-gray-900 text-white px-4 py-6 sm:px-6 lg:px-8">
+      <header className="flex flex-col sm:flex-row justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">FSOP Tournament League</h1>
+        {user && (
+          <div className="mt-4 sm:mt-0 flex gap-2">
+            <button className="bg-yellow-600 px-4 py-2 rounded" onClick={clearAllState}>Clear All</button>
+            <button className="bg-red-600 px-4 py-2 rounded" onClick={handleLogout}>Logout</button>
+          </div>
+        )}
+      </header>
+
+      {alert && <div className="bg-blue-500 text-white p-3 rounded mb-4 text-center">{alert}</div>}
 
       {user && (
-        <div className="bg-gray-800 p-4 rounded-xl max-w-4xl mx-auto mt-8">
-          <h2 className="text-2xl font-semibold mb-4">League Table - {year}</h2>
-          <div className="mb-4">
-            <label className="block mb-2">Select Year:</label>
-            <select className="text-black p-2 rounded" value={year} onChange={(e) => setYear(Number(e.target.value))}>
-              {[...Array(5)].map((_, i) => {
-                const y = new Date().getFullYear() - i;
-                return <option key={y} value={y}>{y}</option>;
-              })}
-            </select>
-          </div>
-          <table className="w-full text-sm mt-4">
-            <thead>
-              <tr className="border-b border-gray-600">
-                <th>Name</th>
-                <th>🏅</th>
-                <th>Points</th>
-                <th>Games</th>
-                <th>Buyins</th>
-                <th>Winnings</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leagueStats.map((p, i) => (
-                <tr key={p.uid} className="border-b border-gray-700">
-                  <td>{p.name}</td>
-                  <td>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''}</td>
-                  <td>{p.points}</td>
-                  <td>{p.games}</td>
-                  <td>{p.buyins}</td>
-                  <td>${p.winnings}</td>
+        <>
+          <section className="bg-gray-800 p-4 rounded-xl max-w-4xl mx-auto mb-8">
+            <h2 className="text-2xl font-semibold mb-4">League Table - {year}</h2>
+            <div className="mb-4">
+              <label className="block mb-2">Select Year:</label>
+              <select className="text-black p-2 rounded" value={year} onChange={(e) => setYear(Number(e.target.value))}>
+                {[...Array(5)].map((_, i) => {
+                  const y = new Date().getFullYear() - i;
+                  return <option key={y} value={y}>{y}</option>;
+                })}
+              </select>
+            </div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-600">
+                  <th>Name</th>
+                  <th>🏅</th>
+                  <th>Points</th>
+                  <th>Games</th>
+                  <th>Buyins</th>
+                  <th>Winnings</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {leagueStats.map((p, i) => (
+                  <tr key={p.uid} className="border-b border-gray-700">
+                    <td>{p.name}</td>
+                    <td>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''}</td>
+                    <td>{p.points}</td>
+                    <td>{p.games}</td>
+                    <td>{p.buyins}</td>
+                    <td>${p.winnings}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+
+          <section className="max-w-3xl mx-auto bg-gray-800 p-4 rounded-xl">
+            <h2 className="text-2xl font-semibold mb-4">My Tournament History</h2>
+            {playerHistory.length === 0 ? (
+              <p>No history found.</p>
+            ) : (
+              <ul className="space-y-4">
+                {playerHistory.map((entry, idx) => (
+                  <li key={idx} className="bg-gray-700 p-3 rounded">
+                    <p className="font-bold">Year: {entry.year}</p>
+                    <ul className="list-disc list-inside">
+                      {Object.entries(entry.history).map(([date, rank]) => (
+                        <li key={date}>{new Date(date).toLocaleDateString()} - Placed #{rank}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
       )}
+
+      <footer className="text-center text-sm text-gray-400 mt-10">
+        &copy; {new Date().getFullYear()} FSOP League. All rights reserved.
+      </footer>
     </div>
   );
 };

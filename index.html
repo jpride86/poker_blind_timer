@@ -33,6 +33,17 @@
         <tbody id="standings-body"></tbody>
       </table>
     </div>
+<!-- Player Management Section -->
+<div id="player-management" class="bg-gray-800 p-4 rounded-xl mb-6 hidden">
+  <h2 class="text-2xl font-semibold mb-4">Registered Players</h2>
+  <ul id="player-list" class="mb-4 text-sm list-disc pl-5"></ul>
+  <div class="flex gap-2">
+    <input id="new-player-name" type="text" placeholder="Full Name" class="p-2 text-black rounded w-full">
+    <button onclick="addPlayer()" class="bg-blue-600 px-4 py-2 rounded">Add Player</button>
+  </div>
+</div>
+
+    
   </div>
 
   <script>
@@ -50,16 +61,19 @@
     const db = firebase.firestore();
 
     auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById("user-email").textContent = "Logged in as: " + user.email;
-        document.getElementById("league-table").classList.remove("hidden");
-        loadLeagueTable(user.uid);
-      } else {
-        document.getElementById("user-email").textContent = "";
-        document.getElementById("league-table").classList.add("hidden");
-        document.getElementById("standings-body").innerHTML = "";
-      }
-    });
+  if (user) {
+    document.getElementById("user-email").textContent = "Logged in as: " + user.email;
+    document.getElementById("league-table").classList.remove("hidden");
+    loadLeagueTable(user.uid);
+    loadPlayers(); // ✅ Load player list when logged in
+  } else {
+    document.getElementById("user-email").textContent = "";
+    document.getElementById("league-table").classList.add("hidden");
+    document.getElementById("standings-body").innerHTML = "";
+    document.getElementById("player-management").classList.add("hidden"); // ✅ Hide player section when logged out
+  }
+});
+
 
     function login() {
       const email = document.getElementById("email").value;
@@ -101,6 +115,39 @@
         });
       });
     }
+
+  function loadPlayers() {
+  db.collection("players").get().then(snapshot => {
+    const list = document.getElementById("player-list");
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const li = document.createElement("li");
+      li.textContent = data.name + " (" + data.email + ")";
+      list.appendChild(li);
+    });
+    document.getElementById("player-management").classList.remove("hidden");
+  });
+}
+
+function addPlayer() {
+  const name = document.getElementById("new-player-name").value.trim();
+  const user = firebase.auth().currentUser;
+  if (!user || !name) return alert("Missing user or name");
+
+  db.collection("players").doc(user.uid).set({
+    uid: user.uid,
+    name,
+    email: user.email
+  }).then(() => {
+    alert("Player added.");
+    loadPlayers();
+    document.getElementById("new-player-name").value = "";
+  });
+}
+
+
+  
   </script>
 </body>
 </html>

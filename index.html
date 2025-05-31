@@ -1395,28 +1395,34 @@ results.push({
 } // ✅ close saveLeagueResults
 
 function showLeagueHistory() {
-  const historyList = document.getElementById("leagueHistoryList");
-  const cumulativeList = document.getElementById("cumulativeLeaderboardList");
-  historyList.innerHTML = "";
-  cumulativeList.innerHTML = "";
-
   db.collection("leagueHistory")
-    .orderBy("date", "desc")
+    .orderBy("timestamp", "desc")
     .get()
-    .then(snapshot => {
-      if (snapshot.empty) {
-        historyList.innerHTML = "<li>No history found.</li>";
-        return;
-      }
+    .then((querySnapshot) => {
+      const leagueHistoryList = document.getElementById("leagueHistoryList");
+      leagueHistoryList.innerHTML = "";
 
-      const saved = [];
-      snapshot.forEach(doc => saved.push(doc.data()));
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const entry = document.createElement("div");
+        entry.className = "league-entry";
+        entry.innerHTML = `
+          <strong>${data.tournamentName || "Tournament"}</strong><br>
+          <em>${data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : "Unknown Time"}</em><br>
+          Players: ${data.rankings.map(r => r.name + " (" + r.rank + ")").join(", ")}<br>
+          Points: ${data.rankings.map(r => r.name + ": " + r.points).join(", ")}<br>
+          Winnings: ${data.rankings.map(r => r.name + ": $" + r.winnings).join(", ")}
+          <hr>
+        `;
+        leagueHistoryList.appendChild(entry);
+      });
 
-      renderLeagueHistory(saved);
-    })
-    .catch(error => {
-      console.error("Failed to load Firestore history:", error);
-      historyList.innerHTML = "<li>Error loading history.</li>";
+      // ✅ Ensure cumulative leaderboard gets updated
+      calculateCumulativeStats();
+
+      // ✅ Ensure visibility and button toggle state
+      document.getElementById("leagueHistoryContainer").style.display = "block";
+      document.getElementById("toggleLeagueBtn").textContent = "Hide League History";
     });
 }
 function renderLeagueHistory(saved) {

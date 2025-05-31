@@ -2,169 +2,1612 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FSOP Tournament App</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white min-h-screen p-6">
-  <div class="max-w-xl mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-6">FSOP Tournament App</h1>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FSOP Poker Blind Timer</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121212">
+  <link rel="apple-touch-icon" href="icon.png">
+  <style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #121212;
+    color: white;
+    padding: 30px;
+    transition: background-color 0.5s ease;
+  }
 
-    <!-- Auth Section -->
-    <div id="auth-section">
-      <input id="email" type="email" placeholder="Email" class="block w-full p-2 rounded text-black mb-2">
-      <input id="password" type="password" placeholder="Password" class="block w-full p-2 rounded text-black mb-2">
-      <div class="flex gap-2 mb-4">
-        <button onclick="login()" class="bg-green-600 px-4 py-2 rounded">Login</button>
-        <button onclick="register()" class="bg-blue-600 px-4 py-2 rounded">Register</button>
-      </div>
-    </div>
+  .flash {
+    animation: flashRed 1s alternate infinite;
+  }
 
-    <!-- User Info -->
-    <div id="user-info" class="hidden mb-6">
-      <p id="user-email" class="mb-2 text-sm text-gray-400"></p>
-      <button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
-    </div>
-
-    <!-- Player Management -->
-<div id="player-management" class="hidden">
-  <h2 class="text-2xl font-semibold mb-4">Registered Players</h2>
-  <ul id="player-list" class="list-disc pl-6 text-sm"></ul>
-</div>
-
-    </div>
-
-    <!-- Blind Timer -->
-    <div id="blind-timer" class="hidden mt-6">
-      <h2 class="text-2xl font-semibold mb-4">Blind Timer</h2>
-      <p class="text-lg">Time Left: <span id="timer-display">10:00</span></p>
-      <div class="flex gap-2 mt-2">
-        <button onclick="startTimer()" class="bg-green-600 px-4 py-2 rounded">Start</button>
-        <button onclick="pauseTimer()" class="bg-yellow-600 px-4 py-2 rounded">Pause</button>
-        <button onclick="resetTimer()" class="bg-red-600 px-4 py-2 rounded">Reset</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
-      authDomain: "fsop-poker-blind-timer.firebaseapp.com",
-      projectId: "fsop-poker-blind-timer",
-      storageBucket: "fsop-poker-blind-timer.appspot.com",
-      messagingSenderId: "327865291955",
-      appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById("auth-section").classList.add("hidden");
-        document.getElementById("user-info").classList.remove("hidden");
-        document.getElementById("user-email").textContent = `Logged in as: ${user.email}`;
-        document.getElementById("player-management").classList.remove("hidden");
-        document.getElementById("blind-timer").classList.remove("hidden");
-        loadPlayers();
-      } else {
-        document.getElementById("auth-section").classList.remove("hidden");
-        document.getElementById("user-info").classList.add("hidden");
-        document.getElementById("player-management").classList.add("hidden");
-        document.getElementById("blind-timer").classList.add("hidden");
-      }
-    });
-
-    function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
-    }
-
-    function register() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const user = userCredential.user;
-      return db.collection("registeredUsers").doc(user.uid).set({
-        email: user.email,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    })
-    .catch(err => alert(err.message));
+  .celebrate {
+  animation: rainbow 2.5s infinite alternate ease-in-out;
 }
 
-    function logout() {
-      auth.signOut();
-    }
+
+  @keyframes flashRed {
+    from { background-color: #121212; }
+    to { background-color: red; }
+  }
+
+  @keyframes rainbow {
+    0% { background-color: red; }
+    20% { background-color: orange; }
+    40% { background-color: yellow; }
+    60% { background-color: green; }
+    80% { background-color: blue; }
+    100% { background-color: violet; }
+  }
+
+  .timer {
+    font-size: 3em;
+    margin: 20px 0;
+  }
+
+  .level {
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+
+  button, input, select {
+    display: block;
+    padding: 10px 20px;
+    font-size: 1em;
+    margin: 10px auto;
+    width: 90%;
+    max-width: 300px;
+    box-sizing: border-box;
+  }
+
+  .player-section {
+    margin: 20px 0;
+  }
+
+  #playerList, #knockoutLog, #blindList, #payoutList {
+    margin-top: 10px;
+    list-style: none;
+    padding: 0;
+  }
+
+  #playerList li, #knockoutLog li, #blindList li {
+    margin: 8px 0;
+  }
+
+  .buyin-button, .knockout-button, .delete-button {
+    display: inline-block;
+    margin-left: 10px;
+    width: auto;
+  }
+
+  .eliminated {
+  opacity: 0.5;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+
+  #blindSetup {
+    margin-bottom: 20px;
+  }
+
+  
+  #confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+#buyInValue {
+  text-align: center;
+  font-size: 1em;
+}
+  #buyInValue,
+#smallBlind,
+#bigBlind,
+#duration {
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+}
+#savedPlayers,
+#playerName {
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+}
+#startBtn {
+  background-color: #28a745;  /* Green */
+  color: white;
+}
+
+#pauseBtn {
+  background-color: #ffc107;  /* Yellow */
+  color: black;
+}
+
+#resetBtn {
+  background-color: #007bff;  /* Blue */
+  color: white;
+}
+
+/* Optional hover effect */
+#startBtn:hover {
+  background-color: #218838;
+}
+#pauseBtn:hover {
+  background-color: #e0a800;
+}
+#resetBtn:hover {
+  background-color: #0069d9;
+}
+.knockout-button {
+  background-color: #dc3545;  /* Bootstrap-style Red */
+  color: white;
+}
+
+/* Optional hover effect */
+.knockout-button:hover {
+  background-color: #c82333;
+}
+.default-button {
+  background-color: #444;  /* Dark Gray */
+  color: white;
+  border: none;
+}
+
+.default-button:hover {
+  background-color: #555;
+}
+/* Re-buy button: neutral gray */
+.buyin-button {
+  background-color: #555;
+  color: white;
+  border: none;
+}
+
+.buyin-button:hover {
+  background-color: #666;
+}
+
+/* Knock Out / Undo KO: red */
+.knockout-button {
+  background-color: #b00020;
+  color: white;
+  border: none;
+}
+
+.knockout-button:hover {
+  background-color: #d32f2f;
+}
+
+/* Delete blind level: dark red */
+.delete-button {
+  background-color: #7b1fa2;
+  color: white;
+  border: none;
+}
+
+.delete-button:hover {
+  background-color: #9c27b0;
+}
+#playerList li span,
+#playerList li label,
+#playerList li button {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+.input-dollar-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 90%;
+  max-width: 300px;
+  margin: 10px auto;
+}
+
+.input-dollar-wrapper input {
+  padding-left: 20px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-dollar-wrapper .dollar-sign {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  color: #ccc;
+  font-weight: bold;
+  pointer-events: none;
+}
+.current-level {
+  background-color: #333;
+  padding: 6px;
+  font-weight: bold;
+}
+#startingChips {
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+}
 
     
-    function loadPlayers() {
-  const list = document.getElementById("player-list");
+</style>
 
-  db.collection("registeredUsers").orderBy("createdAt", "asc").onSnapshot(snapshot => {
-    list.innerHTML = "";
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+  <audio id="whistleSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+  <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" preload="auto"></audio>
+<!-- 🏆 Winner Banner -->
+<div id="winnerBanner" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%);
+background:gold; color:black; font-size:2em; font-weight:bold; padding:10px 20px;
+border-radius:12px; z-index:9999; box-shadow:0 0 20px gold;">
+  Winner!
+</div>
+  <h1>FSOP Poker Blind Timer</h1>
+  <button class="default-button" onclick="logout()" style="margin-bottom: 20px;">Logout</button>
+<div id="authSection" class="player-section">
+  <h2>Login</h2>
+  <input type="email" id="emailInput" placeholder="Email" />
+  <input type="password" id="passwordInput" placeholder="Password" />
+  <button class="default-button" onclick="login()">Login</button>
+  <button class="default-button" onclick="register()">Register</button>
+  <div id="authStatus" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
 
-    if (snapshot.empty) {
-      list.innerHTML = "<li>No registered players found.</li>";
+<!-- ✅ Wrap the entire rest of your app in a hidden div -->
+<div id="appSection" style="display: none;">
+
+  <!-- Tournament Info -->
+<div class="player-section">
+  <h2>Tournament Info</h2>
+  <input type="text" id="tournamentName" placeholder="Tournament Name (e.g. FSOP Week 5)" />
+</div>
+
+
+<button class="default-button" id="clearInputsBtn">Clear All Inputs</button>
+
+
+<div id="buyinSetup" class="player-section">
+  <h2>Set Buy-In Amount</h2>
+  <div class="inline-group">
+    <div class="input-dollar-wrapper">
+      <span class="dollar-sign">$</span>
+      <input type="number" id="buyInValue" placeholder="Buy-In" onchange="saveInputs()" />
+    </div>
+  </div>
+</div>
+
+<div class="player-section">
+  <h2>Dealer Setup</h2>
+  <div class="input-dollar-wrapper">
+    <span class="dollar-sign">$</span>
+    <input type="number" id="dealerFeeDealer" placeholder="Dealer Fee" />
+  </div>
+
+  <div id="dealerSelect"></div>
+  <button class="default-button" onclick="calculateDealerSplit()">Calculate Dealer Fee/Split</button>
+  <div id="dealerResult" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
+
+<div class="player-section">
+  <h2>Chip Statistics</h2>
+  <input type="number" id="startingChips" placeholder="Starting Chips (e.g. 1500)" onchange="updateChipStats()" />
+  <div id="chipStats" style="margin-top: 10px; font-weight: bold;">Total Chips: 0 | Avg Stack: 0</div>
+
+<div class="player-section">
+  <h2>Blind Levels</h2>
+
+  <button class="default-button" id="loadPresetBtn">Use Standard Structure</button>
+
+<button class="default-button" id="toggleBlindListBtn" onclick="toggleBlindList()">Hide Blind Levels</button>
+
+
+ <div id="blindSetup">
+  <input type="number" id="smallBlind" placeholder="Small Blind" onchange="saveInputs()" />
+<input type="number" id="bigBlind" placeholder="Big Blind" onchange="saveInputs()" />
+<input type="number" id="duration" placeholder="Duration (min)" onchange="saveInputs()" />
+
+   <button class="default-button" onclick="addBlindLevel()">Add Level</button>
+</div>
+
+    
+  <button id="toggleCustomBtn" class="default-button" onclick="toggleCustomBlind()">Hide Custom Blind Setup</button>
+<ul id="blindList"></ul>
+</div>
+
+<div class="player-section">
+<h2>Players</h2>
+
+<!-- Dropdown First -->
+<div style="margin-bottom: 15px;">
+  <label for="savedPlayers"><strong>Select Saved Player:</strong></label><br>
+  <select id="savedPlayers" onchange="addSavedPlayer()">
+    <option value="">-- Select Saved Player --</option>
+    <option value="Andrew">Andrew</option>
+    <option value="Cristian">Cristian</option>
+    <option value="Dan">Dan</option>
+    <option value="Eddie">Eddie</option>
+    <option value="Eduardo">Eduardo</option>
+    <option value="Fréd">Fréd</option>
+    <option value="Jamie">Jamie</option>
+    <option value="Jason">Jason</option>
+    <option value="Jeffrey J">Jeffrey J</option>
+    <option value="Jeffrey M">Jeffrey M</option>
+    <option value="Josh">Josh</option>
+    <option value="Kerwin">Kerwin</option>
+    <option value="Lisa">Lisa</option>
+    <option value="Monish">Monish</option>
+    <option value="Nima">Nima</option>
+    <option value="Paul">Paul</option>
+    <option value="Phillip">Phillip</option>
+    <option value="Rosy">Rosy</option>
+    <option value="Seamus">Seamus</option>
+    <option value="Tony">Tony</option>
+    <option value="Yevin">Yevin</option>
+  </select>
+</div>
+
+<!-- Manual Add Second -->
+<div style="margin-bottom: 15px;">
+  <label for="playerName"><strong>Or Add Player Manually:</strong></label><br>
+  <input type="text" id="playerName" placeholder="Enter player name" />
+  <button class="default-button" onclick="addPlayer()">Add Player</button>
+</div>
+
+  <div id="playersRemaining">Players remaining: 0</div>
+  <div id="totalPot">Total Pot: $0</div>
+  <button class="default-button" id="toggleAllPaidBtn">Toggle All Paid</button>
+    <ul id="playerList"></ul>
+</div>
+
+<div class="player-section">
+  <h2>League Table</h2>
+  <div id="leagueTableContainer">
+  <table id="leagueTable" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Buy-ins</th>
+        <th>Status</th>
+        <th>Dealer</th>
+        <th>Place</th>
+        <th>Points</th>
+        <th>Winnings</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+  <button class="default-button" id="toggleLeagueTableBtn" onclick="toggleLeagueTable()">Hide League Table</button>
+    <button class="default-button" id="toggleLeagueBtn" onclick="toggleLeagueHistory()">Show League History</button>
+  <button class="default-button" onclick="clearLeagueHistory()">Clear League History</button>
+  <div id="leagueHistoryContainer" style="display: none;">
+  <ul id="leagueHistoryList" style="margin-top: 10px; list-style: none;"></ul>
+  <h3>Cumulative Leaderboard</h3>
+  <ul id="cumulativeLeaderboardList" style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+</div>
+
+
+
+</div>
+
+  
+  <div class="player-section">
+    <h2>Knockout Log</h2>
+    <ul id="knockoutLog"></ul>
+  </div>
+
+<div class="player-section">
+  <h2>Payout Breakdown</h2>
+  <button class="default-button" id="showPayoutsBtn">Show Payouts</button>
+  <ul id="payoutList"></ul>
+  </div>
+
+  
+  <div class="level" id="blindLevel">Level 1: -- / --</div>
+  <div class="timer" id="countdown">00:00</div>
+<button id="startBtn" onclick="startTimer()">Start</button>
+<button id="pauseBtn" onclick="pauseTimer()">Pause</button>
+<button id="resetBtn" onclick="resetTimer()">Reset</button>
+</div> <!-- ✅ Closes #appSection -->
+
+<!-- Firebase App (classic v8 SDK) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+ 
+<script>
+  let blindStructure = [];
+  let currentLevel = 0;
+  let timeRemaining = 0;
+  let timerInterval;
+  let running = false;
+  let players = [];
+  let knockoutOrder = [];
+  let whistlePlayed = false;
+  let buyInAmount = 0;
+
+const savedPlayerNames = [
+  "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+  "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+  "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+];
+function toTitleCase(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .filter(word => word) // skip empty entries from double spaces
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+  
+  function updateTotalPot() {
+    const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+    const total = totalBuyIns * buyInAmount;
+    document.getElementById("totalPot").textContent = `Total Pot: $${total}`;
+  }
+
+  function addBlindLevel() {
+  const small = parseInt(document.getElementById("smallBlind").value);
+  const big = parseInt(document.getElementById("bigBlind").value);
+  const durationMin = parseInt(document.getElementById("duration").value);
+  const duration = durationMin * 60;
+
+  if (!isNaN(small) && !isNaN(big) && !isNaN(duration)) {
+    blindStructure.push({ level: blindStructure.length + 1, small, big, duration });
+    updateBlindList();
+    if (blindStructure.length === 1) {
+      currentLevel = 0;
+      timeRemaining = blindStructure[0].duration;
+      updateDisplay();
+    }
+  }
+}
+
+function loadStandardPreset() {
+  blindStructure = [
+    { level: 1, small: 1, big: 2, duration: 1200 },
+    { level: 2, small: 2, big: 5, duration: 1200 },
+    { level: 3, small: 5, big: 10, duration: 1200 },
+    { level: 4, small: 0, big: 0, duration: 300, break: true },
+    { level: 5, small: 10, big: 25, duration: 1200 },
+    { level: 6, small: 25, big: 50, duration: 1200 },
+    { level: 7, small: 50, big: 100, duration: 1200 },
+    { level: 8, small: 0, big: 0, duration: 300, break: true },
+    { level: 9, small: 100, big: 200, duration: 1200 },
+    { level: 10, small: 200, big: 400, duration: 1200 },
+    { level: 11, small: 250, big: 500, duration: 1200 },
+    { level: 12, small: 0, big: 0, duration: 300, break: true },
+    { level: 13, small: 500, big: 1000, duration: 1200 },
+    { level: 14, small: 1000, big: 2000, duration: 1200 },
+    { level: 15, small: 2500, big: 5000, duration: 1200 },
+  ];
+  currentLevel = 0;
+  timeRemaining = blindStructure[0].duration;
+  updateBlindList();
+  updateDisplay();
+
+  // ✅ Add this block to hide custom blinds & update toggle button
+  document.getElementById("blindSetup").style.display = "none";
+  document.getElementById("toggleCustomBtn").textContent = "Show Custom Blind Setup";
+}
+
+  function deleteBlindLevel(index) {
+    blindStructure.splice(index, 1);
+    blindStructure.forEach((b, i) => b.level = i + 1);
+    updateBlindList();
+    if (currentLevel >= blindStructure.length) {
+      currentLevel = 0;
+      timeRemaining = blindStructure.length ? blindStructure[0].duration : 0;
+      updateDisplay();
+    }
+  }
+
+  function updateBlindList() {
+  const ul = document.getElementById("blindList");
+  ul.innerHTML = "";
+
+  blindStructure.forEach((b, index) => {
+    const li = document.createElement("li");
+    li.className = (index === currentLevel) ? "current-level" : "";
+
+    li.innerHTML = b.break
+  ? `Level ${b.level}: BREAK (${Math.floor(b.duration / 60)} min) – Break and Color Change Up`
+  : `Level ${b.level}: ${b.small} (S) / ${b.big} (B) (${Math.floor(b.duration / 60)} min)`;
+
+
+
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Delete";
+    delBtn.className = "delete-button";
+    delBtn.onclick = () => deleteBlindLevel(index);
+    li.appendChild(delBtn);
+    ul.appendChild(li);
+  });
+}
+
+  function updateDisplay() {
+  if (blindStructure.length === 0) return;
+  const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+  const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+  document.getElementById("countdown").textContent = `${minutes}:${seconds}`;
+  const level = blindStructure[currentLevel];
+  const blindLevelEl = document.getElementById("blindLevel");
+
+if (level.break) {
+  blindLevelEl.textContent = `Level ${level.level}: BREAK (${Math.floor(level.duration / 60)} min) – Break and Color Change Up`;
+} else {
+  blindLevelEl.textContent = `Level ${level.level}: ${level.small} (S) / ${level.big} (B)`;
+}
+
+
+  updateBlindList(); // ✅ This keeps the highlight synced
+
+  if (timeRemaining === 60 && !whistlePlayed) {
+    document.body.classList.add("flash");
+    const whistle = document.getElementById("whistleSound");
+    whistle.volume = 1.0;
+    whistle.play().catch(e => console.log("Audio play blocked:", e));
+    whistlePlayed = true;
+  }
+}
+
+function startTimer() {
+  if (running || blindStructure.length === 0) return;
+
+  // 🚫 Check if all players have paid
+  const unpaidPlayers = players.filter(p => !p.paid);
+  if (players.length === 0 || unpaidPlayers.length > 0) {
+    alert("All players must be marked as paid before starting the timer.");
+    return;
+  }
+
+
+  // 🔊 Prime the whistle so it's allowed to play later
+  const whistle = document.getElementById("whistleSound");
+  try {
+    whistle.play();
+    whistle.pause();
+    whistle.currentTime = 0;
+  } catch (e) {
+    console.log("Priming whistle failed:", e);
+  }
+
+  // ⏭️ Advance to next level if timer is 0
+  if (timeRemaining === 0) {
+    currentLevel++;
+    if (currentLevel >= blindStructure.length) {
+      document.getElementById("countdown").textContent = "Tournament Over";
       return;
     }
+    timeRemaining = blindStructure[currentLevel].duration;
+    whistlePlayed = false;
+    document.body.classList.remove("flash");
+    updateDisplay();
+  }
 
-    snapshot.forEach(doc => {
-      const user = doc.data();
-      const li = document.createElement("li");
-      li.textContent = user.email;
-      list.appendChild(li);
+  running = true;
+
+  timerInterval = setInterval(() => {
+    if (timeRemaining > 0) {
+      timeRemaining--;
+      updateDisplay();
+
+      // 🔔 Trigger whistle and flashing at 1 minute
+      if (timeRemaining === 60 && !whistlePlayed) {
+        document.body.classList.add("flash");
+        try {
+          whistle.play();
+        } catch (e) {
+          console.log("Whistle blocked:", e);
+        }
+        whistlePlayed = true;
+      }
+
+    } else {
+      clearInterval(timerInterval);
+      running = false;
+      document.getElementById("countdown").textContent = "Level Complete – Click Start to Continue";
+    }
+  }, 1000);
+}
+
+function showPayouts() {
+  const payoutList = document.getElementById("payoutList");
+  payoutList.innerHTML = "";
+
+  if (!buyInAmount || isNaN(buyInAmount) || buyInAmount <= 0) {
+    payoutList.innerHTML = "<li>Please enter a valid buy-in amount before adding players.</li>";
+    return;
+  }
+
+  const totalPlayers = players.length;
+  const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+  const totalPot = totalBuyIns * buyInAmount;
+
+  if (totalPlayers < 1) {
+    payoutList.innerHTML = "<li>No players added yet.</li>";
+    return;
+  }
+
+  let structure = [];
+  if (totalPlayers <= 10) {
+    structure = [0.5, 0.3, 0.2];
+  } else if (totalPlayers <= 20) {
+    structure = [0.5, 0.25, 0.15, 0.10];
+  } else if (totalPlayers <= 30) {
+    structure = [0.4, 0.25, 0.2, 0.1, 0.05];
+  } else {
+    payoutList.innerHTML = "<li>Too many players for preset payout table.</li>";
+    return;
+  }
+
+  const places = ["1st", "2nd", "3rd", "4th", "5th"];
+  let payouts = structure.map(pct => totalPot * pct);
+
+  // Round down to nearest 5
+  let rounded = payouts.map(amt => Math.floor(amt / 5) * 5);
+  let totalRounded = rounded.reduce((a, b) => a + b, 0);
+  let leftover = Math.round(totalPot - totalRounded);
+
+  let i = 0;
+  while (leftover >= 5 && i < rounded.length) {
+    rounded[i] += 5;
+    leftover -= 5;
+    i++;
+  }
+
+  rounded.forEach((amt, i) => {
+    const li = document.createElement("li");
+    const percent = (structure[i] * 100).toFixed(0);
+    li.textContent = `${places[i]} Place (${percent}%): $${amt.toFixed(2)}`;
+    payoutList.appendChild(li);
+  });
+
+  const totalLi = document.createElement("li");
+  totalLi.style.marginTop = "10px";
+  totalLi.style.fontWeight = "bold";
+  totalLi.style.listStyle = "none";
+  totalLi.textContent = `Total Pot: $${totalPot.toFixed(2)}`;
+  payoutList.appendChild(totalLi);
+
+  // ✅ Add dealer split info (if valid)
+  const dealerFee = parseFloat(document.getElementById("dealerFeeDealer").value);
+  const dealers = players.filter(p => p.dealer);
+  const payingPlayers = players.filter(p => !p.dealer);
+
+  if (!isNaN(dealerFee) && dealerFee > 0 && dealers.length > 0) {
+    const totalCollected = dealerFee * payingPlayers.length;
+    const payoutPerDealer = totalCollected / dealers.length;
+    const dealerNames = dealers.map(p => p.name).join(", ");
+
+    const dealerLi = document.createElement("li");
+    dealerLi.style.listStyle = "none";
+    dealerLi.style.marginTop = "8px";
+    dealerLi.textContent = `Dealer Fee Split: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames}): $${payoutPerDealer.toFixed(2)}`;
+    payoutList.appendChild(dealerLi);
+  }
+
+  // ✅ Also show chip stats
+  const chipsPerBuyin = parseInt(document.getElementById("startingChips").value);
+  if (!isNaN(chipsPerBuyin) && chipsPerBuyin > 0) {
+    const totalChips = totalBuyIns * chipsPerBuyin;
+    const remainingPlayers = players.filter(p => !p.eliminated).length;
+    const avgChips = remainingPlayers > 0 ? Math.round(totalChips / remainingPlayers) : 0;
+
+    const chipLi = document.createElement("li");
+    chipLi.style.listStyle = "none";
+    chipLi.textContent = `Total Chips: ${totalChips.toLocaleString()} | Avg Stack: ${avgChips.toLocaleString()}`;
+    payoutList.appendChild(chipLi);
+  }
+}
+
+ function pauseTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    running = false;
+    document.body.classList.remove("flash");
+  }
+}
+
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    running = false;
+    currentLevel = 0;
+    document.body.classList.remove("flash", "celebrate");
+    clearConfetti();
+    if (blindStructure.length > 0) {
+      timeRemaining = blindStructure[0].duration;
+      updateDisplay();
+    } else {
+      document.getElementById("countdown").textContent = "00:00";
+      document.getElementById("blindLevel").textContent = "Level 1: -- / --";
+    }
+  }
+
+  function nextLevel() {
+    currentLevel++;
+    if (currentLevel >= blindStructure.length) {
+      clearInterval(timerInterval);
+      document.getElementById("countdown").textContent = "Tournament Over";
+      document.body.classList.remove("flash");
+      return;
+    }
+    timeRemaining = blindStructure[currentLevel].duration;
+    whistlePlayed = false;
+    document.body.classList.remove("flash");
+    updateDisplay();
+  }
+  function addPlayer() {
+  const nameInput = document.getElementById("playerName");
+  const rawName = nameInput.value.trim();
+  const name = toTitleCase(rawName);
+
+  if (!buyInAmount) {
+    const entered = parseFloat(document.getElementById("buyInValue").value);
+    if (!isNaN(entered) && entered > 0) {
+      buyInAmount = entered;
+    } else {
+      alert("Please enter a valid buy-in amount.");
+      return;
+    }
+  }
+
+  if (name && !players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    players.push({ name: name, buyins: 0, eliminated: false, paid: false, dealer: false });
+    updatePlayerList();
+    nameInput.value = "";
+
+    savePlayerToLocal(name);  // ✅ now passing normalized
+    updateChipStats(); 
+  }
+}
+
+function savePlayerToLocal(name) {
+  let saved = JSON.parse(localStorage.getItem("savedPlayers")) || [];
+
+  if (!saved.some(n => n.toLowerCase() === name.toLowerCase())) {
+    saved.push(name);
+    saved.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+    localStorage.setItem("savedPlayers", JSON.stringify(saved));
+
+    // 🔄 Also save to Firestore
+    db.collection("savedPlayers").add({ name: name })
+      .then(() => console.log("Saved to Firestore:", name))
+      .catch(err => console.error("Failed to save player to Firestore:", err));
+  }
+
+  refreshSavedPlayersDropdown();
+}
+
+function refreshSavedPlayersDropdown() {
+  const dropdown = document.getElementById("savedPlayers");
+
+  // Clear existing options
+  dropdown.innerHTML = `<option value="">-- Select Saved Player --</option>`;
+
+  db.collection("savedPlayers").get()
+    .then(snapshot => {
+      const firestoreNames = [];
+      snapshot.forEach(doc => {
+        const name = doc.data().name;
+        if (name && !firestoreNames.includes(name)) {
+          firestoreNames.push(name);
+        }
+      });
+
+      firestoreNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+      // Optional: sync back to localStorage for offline fallback
+      localStorage.setItem("savedPlayers", JSON.stringify(firestoreNames));
+
+      firestoreNames.forEach(name => {
+        if (!players.some(p => p.name === name)) {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          dropdown.appendChild(option);
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Error loading saved players from Firestore:", err);
     });
+}
+
+function addSavedPlayer() {
+  const select = document.getElementById("savedPlayers");
+  const name = toTitleCase(select.value.trim());
+
+  if (!buyInAmount) {
+    const entered = parseFloat(document.getElementById("buyInValue").value);
+    if (!isNaN(entered) && entered > 0) {
+      buyInAmount = entered;
+    } else {
+      alert("Please enter a valid buy-in amount.");
+      select.selectedIndex = 0;
+      return;
+    }
+  }
+
+  if (name && !players.some(p => p.name === name)) {
+    players.push({ name: name, buyins: 0, eliminated: false, paid: false, dealer: false });
+    updatePlayerList();
+
+    const selectedOption = select.querySelector(`option[value="${name}"]`);
+    if (selectedOption) {
+      selectedOption.remove();
+    }
+  }
+
+  select.selectedIndex = 0;
+}
+
+function updatePlayerList() {
+  const list = document.getElementById("playerList");
+  list.innerHTML = "";
+  players.forEach((player, index) => {
+    const li = document.createElement("li");
+    li.className = player.eliminated ? "eliminated" : "";
+
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = player.name;
+
+    // 🂡 Card icon
+    const cardIcon = document.createElement("span");
+    cardIcon.textContent = " 🂡";
+    cardIcon.title = "Dealer";
+    cardIcon.style.display = player.dealer ? "inline" : "none";
+
+    // Dealer checkbox
+   const dealerLabel = document.createElement("label");
+dealerLabel.style.marginLeft = "10px";
+dealerLabel.style.cursor = "pointer";
+
+const dealerCheckbox = document.createElement("input");
+dealerCheckbox.type = "checkbox";
+dealerCheckbox.checked = player.dealer;
+dealerCheckbox.disabled = player.eliminated;
+dealerCheckbox.style.marginRight = "5px";
+dealerCheckbox.onchange = () => {
+  player.dealer = dealerCheckbox.checked;
+  cardIcon.style.display = dealerCheckbox.checked ? "inline" : "none";
+  updatePlayerList();  // ✅ Re-render with updated status
+};
+
+
+dealerLabel.appendChild(dealerCheckbox);
+dealerLabel.appendChild(document.createTextNode("Dealer"));
+
+
+    const paidIcon = document.createElement("span");
+    paidIcon.textContent = player.paid ? "💰" : "💸";
+    paidIcon.style.cursor = "pointer";
+    paidIcon.title = player.paid ? "Click to mark unpaid" : "Click to mark paid";
+    paidIcon.style.marginLeft = "10px";
+    paidIcon.style.pointerEvents = player.eliminated ? "none" : "auto";
+    paidIcon.style.opacity = player.eliminated ? "0.5" : "1";
+    paidIcon.onclick = () => {
+  player.paid = !player.paid;
+  player.buyins = player.paid ? 1 : 0;
+  updatePlayerList();  // ✅ Re-render buy-in count and icon
+};
+
+
+    const buyinsText = document.createTextNode(` - Buy-ins: ${player.buyins}`);
+
+    // Append all UI parts in order
+    li.appendChild(nameSpan);
+    li.appendChild(cardIcon);
+    li.appendChild(dealerLabel);
+    li.appendChild(paidIcon);
+    li.appendChild(buyinsText);
+
+    const buyBtn = document.createElement("button");
+buyBtn.textContent = "+1 Re-buy";
+buyBtn.className = "buyin-button";
+buyBtn.onclick = () => addBuyin(index);
+buyBtn.disabled = player.eliminated;
+
+const koBtn = document.createElement("button");
+koBtn.textContent = player.eliminated ? "Undo KO" : "Knock Out";
+koBtn.className = "knockout-button";
+koBtn.onclick = () => toggleElimination(index);
+
+
+const removeBtn = document.createElement("button");
+removeBtn.textContent = "Remove";
+removeBtn.className = "delete-button";
+removeBtn.onclick = () => removePlayer(index);
+removeBtn.disabled = player.eliminated;
+
+
+    li.appendChild(buyBtn);
+    li.appendChild(koBtn);
+    li.appendChild(removeBtn);
+
+    list.appendChild(li);
+  });
+
+  updateRemainingCount();
+  updateKnockoutLog();
+  updateTotalPot();
+  updateChipStats();
+  updateLeagueTable(); 
+}
+
+function updateLeagueTable() {
+  const tableBody = document.querySelector("#leagueTable tbody");
+  tableBody.innerHTML = "";
+
+    // Clone and sort players by calculated points (descending)
+  const sortedPlayers = [...players].sort((a, b) => {
+    const getPoints = (p) => {
+      const index = knockoutOrder.indexOf(p.name);
+      if (!p.eliminated || index === -1 || p.buyins === 0) return 0;
+      const pos = players.length - index;
+      return 10 * Math.sqrt(players.length / pos) * (1 + Math.log10(p.buyins));
+    };
+    return getPoints(b) - getPoints(a);
+  });
+
+  sortedPlayers.forEach((p) => {
+
+    const row = document.createElement("tr");
+    row.style.textAlign = "center";
+
+    const nameCell = document.createElement("td");
+    nameCell.textContent = p.name;
+
+    const buyinsCell = document.createElement("td");
+    buyinsCell.textContent = p.buyins;
+
+    const statusCell = document.createElement("td");
+    statusCell.textContent = p.paid ? "Paid" : "Unpaid";
+
+    const dealerCell = document.createElement("td");
+    dealerCell.textContent = p.dealer ? "🂡" : "";
+
+    const placeCell = document.createElement("td");
+    const knockoutIndex = knockoutOrder.indexOf(p.name);
+    if (p.eliminated && knockoutIndex !== -1) {
+      const place = players.length - knockoutIndex;
+      placeCell.textContent = `#${place}`;
+    } else {
+      placeCell.textContent = p.eliminated ? "—" : "In";
+    }
+
+    row.appendChild(nameCell);
+    row.appendChild(buyinsCell);
+    row.appendChild(statusCell);
+    row.appendChild(dealerCell);
+    row.appendChild(placeCell);
+    
+const pointsCell = document.createElement("td");
+
+const finishIndex = knockoutOrder.indexOf(p.name);
+if (p.eliminated && finishIndex !== -1 && p.buyins > 0) {
+  const finishPos = players.length - finishIndex;
+  const points = 10 * Math.sqrt(players.length / finishPos) * (1 + Math.log10(p.buyins));
+  pointsCell.textContent = points.toFixed(2);
+} else {
+  pointsCell.textContent = "—";
+}
+
+row.appendChild(pointsCell);
+const winningsCell = document.createElement("td");
+const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+const totalPot = totalBuyIns * buyInAmount;
+
+let payout = 0;
+
+if (p.eliminated && finishIndex !== -1 && p.buyins > 0) {
+  const finishPos = players.length - finishIndex;
+  let payoutStructure = [];
+
+  if (players.length <= 10) {
+    payoutStructure = [0.5, 0.3, 0.2];
+  } else if (players.length <= 20) {
+    payoutStructure = [0.5, 0.25, 0.15, 0.10];
+  } else if (players.length <= 30) {
+    payoutStructure = [0.4, 0.25, 0.2, 0.1, 0.05];
+  }
+
+  if (finishPos <= payoutStructure.length) {
+    payout = totalPot * payoutStructure[finishPos - 1];
+    payout = Math.floor(payout / 5) * 5; // round to nearest $5
+  }
+}
+
+winningsCell.textContent = payout > 0 ? `$${payout.toFixed(2)}` : "—";
+row.appendChild(winningsCell);
+tableBody.appendChild(row);  // ✅ already existing
+
+    tableBody.appendChild(row);
   });
 }
 
 
-    let timer;
-    let time = 600;
-
-    function formatTime(t) {
-      const m = String(Math.floor(t / 60)).padStart(2, '0');
-      const s = String(t % 60).padStart(2, '0');
-      return `${m}:${s}`;
+  
+function toggleAllPaid() {
+  const allPaid = players.every(p => p.paid);
+  players.forEach(p => {
+    if (!p.eliminated) {
+      p.paid = !allPaid;
+      p.buyins = p.paid ? 1 : 0;
     }
+  });
+  updatePlayerList();
+}
 
-    function updateDisplay() {
-      document.getElementById("timer-display").textContent = formatTime(time);
+  function updateRemainingCount() {
+  const total = players.length;
+  const remaining = players.filter(p => !p.eliminated).length;
+  document.getElementById("playersRemaining").textContent = `Players remaining: ${remaining} of ${total}`;
+
+  if (remaining === 1 && total > 1) {
+    const winner = players.find(p => !p.eliminated);
+
+    // ✅ Only process winner if not already marked eliminated
+    if (!winner.eliminated) {
+      winner.eliminated = true;
+      knockoutOrder.push(winner.name);
+      updatePlayerList();      // update visuals
+      celebrateWinner(winner.name);
+      saveLeagueResults();     // now includes the winner too
     }
+  }
+}
 
-    function startTimer() {
-      if (timer) return;
-      timer = setInterval(() => {
-        if (time > 0) {
-          time--;
-          updateDisplay();
-        } else {
-          clearInterval(timer);
-          timer = null;
-          alert("Time's up!");
+
+
+  function updateKnockoutLog() {
+  const log = document.getElementById("knockoutLog");
+  log.innerHTML = "";
+  const totalPlayers = players.length;
+  knockoutOrder.forEach((name, i) => {
+    const place = totalPlayers - i;
+    const li = document.createElement("li");
+    li.textContent = `#${place}: ${name}`;
+    log.appendChild(li);
+  });
+}
+
+  function addBuyin(index) {
+    players[index].buyins++;
+    updatePlayerList();
+    updateChipStats();
+  }
+
+  function toggleElimination(index) {
+  const player = players[index];
+
+  if (player.eliminated) {
+    // Undo KO
+    player.eliminated = false;
+
+    // Correct: remove last occurrence directly
+    const knockoutIndex = knockoutOrder.lastIndexOf(player.name);
+    if (knockoutIndex !== -1) {
+      knockoutOrder.splice(knockoutIndex, 1);
+    }
+  } else {
+    // KO the player
+    player.eliminated = true;
+    knockoutOrder.push(player.name);
+  }
+
+  updatePlayerList();
+}
+
+
+
+
+  function celebrateWinner(name) {
+  alert(`${name} is the winner!`);
+  document.body.classList.add("celebrate");
+  startConfetti();
+
+  const winSound = document.getElementById("winSound");
+  winSound.play().catch(() => {});
+
+  // 🎉 Show winner banner
+  const banner = document.getElementById("winnerBanner");
+  banner.textContent = `🏆 ${name} Wins! 🏆`;
+  banner.style.display = "block";
+
+  // ⏳ Stop celebration after 10 seconds
+  setTimeout(() => {
+    document.body.classList.remove("celebrate", "flash");
+    clearConfetti();
+    banner.style.display = "none";
+  }, 10000); // 10 seconds
+}
+
+
+  // Simple confetti animation
+  let confettiInterval;
+  function startConfetti() {
+    const canvas = document.getElementById("confetti-canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext("2d");
+    let confetti = Array.from({length: 100}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * 50 + 10,
+      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+      tilt: Math.random() * 10 - 5
+    }));
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach((c, i) => {
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt, c.y);
+        ctx.lineTo(c.x, c.y + c.tilt);
+        ctx.stroke();
+        c.y += Math.cos(c.d) + 1 + c.r / 2;
+        c.x += Math.sin(0);
+        if (c.y > canvas.height) {
+          confetti[i] = {
+            x: Math.random() * canvas.width,
+            y: -10,
+            r: c.r,
+            d: c.d,
+            color: c.color,
+            tilt: c.tilt
+          };
         }
-      }, 1000);
+      });
     }
+    confettiInterval = setInterval(draw, 20);
+  }
 
-    function pauseTimer() {
-      clearInterval(timer);
-      timer = null;
+  function clearConfetti() {
+    clearInterval(confettiInterval);
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function toggleCustomBlind() {
+  const setup = document.getElementById("blindSetup");
+  const toggleBtn = document.getElementById("toggleCustomBtn");
+
+  if (setup.style.display === "none") {
+    setup.style.display = "block";
+    toggleBtn.textContent = "Hide Custom Blind Setup";
+  } else {
+    setup.style.display = "none";
+    toggleBtn.textContent = "Show Custom Blind Setup";
+  }
+}
+window.addEventListener("DOMContentLoaded", () => {
+  const initialDefaults = [
+    "Andrew", "Cristian", "Dan", "Eddie", "Eduardo", "Fréd", "Jamie", "Jason",
+    "Jeffrey J", "Jeffrey M", "Josh", "Kerwin", "Lisa", "Monish", "Nima",
+    "Paul", "Phillip", "Rosy", "Seamus", "Tony", "Yevin"
+  ];
+
+  const existing = JSON.parse(localStorage.getItem("savedPlayers"));
+  if (!existing || !Array.isArray(existing)) {
+    localStorage.setItem("savedPlayers", JSON.stringify(initialDefaults));
+  }
+
+  refreshSavedPlayersDropdown();
+  loadInputs();
+});
+
+function toggleBlindList() {
+  const list = document.getElementById("blindList");
+  const btn = document.getElementById("toggleBlindListBtn");
+
+  if (list.style.display === "none") {
+    list.style.display = "block";
+    btn.textContent = "Hide Blind Levels";
+  } else {
+    list.style.display = "none";
+    btn.textContent = "Show Blind Levels";
+  }
+}
+
+function removePlayer(index) {
+  players.splice(index, 1);               // Remove from player list
+  updatePlayerList();                     // Refresh UI
+  refreshSavedPlayersDropdown();          // Rebuild dropdown
+  updateChipStats();
+}
+
+function calculateDealerSplit() {
+  const dealerFee = parseFloat(document.getElementById("dealerFeeDealer").value);
+  if (isNaN(dealerFee) || dealerFee <= 0) {
+    alert("Please enter a valid dealer fee.");
+    return;
+  }
+
+  const dealers = players.filter(p => p.dealer);
+  if (dealers.length === 0) {
+    alert("Please mark at least one player as a dealer.");
+    return;
+  }
+
+  const payingPlayers = players.filter(p => !p.dealer);
+  const totalCollected = dealerFee * payingPlayers.length;
+  const payoutPerDealer = totalCollected / dealers.length;
+
+  const dealerNames = dealers.map(p => p.name).join(", ");
+  const resultText = `Total: $${totalCollected.toFixed(2)} | Each Dealer (${dealerNames}): $${payoutPerDealer.toFixed(2)}`;
+  document.getElementById("dealerResult").textContent = resultText;
+}
+function saveInputs() {
+  const inputData = {
+    buyInValue: document.getElementById("buyInValue").value,
+    smallBlind: document.getElementById("smallBlind").value,
+    bigBlind: document.getElementById("bigBlind").value,
+    duration: document.getElementById("duration").value,
+    startingChips: document.getElementById("startingChips").value
+  };
+  localStorage.setItem("pokerInputs", JSON.stringify(inputData));
+}
+
+function loadInputs() {
+  const saved = JSON.parse(localStorage.getItem("pokerInputs"));
+  if (!saved) return;
+
+  document.getElementById("buyInValue").value = saved.buyInValue || "";
+  document.getElementById("smallBlind").value = saved.smallBlind || "";
+  document.getElementById("bigBlind").value = saved.bigBlind || "";
+  document.getElementById("duration").value = saved.duration || "";
+  document.getElementById("startingChips").value = saved.startingChips || ""; // ADD THIS
+  updateChipStats(); // Ensure stats show immediately
+}
+function clearAllInputs() {
+  if (!confirm("Are you sure you want to reset everything?")) return;
+
+  // Clear localStorage
+  localStorage.removeItem("pokerInputs");
+
+  // Clear input fields
+  document.getElementById("tournamentName").value = "";
+  document.getElementById("buyInValue").value = "";
+  document.getElementById("smallBlind").value = "";
+  document.getElementById("bigBlind").value = "";
+  document.getElementById("duration").value = "";
+  document.getElementById("dealerFeeDealer").value = "";
+  document.getElementById("chipStats").textContent = "Total Chips: 0 | Avg Stack: 0";
+document.getElementById("startingChips").value = "";
+updateChipStats(); 
+
+  // Reset all state variables
+  blindStructure = [];
+  currentLevel = 0;
+  timeRemaining = 0;
+  buyInAmount = 0;
+  players = [];
+  knockoutOrder = [];
+  whistlePlayed = false;
+  running = false;
+
+  // Clear all intervals and visuals
+  clearInterval(timerInterval);
+  document.body.classList.remove("flash", "celebrate");
+  clearConfetti();
+
+  // Reset display
+  document.getElementById("countdown").textContent = "00:00";
+  document.getElementById("blindLevel").textContent = "Level 1: -- / --";
+  document.getElementById("playerList").innerHTML = "";
+  document.getElementById("knockoutLog").innerHTML = "";
+  document.getElementById("blindList").innerHTML = "";
+  document.getElementById("payoutList").innerHTML = "";
+  document.getElementById("dealerResult").textContent = "";
+  document.getElementById("playersRemaining").textContent = "Players remaining: 0";
+  document.getElementById("totalPot").textContent = "Total Pot: $0";
+  document.getElementById("blindSetup").style.display = "block";
+  document.getElementById("toggleCustomBtn").textContent = "Hide Custom Blind Setup";
+
+
+  // Rebuild saved player dropdown
+  refreshSavedPlayersDropdown();
+}
+
+function updateChipStats() {
+  const chipsPerBuyin = parseInt(document.getElementById("startingChips").value);
+  if (isNaN(chipsPerBuyin) || chipsPerBuyin <= 0) {
+    document.getElementById("chipStats").textContent = "Enter a valid chip amount.";
+    return;
+  }
+
+  const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+  const totalChips = totalBuyIns * chipsPerBuyin;
+  const remainingPlayers = players.filter(p => !p.eliminated).length;
+  const avgChips = remainingPlayers > 0 ? Math.round(totalChips / remainingPlayers) : 0;
+
+  document.getElementById("chipStats").textContent =
+    `Total Chips: ${totalChips.toLocaleString()} | Avg Stack: ${avgChips.toLocaleString()}`;
+}
+
+function saveLeagueResults() {
+  const results = [];
+
+  const tournamentName = document.getElementById("tournamentName")?.value.trim() || "Unnamed Tournament";
+  const timestamp = new Date().toISOString();
+
+  players.forEach((p) => {
+    const knockoutIndex = knockoutOrder.indexOf(p.name);
+    if (p.eliminated && knockoutIndex !== -1 && p.buyins > 0) {
+      const finishPosition = players.length - knockoutIndex;
+      const points = 10 * Math.sqrt(players.length / finishPosition) * (1 + Math.log10(p.buyins));
+
+      // ⬇ Add winnings calculation just above the push:
+let payout = 0;
+const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
+const totalPot = totalBuyIns * buyInAmount;
+
+let structure = [];
+if (players.length <= 10) {
+  structure = [0.5, 0.3, 0.2];
+} else if (players.length <= 20) {
+  structure = [0.5, 0.25, 0.15, 0.10];
+} else if (players.length <= 30) {
+  structure = [0.4, 0.25, 0.2, 0.1, 0.05];
+}
+if (finishPosition <= structure.length) {
+  payout = Math.floor((totalPot * structure[finishPosition - 1]) / 5) * 5;
+}
+
+results.push({
+  name: p.name,
+  buyins: p.buyins,
+  finish: finishPosition,
+  points: parseFloat(points.toFixed(2)),
+  winnings: payout, // ✅ new
+  tournament: tournamentName,
+  date: timestamp
+});
+
     }
+  });
 
-    function resetTimer() {
-      pauseTimer();
-      time = 600;
-      updateDisplay();
+    // Optional: Still save to localStorage for offline fallback
+  const existing = JSON.parse(localStorage.getItem("fsopLeagueResults")) || [];
+  const allResults = existing.concat(results);
+  localStorage.setItem("fsopLeagueResults", JSON.stringify(allResults));
+
+  // NEW: Also save to Firebase Firestore
+  results.forEach(entry => {
+    db.collection("leagueHistory").add(entry)
+      .then(() => console.log("Saved to Firestore:", entry))
+      .catch(err => console.error("Firestore save failed:", err));
+  });
+} // ✅ close saveLeagueResults
+
+function showLeagueHistory() {
+  const historyList = document.getElementById("leagueHistoryList");
+  const cumulativeList = document.getElementById("cumulativeLeaderboardList");
+  historyList.innerHTML = "";
+  cumulativeList.innerHTML = "";
+
+  db.collection("leagueHistory")
+    .orderBy("date", "desc")
+    .get()
+    .then(snapshot => {
+      if (snapshot.empty) {
+        historyList.innerHTML = "<li>No history found.</li>";
+        return;
+      }
+
+      const saved = [];
+      snapshot.forEach(doc => saved.push(doc.data()));
+
+      renderLeagueHistory(saved);
+    })
+    .catch(error => {
+      console.error("Failed to load Firestore history:", error);
+      historyList.innerHTML = "<li>Error loading history.</li>";
+    });
+}
+function renderLeagueHistory(saved) {
+  const historyList = document.getElementById("leagueHistoryList");
+  const cumulativeList = document.getElementById("cumulativeLeaderboardList");
+  historyList.innerHTML = "";
+  cumulativeList.innerHTML = "";
+
+  // 🗂️ Group results by player name
+  const grouped = {};
+  saved.forEach(entry => {
+    if (!grouped[entry.name]) grouped[entry.name] = [];
+    grouped[entry.name].push(entry);
+  });
+
+  Object.keys(grouped).sort().forEach(name => {
+    const playerHeader = document.createElement("li");
+    playerHeader.innerHTML = `<strong>${name}</strong>`;
+    playerHeader.style.marginTop = "15px";
+    historyList.appendChild(playerHeader);
+
+    const playerEntries = grouped[name].sort((a, b) => new Date(b.date) - new Date(a.date));
+    playerEntries.forEach(entry => {
+      const li = document.createElement("li");
+      const dateFormatted = new Date(entry.date).toLocaleDateString();
+      const medals = ["🥇", "🥈", "🥉"];
+      const medal = entry.finish <= 3 ? medals[entry.finish - 1] + " " : "";
+      li.innerHTML = `${medal}<em>${entry.tournament}</em> — ${entry.finish}${getOrdinalSuffix(entry.finish)} place, ${entry.points.toFixed(2)} pts (${entry.buyins} buy-in${entry.buyins > 1 ? "s" : ""}) – ${dateFormatted}`;
+      li.style.marginLeft = "15px";
+      historyList.appendChild(li);
+    });
+  });
+
+  // 🏁 Cumulative leaderboard
+  const totals = {};
+  saved.forEach(entry => {
+    if (!totals[entry.name]) {
+      totals[entry.name] = { points: 0, games: 0, winnings: 0 };
     }
+    totals[entry.name].points += entry.points;
+    totals[entry.name].games += 1;
+    totals[entry.name].winnings += entry.winnings || 0;
+  });
 
-    updateDisplay();
-  </script>
+  const sortedNames = Object.keys(totals).sort((a, b) => totals[b].points - totals[a].points);
+  sortedNames.forEach((name, index) => {
+    const li = document.createElement("li");
+    const medals = ["🥇", "🥈", "🥉"];
+    const medal = index < 3 ? medals[index] + " " : "";
+    li.textContent = `${medal}${name}: ${totals[name].points.toFixed(2)} pts, $${totals[name].winnings.toFixed(2)} winnings over ${totals[name].games} game${totals[name].games > 1 ? "s" : ""}`;
+    if (index < 3) li.style.fontWeight = "bold";
+    cumulativeList.appendChild(li);
+  });
+}
+function getOrdinalSuffix(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+}
+
+function clearLeagueHistory() {
+  const correctPin = "1865"; // 🔐 Set your PIN here
+
+  const pin = prompt("Enter PIN to clear league history:");
+  if (pin !== correctPin) {
+    alert("Incorrect PIN. Action denied.");
+    return;
+  }
+
+  if (confirm("Are you sure you want to delete all saved league history?")) {
+    localStorage.removeItem("fsopLeagueResults");
+    document.getElementById("leagueHistoryList").innerHTML = "<li>History cleared.</li>";
+    document.getElementById("cumulativeLeaderboardList").innerHTML = "";
+  }
+}
+
+  
+function toggleLeagueHistory() {
+  const container = document.getElementById("leagueHistoryContainer");
+  const btn = document.getElementById("toggleLeagueBtn");
+
+  if (container.style.display === "none") {
+    showLeagueHistory();  // Load and show
+    container.style.display = "block";
+    btn.textContent = "Hide League History";
+  } else {
+    container.style.display = "none";
+    btn.textContent = "Show League History";
+  }
+}
+
+function toggleLeagueTable() {
+  const container = document.getElementById("leagueTableContainer");
+  const btn = document.getElementById("toggleLeagueTableBtn");
+
+  if (container.style.display === "none") {
+    container.style.display = "block";
+    btn.textContent = "Hide League Table";
+  } else {
+    container.style.display = "none";
+    btn.textContent = "Show League Table";
+  }
+}
+
+  
+</script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDw-MxHBo6EYJwsFD67MPMZWZerX5Zq-9A",
+    authDomain: "fsop-poker-blind-timer.firebaseapp.com",
+    projectId: "fsop-poker-blind-timer",
+    storageBucket: "fsop-poker-blind-timer.firebasestorage.app",
+    messagingSenderId: "327865291955",
+    appId: "1:327865291955:web:a3788ac8a27d98952a0cc6"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore(); // You can now use `db` to interact with Firestore
+  const auth = firebase.auth();
+
+  function login() {
+    const email = document.getElementById("emailInput").value;
+    const password = document.getElementById("passwordInput").value;
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById("authStatus").textContent = "✅ Logged in!";
+        enableAppFeatures();
+      })
+      .catch(error => {
+        document.getElementById("authStatus").textContent = `❌ Login failed: ${error.message}`;
+      });
+  }
+
+  function register() {
+    const email = document.getElementById("emailInput").value;
+    const password = document.getElementById("passwordInput").value;
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById("authStatus").textContent = "✅ Registered and logged in!";
+        enableAppFeatures();
+      })
+      .catch(error => {
+        document.getElementById("authStatus").textContent = `❌ Registration failed: ${error.message}`;
+      });
+  }
+
+ function enableAppFeatures() {
+  document.getElementById("authSection").style.display = "none";
+  document.getElementById("appSection").style.display = "block";
+
+  const bindOnce = (id, handler) => {
+    const btn = document.getElementById(id);
+    if (btn && !btn.dataset.bound) {
+      btn.addEventListener("click", handler);
+      btn.dataset.bound = "true"; // prevent rebinding
+    }
+  };
+
+  // ✅ Rebind all buttons that previously used onclick
+  bindOnce("loadPresetBtn", loadStandardPreset);
+  bindOnce("clearInputsBtn", clearAllInputs);
+  bindOnce("toggleAllPaidBtn", toggleAllPaid);
+  bindOnce("showPayoutsBtn", showPayouts);
+  bindOnce("toggleLeagueBtn", toggleLeagueHistory);
+  bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
+}
+
+
+ function logout() {
+    auth.signOut()
+      .then(() => {
+        document.getElementById("authStatus").textContent = "Logged out.";
+        document.getElementById("authSection").style.display = "block";
+        document.getElementById("appSection").style.display = "none";
+      })
+      .catch(error => {
+        alert("Logout failed: " + error.message);
+      });
+  }
+  
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById("authStatus").textContent = `✅ Logged in as ${user.email}`;
+      enableAppFeatures();
+    } else {
+      document.getElementById("authSection").style.display = "block";
+      document.getElementById("appSection").style.display = "none";
+    }
+  });
+</script>
 </body>
 </html>
+

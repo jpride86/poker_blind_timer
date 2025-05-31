@@ -1089,22 +1089,27 @@ function toggleAllPaid() {
   }
 
   function toggleElimination(index) {
-  const player = players[index];
+  players[index].eliminated = !players[index].eliminated;
+  updatePlayerList();
+  updateChipStats();
 
-  if (player.eliminated) {
-    // Undo KO
-    player.eliminated = false;
-
-    // Correct: remove last occurrence directly
-    const knockoutIndex = knockoutOrder.lastIndexOf(player.name);
-    if (knockoutIndex !== -1) {
-      knockoutOrder.splice(knockoutIndex, 1);
-    }
-  } else {
-    // KO the player
-    player.eliminated = true;
-    knockoutOrder.push(player.name);
+  // ✅ Add to knockout order if just eliminated
+  const name = players[index].name;
+  if (players[index].eliminated && !knockoutOrder.includes(name)) {
+    knockoutOrder.push(name);
+  } else if (!players[index].eliminated && knockoutOrder.includes(name)) {
+    knockoutOrder = knockoutOrder.filter(n => n !== name);
   }
+
+  // ✅ Auto-save when only one player remains
+  const activePlayers = players.filter(p => !p.eliminated);
+  if (activePlayers.length === 1) {
+    console.log("Last player remains. Saving results...");
+    saveLeagueResults();
+  }
+
+  saveTournamentState(); // keep sync with Firestore
+}
 
   updatePlayerList();
 }
@@ -1340,59 +1345,40 @@ function updateChipStats() {
 }
 
 function saveLeagueResults() {
-  const results = [];
-
-  const tournamentName = document.getElementById("tournamentName")?.value.trim() || "Unnamed Tournament";
-  const timestamp = new Date().toISOString();
-
-  players.forEach((p) => {
-    const knockoutIndex = knockoutOrder.indexOf(p.name);
-    if (p.eliminated && knockoutIndex !== -1 && p.buyins > 0) {
-      const finishPosition = players.length - knockoutIndex;
-      const points = 10 * Math.sqrt(players.length / finishPosition) * (1 + Math.log10(p.buyins));
-
-      // ⬇ Add winnings calculation just above the push:
-let payout = 0;
-const totalBuyIns = players.reduce((sum, p) => sum + p.buyins, 0);
-const totalPot = totalBuyIns * buyInAmount;
-
-let structure = [];
-if (players.length <= 10) {
-  structure = [0.5, 0.3, 0.2];
-} else if (players.length <= 20) {
-  structure = [0.5, 0.25, 0.15, 0.10];
-} else if (players.length <= 30) {
-  structure = [0.4, 0.25, 0.2, 0.1, 0.05];
-}
-if (finishPosition <= structure.length) {
-  payout = Math.floor((totalPot * structure[finishPosition - 1]) / 5) * 5;
-}
-
-results.push({
-  name: p.name,
-  buyins: p.buyins,
-  finish: finishPosition,
-  points: parseFloat(points.toFixed(2)),
-  winnings: payout, // ✅ new
-  tournament: tournamentName,
-  date: timestamp
-});
-
-    }
+  const playersCopy = [...players];
+  playersCopy.sort((a, b) => {
+    const aIndex = knockoutOrder.indexOf(a.name);
+    const bIndex = knockoutOrder.indexOf(b.name);
+    return bIndex - aIndex;
   });
 
-    // Optional: Still save to localStorage for offline fallback
-  const existing = JSON.parse(localStorage.getItem("fsopLeagueResults")) || [];
-  const allResults = existing.concat(results);
-  localStorage.setItem("fsopLeagueResults", JSON.stringify(allResults));
-
-  // NEW: Also save to Firebase Firestore
-  results.forEach(entry => {
-    db.collection("leagueHistory").add(entry)
-      .then(() => console.log("Saved to Firestore:", entry))
-      .catch(err => console.error("Firestore save failed:", err));
+  const rankings = playersCopy.map((player, index) => {
+    const rank = index + 1;
+    const points = Math.max(players.length - index, 1);
+    const winnings = player.winnings || 0;
+    return {
+      name: player.name,
+      rank,
+      points,
+      winnings
+    };
   });
-} // ✅ close saveLeagueResults
+
+  const entry = {
+    tournamentName: document.getElementById("tournamentName").value || "Unnamed Tournament",
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    rankings: rankings
+  };
+
+  db.collection("leagueHistory").add(entry)
+    .then(() => {
+      console.log("League result saved:", entry);
+      showLeagueHistory();
+    })
+    .catch((err) => {
+      console.error("Error saving league result:", err);
+    });
+}
 
 function showLeagueHistory() {
   db.collection("leagueHistory")

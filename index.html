@@ -1572,17 +1572,21 @@ function toggleLeagueTable() {
     const btn = document.getElementById(id);
     if (btn && !btn.dataset.bound) {
       btn.addEventListener("click", handler);
-      btn.dataset.bound = "true"; // prevent rebinding
+      btn.dataset.bound = "true";
     }
   };
 
-  // ✅ Rebind all buttons that previously used onclick
+  // ✅ Rebind buttons
   bindOnce("loadPresetBtn", loadStandardPreset);
   bindOnce("clearInputsBtn", clearAllInputs);
   bindOnce("toggleAllPaidBtn", toggleAllPaid);
   bindOnce("showPayoutsBtn", showPayouts);
   bindOnce("toggleLeagueBtn", toggleLeagueHistory);
   bindOnce("toggleLeagueTableBtn", toggleLeagueTable);
+
+  // ✅ Sync from Firestore
+  refreshSavedPlayersDropdown();
+  showLeagueHistory(); // or call toggleLeagueHistory() if you want to show UI too
 }
 
 
